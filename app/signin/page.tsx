@@ -3,172 +3,169 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import { validateEmail } from '@/lib/utils'
 
 export default function SigninPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [generalError, setGeneralError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    setError('')
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    if (!email) {
+      newErrors.email = 'Email is required'
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'Invalid email address'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    setGeneralError('')
+    setSuccessMessage('')
 
-    if (!formData.email || !formData.password) {
-      setError('Email and password are required')
+    if (!validateForm()) {
       return
     }
 
     setIsLoading(true)
 
     try {
-      // For demo purposes - in production, integrate with Supabase Auth
-      sessionStorage.setItem('signupEmail', formData.email)
-      sessionStorage.setItem('signupName', 'Welcome User')
-      router.push('/dashboard')
-    } catch (err) {
-      console.error('[v0] Signin error:', err)
-      setError('Invalid email or password')
+      // Send OTP for signin
+      const otpResponse = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const otpData = await otpResponse.json()
+
+      if (!otpResponse.ok) {
+        setGeneralError(otpData.error || 'Failed to send verification code')
+        setIsLoading(false)
+        return
+      }
+
+      // Store email for verification
+      sessionStorage.setItem('signinEmail', email)
+      setSuccessMessage('Verification code sent to your email!')
+      
+      // Redirect to verification
+      setTimeout(() => {
+        router.push('/verify-email')
+      }, 1500)
+    } catch (error) {
+      console.error('[v0] Signin error:', error)
+      setGeneralError('Network error. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleBack = () => {
+    router.back()
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0000ff] to-[#4f46e5] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        {/* Glass Card */}
-        <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white border-opacity-20">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-blue-600 mb-2">BLUEPAY</h1>
-            <p className="text-gray-600 text-sm">Sign In to Your Account</p>
-          </div>
+    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-start pt-8 px-4">
+      <div className="w-full max-w-md flex flex-col">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
+            BLUEPAY
+          </h1>
+          <p className="text-4xl font-bold text-white drop-shadow-lg mb-6">
+            PRO V30
+          </p>
+          <div className="w-full h-1 bg-white rounded-full" />
+        </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-red-600 text-sm">{error}</p>
-            </div>
-          )}
+        {/* Sign In Card */}
+        <div className="bg-white rounded-3xl p-8 mb-6 shadow-2xl">
+          {/* Title */}
+          <h2 className="text-4xl font-bold text-[#0000ff] text-center mb-2">
+            Sign In
+          </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
+          {/* Subtitle */}
+          <p className="text-center text-gray-600 text-base mb-6">
+            Enter your email to receive a verification code
+          </p>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email Label */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-2 text-sm">
+              <label className="block text-gray-800 font-semibold mb-2">
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 bg-gray-50 focus:outline-none focus:border-blue-600 transition"
-                />
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (errors.email) setErrors({ ...errors, email: '' })
+                }}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent transition-all"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
+            </div>
+
+            {/* General Error */}
+            {generalError && (
+              <div className="bg-red-100 border border-red-300 rounded-lg p-4 text-red-700 text-sm">
+                {generalError}
               </div>
-            </div>
+            )}
 
-            {/* Password */}
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2 text-sm">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Your password"
-                  className="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-gray-200 bg-gray-50 focus:outline-none focus:border-blue-600 transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
+            {/* Success Message */}
+            {successMessage && (
+              <div className="bg-green-100 border border-green-300 rounded-lg p-4 text-green-700 text-sm">
+                {successMessage}
               </div>
-            </div>
+            )}
 
-            {/* Remember & Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2">
-                <input type="checkbox" className="rounded" />
-                <span className="text-gray-600">Remember me</span>
-              </label>
-              <Link href="#" className="text-blue-600 hover:text-blue-700 font-semibold">
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Sign In Button */}
+            {/* Continue Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+              className="w-full px-6 py-4 bg-[#0000ff] text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
             >
-              {isLoading ? 'Signing In...' : 'SIGN IN'}
+              {isLoading ? 'Sending Code...' : 'Continue'}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          {/* Social Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button className="flex items-center justify-center py-2 border-2 border-gray-200 rounded-lg hover:border-blue-600 hover:bg-blue-50 transition">
-              <span className="text-sm font-semibold text-gray-700">Google</span>
-            </button>
-            <button className="flex items-center justify-center py-2 border-2 border-gray-200 rounded-lg hover:border-blue-600 hover:bg-blue-50 transition">
-              <span className="text-sm font-semibold text-gray-700">Apple</span>
-            </button>
-          </div>
-
           {/* Sign Up Link */}
-          <div className="text-center mt-6">
-            <p className="text-gray-600 text-sm">
-              Don&apos;t have an account?{' '}
-              <Link
-                href="/signup"
-                className="font-bold text-blue-600 hover:text-blue-700"
-              >
-                Sign Up
-              </Link>
-            </p>
-          </div>
+          <p className="text-center text-gray-700 text-base mt-6">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/signup"
+              className="font-bold text-[#0000ff] hover:underline transition-colors"
+            >
+              Sign Up
+            </Link>
+          </p>
         </div>
+
+        {/* Back Button */}
+        <button
+          onClick={handleBack}
+          className="w-full px-6 py-4 bg-white text-[#0000ff] font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+        >
+          <ArrowLeft size={20} />
+          Back
+        </button>
       </div>
     </div>
   )
