@@ -94,21 +94,21 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md">
         {/* Welcome heading */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
+        <div className="text-center mb-5 sm:mb-8">
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
             Welcome!
           </h1>
-          <p className="text-lg text-white drop-shadow-lg leading-relaxed">
-            Prepare your account and unlock seamless access to affordable airtime and data purchases, instant fund transfers, and discounted bill payments. Experience financial convenience like never before.
+          <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
+            Create your account to access airtime, data, transfers, and bill payments instantly.
           </p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 mb-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Full Name Input */}
             <div>
               <input
@@ -119,10 +119,10 @@ export default function SignupPage() {
                   setFullName(e.target.value)
                   if (errors.fullName) setErrors({ ...errors, fullName: '' })
                 }}
-                className="w-full px-6 py-4 bg-blue-600/40 border border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600/40 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.fullName && (
-                <p className="text-red-200 text-sm mt-1">{errors.fullName}</p>
+                <p className="text-red-200 text-xs sm:text-sm mt-1">{errors.fullName}</p>
               )}
             </div>
 
@@ -136,23 +136,23 @@ export default function SignupPage() {
                   setEmail(e.target.value)
                   if (errors.email) setErrors({ ...errors, email: '' })
                 }}
-                className="w-full px-6 py-4 bg-blue-600/40 border border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600/40 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.email && (
-                <p className="text-red-200 text-sm mt-1">{errors.email}</p>
+                <p className="text-red-200 text-xs sm:text-sm mt-1">{errors.email}</p>
               )}
             </div>
 
             {/* General Error */}
             {generalError && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-200 text-sm">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-200 text-xs sm:text-sm">
                 {generalError}
               </div>
             )}
 
             {/* Success Message */}
             {successMessage && (
-              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-green-200 text-sm">
+              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-green-200 text-xs sm:text-sm">
                 {successMessage}
               </div>
             )}
@@ -161,21 +161,21 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full px-6 py-4 bg-white text-[#0000ff] font-bold text-lg rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-[#0000ff] font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
             >
               {isLoading ? 'Creating Account...' : 'CREATE ACCOUNT'}
             </button>
           </form>
 
           {/* Terms & Conditions */}
-          <p className="text-center text-white text-sm mt-6 drop-shadow-lg leading-relaxed">
-            We&apos;ll send a verification code to your email. Any further actions indicate that you agree with our{' '}
-            <span className="font-semibold">terms & conditions</span>!
+          <p className="text-center text-white text-xs sm:text-sm mt-4 sm:mt-6 drop-shadow-lg leading-relaxed">
+            We&apos;ll send a verification code to your email. By continuing, you agree to our{' '}
+            <span className="font-semibold">terms & conditions</span>
           </p>
         </div>
 
         {/* Sign In Link */}
-        <p className="text-center text-white text-base drop-shadow-lg">
+        <p className="text-center text-white text-xs sm:text-sm drop-shadow-lg">
           Already have an account?{' '}
           <Link href="/signin" className="font-bold underline hover:text-gray-100 transition-colors">
             Sign In
