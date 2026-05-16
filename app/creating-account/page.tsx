@@ -59,11 +59,11 @@ export default function CreatingAccountPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col items-center">
         {/* Spinner Animation */}
-        <div className="mb-12">
-          <div className="w-24 h-24 relative">
+        <div className="mb-8 sm:mb-12">
+          <div className="w-16 sm:w-24 h-16 sm:h-24 relative">
             <svg
               className="w-full h-full animate-spin"
               viewBox="0 0 100 100"
@@ -92,30 +92,29 @@ export default function CreatingAccountPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-2 sm:mb-4">
           Creating Your Account
         </h1>
 
         {/* Description */}
-        <p className="text-white text-center text-base md:text-lg mb-8 leading-relaxed">
-          We&apos;re setting up your BLUEPAY PRO V30 account with the latest security
-          features...
+        <p className="text-white text-center text-xs sm:text-base md:text-lg mb-5 sm:mb-8 leading-relaxed">
+          Setting up your BLUEPAY PRO V30 account with security features...
         </p>
 
         {/* Divider line */}
-        <div className="w-full h-0.5 bg-white bg-opacity-30 mb-8 rounded-full" />
+        <div className="w-full h-0.5 bg-white bg-opacity-30 mb-5 sm:mb-8 rounded-full" />
 
         {/* Checklist */}
-        <div className="w-full space-y-4">
+        <div className="w-full space-y-3 sm:space-y-4">
           {steps.map((step) => {
             const isCompleted = completed.includes(step.id as ChecklistItem)
             const isActive = currentStep === step.id
 
             return (
-              <div key={step.id} className="flex items-center gap-4">
+              <div key={step.id} className="flex items-center gap-3 sm:gap-4">
                 {/* Icon/Checkbox */}
                 <div
-                  className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  className={`flex-shrink-0 w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
                     isCompleted
                       ? 'bg-white text-[#0000ff]'
                       : isActive
@@ -124,15 +123,15 @@ export default function CreatingAccountPage() {
                   }`}
                 >
                   {isCompleted ? (
-                    <Check size={24} className="font-bold" />
+                    <Check size={20} className="sm:w-6 sm:h-6 font-bold" />
                   ) : isActive ? (
-                    <div className="w-4 h-4 rounded-full bg-white animate-pulse" />
+                    <div className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-white animate-pulse" />
                   ) : null}
                 </div>
 
                 {/* Label */}
                 <span
-                  className={`text-lg transition-all duration-300 ${
+                  className={`text-sm sm:text-lg transition-all duration-300 ${
                     isCompleted || isActive
                       ? 'text-white font-semibold'
                       : 'text-white text-opacity-60'

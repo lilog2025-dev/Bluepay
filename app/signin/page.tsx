@@ -75,35 +75,35 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
+        <div className="text-center mb-5 sm:mb-8">
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg">
             BLUEPAY
           </h1>
-          <p className="text-4xl font-bold text-white drop-shadow-lg mb-6">
+          <p className="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg mb-4 sm:mb-6">
             PRO V30
           </p>
         </div>
 
         {/* Sign In Card */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 mb-6">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
           {/* Title */}
-          <h2 className="text-4xl font-bold text-white text-center mb-2">
+          <h2 className="text-2xl sm:text-4xl font-bold text-white text-center mb-1 sm:mb-2">
             Sign In
           </h2>
 
           {/* Subtitle */}
-          <p className="text-center text-white/80 text-base mb-6">
+          <p className="text-center text-white/80 text-xs sm:text-base mb-5 sm:mb-6">
             Enter your email to receive a verification code
           </p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Email Label */}
             <div>
-              <label className="block text-white font-semibold mb-2">
+              <label className="block text-white font-semibold mb-2 text-sm sm:text-base">
                 Email Address
               </label>
               <input
@@ -114,23 +114,23 @@ export default function SigninPage() {
                   setEmail(e.target.value)
                   if (errors.email) setErrors({ ...errors, email: '' })
                 }}
-                className="w-full px-6 py-4 bg-blue-600/40 border border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600/40 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.email && (
-                <p className="text-red-200 text-sm mt-1">{errors.email}</p>
+                <p className="text-red-200 text-xs sm:text-sm mt-1">{errors.email}</p>
               )}
             </div>
 
             {/* General Error */}
             {generalError && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-200 text-sm">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-200 text-xs sm:text-sm">
                 {generalError}
               </div>
             )}
 
             {/* Success Message */}
             {successMessage && (
-              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-green-200 text-sm">
+              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 text-green-200 text-xs sm:text-sm">
                 {successMessage}
               </div>
             )}
@@ -139,14 +139,14 @@ export default function SigninPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full px-6 py-4 bg-white text-[#0000ff] font-bold text-lg rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-[#0000ff] font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
             >
               {isLoading ? 'Sending Code...' : 'Continue'}
             </button>
           </form>
 
           {/* Sign Up Link */}
-          <p className="text-center text-white text-base mt-6">
+          <p className="text-center text-white text-xs sm:text-sm mt-4 sm:mt-6">
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
@@ -160,9 +160,9 @@ export default function SigninPage() {
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="w-full px-6 py-4 bg-white text-[#0000ff] font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+          className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-[#0000ff] font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
           Back
         </button>
       </div>
