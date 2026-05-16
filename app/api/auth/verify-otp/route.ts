@@ -1,58 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
     const { email, code } = await request.json()
 
     if (!email || !code) {
+      console.error('[v0] Missing email or code')
       return NextResponse.json(
-        { error: 'Email and code are required' },
+        { error: 'Email and verification code are required' },
         { status: 400 }
       )
     }
 
-    // Get the most recent OTP for this email
-    const { data: otpData, error: otpError } = await supabase
-      .from('otp_tokens')
-      .select('*')
-      .eq('email', email)
-      .eq('code', code)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+    console.log('[v0] Verifying OTP for email:', email)
 
-    if (otpError || !otpData) {
+    // Create server-side Supabase client
+    const supabase = await createClient()
+
+    // Use Supabase's native verifyOtp method
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'email',
+    })
+
+    if (error) {
+      console.error('[v0] Supabase verifyOtp error:', error)
+      // Provide specific error messages based on Supabase response
+      let userMessage = error.message
+      if (error.message?.includes('expired')) {
+        userMessage = 'Verification code has expired. Please request a new one.'
+      } else if (error.message?.includes('invalid')) {
+        userMessage = 'Invalid verification code. Please check and try again.'
+      }
       return NextResponse.json(
-        { error: 'Invalid verification code' },
+        { error: userMessage },
         { status: 400 }
       )
     }
 
-    // Check if OTP has expired
-    const expiresAt = new Date(otpData.expires_at)
-    if (new Date() > expiresAt) {
-      return NextResponse.json(
-        { error: 'Verification code has expired. Request a new one.' },
-        { status: 400 }
-      )
-    }
+    console.log('[v0] OTP verified successfully for:', email)
 
-    // Delete used OTP
-    await supabase
-      .from('otp_tokens')
-      .delete()
-      .eq('id', otpData.id)
+    // Create user profile in public.users table
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: data.user.id,
+          email: data.user.email || '',
+          full_name: data.user.user_metadata?.full_name || 'User',
+        })
+        .select()
+        .single()
+
+      if (profileError && !profileError.message?.includes('duplicate')) {
+        console.error('[v0] Profile creation error:', profileError)
+      }
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Email verified successfully',
       email: email,
+      user: data.user,
     })
   } catch (error) {
     console.error('[v0] Verify OTP error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

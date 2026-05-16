@@ -86,7 +86,8 @@ export default function SignupPage() {
       }, 500)
     } catch (error) {
       console.error('[v0] Signup error:', error)
-      setGeneralError('Network error. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Network error. Please try again.'
+      setGeneralError(errorMessage)
     } finally {
       setIsLoading(false)
     }
