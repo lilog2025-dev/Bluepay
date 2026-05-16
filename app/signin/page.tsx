@@ -75,7 +75,7 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-start pt-8 px-4">
+    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-md flex flex-col">
         {/* Header */}
         <div className="text-center mb-8">
@@ -85,18 +85,17 @@ export default function SigninPage() {
           <p className="text-4xl font-bold text-white drop-shadow-lg mb-6">
             PRO V30
           </p>
-          <div className="w-full h-1 bg-white rounded-full" />
         </div>
 
         {/* Sign In Card */}
-        <div className="bg-white rounded-3xl p-8 mb-6 shadow-2xl">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 mb-6">
           {/* Title */}
-          <h2 className="text-4xl font-bold text-[#0000ff] text-center mb-2">
+          <h2 className="text-4xl font-bold text-white text-center mb-2">
             Sign In
           </h2>
 
           {/* Subtitle */}
-          <p className="text-center text-gray-600 text-base mb-6">
+          <p className="text-center text-white/80 text-base mb-6">
             Enter your email to receive a verification code
           </p>
 
@@ -104,7 +103,7 @@ export default function SigninPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Label */}
             <div>
-              <label className="block text-gray-800 font-semibold mb-2">
+              <label className="block text-white font-semibold mb-2">
                 Email Address
               </label>
               <input
@@ -115,23 +114,23 @@ export default function SigninPage() {
                   setEmail(e.target.value)
                   if (errors.email) setErrors({ ...errors, email: '' })
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent transition-all"
+                className="w-full px-6 py-4 bg-blue-600/40 border border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                <p className="text-red-200 text-sm mt-1">{errors.email}</p>
               )}
             </div>
 
             {/* General Error */}
             {generalError && (
-              <div className="bg-red-100 border border-red-300 rounded-lg p-4 text-red-700 text-sm">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 text-red-200 text-sm">
                 {generalError}
               </div>
             )}
 
             {/* Success Message */}
             {successMessage && (
-              <div className="bg-green-100 border border-green-300 rounded-lg p-4 text-green-700 text-sm">
+              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-green-200 text-sm">
                 {successMessage}
               </div>
             )}
@@ -140,18 +139,18 @@ export default function SigninPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full px-6 py-4 bg-[#0000ff] text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+              className="w-full px-6 py-4 bg-white text-[#0000ff] font-bold text-lg rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
             >
               {isLoading ? 'Sending Code...' : 'Continue'}
             </button>
           </form>
 
           {/* Sign Up Link */}
-          <p className="text-center text-gray-700 text-base mt-6">
+          <p className="text-center text-white text-base mt-6">
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="font-bold text-[#0000ff] hover:underline transition-colors"
+              className="font-bold text-white underline hover:text-gray-100 transition-colors"
             >
               Sign Up
             </Link>

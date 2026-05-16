@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (otpError || !otpData) {
       return NextResponse.json(
-        { error: 'Invalid OTP code' },
+        { error: 'Invalid verification code' },
         { status: 400 }
       )
     }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(otpData.expires_at)
     if (new Date() > expiresAt) {
       return NextResponse.json(
-        { error: 'OTP has expired' },
+        { error: 'Verification code has expired. Request a new one.' },
         { status: 400 }
       )
     }
@@ -46,7 +46,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'OTP verified successfully',
+      message: 'Email verified successfully',
+      email: email,
     })
   } catch (error) {
     console.error('[v0] Verify OTP error:', error)

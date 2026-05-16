@@ -61,9 +61,9 @@ export default function SignupPage() {
         return
       }
 
-      // Store info for OTP verification
+      // Store info for creating account animation
       sessionStorage.setItem('signupEmail', email)
-      sessionStorage.setItem('signupName', fullName)
+      sessionStorage.setItem('signupFullName', fullName)
 
       // Send OTP to email
       const otpResponse = await fetch('/api/auth/send-otp', {
@@ -80,12 +80,10 @@ export default function SignupPage() {
         return
       }
 
-      setSuccessMessage('Account created! Verification code sent to your email.')
-      
-      // Redirect to verification
+      // Redirect to creating account animation page
       setTimeout(() => {
-        router.push('/verify-email')
-      }, 1500)
+        router.push('/creating-account')
+      }, 500)
     } catch (error) {
       console.error('[v0] Signup error:', error)
       setGeneralError('Network error. Please try again.')
@@ -120,10 +118,10 @@ export default function SignupPage() {
                   setFullName(e.target.value)
                   if (errors.fullName) setErrors({ ...errors, fullName: '' })
                 }}
-                className="w-full px-6 py-4 bg-blue-400/30 border border-blue-300/50 rounded-2xl text-blue-900 placeholder-blue-700 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all"
+                className="w-full px-6 py-4 bg-blue-600/40 border border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.fullName && (
-                <p className="text-red-300 text-sm mt-1">{errors.fullName}</p>
+                <p className="text-red-200 text-sm mt-1">{errors.fullName}</p>
               )}
             </div>
 
@@ -137,10 +135,10 @@ export default function SignupPage() {
                   setEmail(e.target.value)
                   if (errors.email) setErrors({ ...errors, email: '' })
                 }}
-                className="w-full px-6 py-4 bg-blue-400/30 border border-blue-300/50 rounded-2xl text-blue-900 placeholder-blue-700 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all"
+                className="w-full px-6 py-4 bg-blue-600/40 border border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.email && (
-                <p className="text-red-300 text-sm mt-1">{errors.email}</p>
+                <p className="text-red-200 text-sm mt-1">{errors.email}</p>
               )}
             </div>
 

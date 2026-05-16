@@ -105,7 +105,7 @@ export default function VerifyEmailPage() {
 
       setSuccess(true)
       setTimeout(() => {
-        router.push('/setup-security')
+        router.push('/dashboard')
       }, 1500)
     } catch (err) {
       console.error('[v0] Verification error:', err)
@@ -142,98 +142,90 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0000ff] to-[#4f46e5] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-6 flex items-center gap-2 text-white hover:text-gray-100 transition"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back</span>
-        </button>
+    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md flex flex-col">
+        {/* Title */}
+        <h1 className="text-5xl font-bold text-white text-center mb-4">
+          Verify Your Email
+        </h1>
 
-        {/* Glass Card */}
-        <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white border-opacity-20">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
-            <p className="text-gray-600 text-sm">
-              Enter the 6-digit code sent to{' '}
-              <span className="font-semibold">{email}</span>
-            </p>
-          </div>
+        {/* Subtitle with email */}
+        <p className="text-white text-center text-lg mb-8">
+          Enter the 6-digit verification code sent to{' '}
+          <span className="font-bold">{email}</span>
+        </p>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-red-600 text-sm">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-3 flex items-start gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <p className="text-green-600 text-sm">Email verified successfully!</p>
-            </div>
-          )}
-
+        {/* OTP Container Card */}
+        <div className="bg-[#0000ff] bg-opacity-40 backdrop-blur-md border border-white border-opacity-20 rounded-3xl p-8 mb-8">
           {/* OTP Input Boxes */}
-          <div className="mb-8">
-            <div className="flex gap-2 justify-center mb-6">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => {
-                    inputRefs.current[index] = el
-                  }}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={handlePaste}
-                  className="w-12 h-12 md:w-14 md:h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-20 transition"
-                  autoComplete="off"
-                />
-              ))}
-            </div>
-
-            {/* Timer */}
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">{formatTime(timeLeft)}</p>
-              <p className="text-xs text-gray-500 mt-1">Time remaining</p>
-            </div>
+          <div className="flex gap-3 justify-center mb-8">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => {
+                  inputRefs.current[index] = el
+                }}
+                type="text"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleOtpChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={handlePaste}
+                placeholder=""
+                className="w-16 h-16 text-center text-2xl font-bold border-2 border-white border-opacity-40 rounded-2xl bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-30 focus:border-white focus:outline-none focus:border-opacity-100 transition-all"
+                autoComplete="off"
+              />
+            ))}
           </div>
 
           {/* Verify Button */}
           <button
             onClick={handleVerifyOtp}
             disabled={isLoading || otp.some((d) => !d)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+            className="w-full bg-white text-gray-400 font-bold text-lg py-3 rounded-2xl hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed transition-all mb-6"
           >
-            {isLoading ? 'Verifying...' : 'VERIFY OTP'}
+            {isLoading ? 'Verifying...' : 'VERIFY CODE'}
           </button>
 
-          {/* Resend OTP */}
+          {/* Timer */}
           <div className="text-center">
-            {canResend ? (
-              <button
-                onClick={handleResendOtp}
-                className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
-              >
-                Resend Code
-              </button>
-            ) : (
-              <p className="text-gray-500 text-sm">
-                Didn&apos;t receive code?{' '}
-                <span className="text-gray-400">Resend in {formatTime(timeLeft)}</span>
-              </p>
-            )}
+            <p className="text-white text-lg">
+              Code expires in{' '}
+              <span className="font-bold">{formatTime(timeLeft)}</span>
+            </p>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-500 bg-opacity-20 border border-red-400 rounded-lg p-4 flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
+            <p className="text-red-200 text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 bg-green-500 bg-opacity-20 border border-green-400 rounded-lg p-4 flex items-start gap-2">
+            <CheckCircle className="w-5 h-5 text-green-300 flex-shrink-0 mt-0.5" />
+            <p className="text-green-200 text-sm">Email verified successfully!</p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <p className="text-white text-center text-base">
+          Didn&apos;t receive the code? Check your spam folder.
+        </p>
+
+        {/* Resend OTP */}
+        {canResend && (
+          <button
+            onClick={handleResendOtp}
+            className="mt-6 w-full px-6 py-3 bg-white text-[#0000ff] font-bold text-base rounded-2xl hover:bg-gray-50 transition-all"
+          >
+            Resend Code
+          </button>
+        )}
       </div>
     </div>
   )
