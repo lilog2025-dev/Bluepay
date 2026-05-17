@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function VerifyEmailPage() {
   const router = useRouter()
@@ -13,7 +13,6 @@ export default function VerifyEmailPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [canResend, setCanResend] = useState(false)
   const [email, setEmail] = useState('')
-  const [showOtp, setShowOtp] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
@@ -158,18 +157,8 @@ export default function VerifyEmailPage() {
 
         {/* OTP Container Card */}
         <div className="bg-[#0000ff] bg-opacity-40 backdrop-blur-md border border-white border-opacity-20 rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-4 sm:mb-8">
-          {/* OTP Label with Eye Toggle */}
-          <div className="flex items-center justify-between mb-4">
-            <label className="text-white text-sm font-semibold">Enter 6-digit code</label>
-            <button
-              type="button"
-              onClick={() => setShowOtp(!showOtp)}
-              className="text-white/70 hover:text-white transition-colors"
-              title={showOtp ? 'Hide OTP' : 'Show OTP'}
-            >
-              {showOtp ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
+          {/* OTP Label */}
+          <label className="text-white text-sm font-semibold block mb-4">Enter 6-digit code</label>
 
           {/* OTP Input Boxes - Fintech Style */}
           <div className="flex gap-2 sm:gap-3 justify-center mb-5 sm:mb-8">
@@ -179,14 +168,20 @@ export default function VerifyEmailPage() {
                 ref={(el) => {
                   inputRefs.current[index] = el
                 }}
-                type={showOtp ? 'text' : 'password'}
+                type="tel"
                 maxLength={1}
-                value={showOtp ? digit : digit ? '●' : ''}
+                value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={handlePaste}
                 placeholder=""
-                className="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl font-bold border-2 border-white border-opacity-40 rounded-lg sm:rounded-xl bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-30 focus:border-white focus:outline-none focus:border-opacity-100 transition-all"
+                className="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl md:text-3xl font-bold border-2 border-white border-opacity-40 rounded-lg sm:rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:border-white focus:outline-none focus:border-opacity-100 focus:ring-2 focus:ring-blue-500 transition-all opacity-100"
+                style={{
+                  color: '#111827',
+                  backgroundColor: '#FFFFFF',
+                  caretColor: '#1D4ED8',
+                  WebkitTextFillColor: '#111827',
+                }}
                 autoComplete="off"
                 inputMode="numeric"
               />
