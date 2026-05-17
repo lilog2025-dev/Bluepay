@@ -251,4 +251,18 @@
   .animate-glow {
     animation: glow 1.5s ease-in-out infinite;
   }
+
+  /* Marquee animation for scrolling text */
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
 }
