@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
+import { AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function VerifyEmailPage() {
   const router = useRouter()
@@ -144,19 +144,22 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col">
-        {/* Title */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-2 sm:mb-3">
+        {/* Title - Shifted upward */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-2 sm:mb-3">
           Verify Your Email
         </h1>
 
-        {/* Subtitle with email */}
-        <p className="text-white text-center text-xs sm:text-sm md:text-base mb-5 sm:mb-8 leading-relaxed">
-          Enter the 6-digit code sent to{' '}
-          <span className="font-bold break-all">{email}</span>
+        {/* Subtitle with email and instructions */}
+        <p className="text-white text-center text-xs sm:text-sm mb-5 sm:mb-8 leading-relaxed">
+          Please check your email inbox or spam folder for the OTP verification code sent to{' '}
+          <span className="font-bold break-all">{email}</span>. You must enter the correct OTP code before proceeding to secure your BLUEPAY PRO V30 account.
         </p>
 
         {/* OTP Container Card */}
         <div className="bg-[#0000ff] bg-opacity-40 backdrop-blur-md border border-white border-opacity-20 rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-4 sm:mb-8">
+          {/* OTP Label */}
+          <label className="text-white text-sm font-semibold block mb-4">Enter 6-digit code</label>
+
           {/* OTP Input Boxes - Fintech Style */}
           <div className="flex gap-2 sm:gap-3 justify-center mb-5 sm:mb-8">
             {otp.map((digit, index) => (
@@ -165,14 +168,20 @@ export default function VerifyEmailPage() {
                 ref={(el) => {
                   inputRefs.current[index] = el
                 }}
-                type="text"
+                type="tel"
                 maxLength={1}
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={handlePaste}
                 placeholder=""
-                className="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl font-bold border-2 border-white border-opacity-40 rounded-lg sm:rounded-xl bg-white bg-opacity-10 text-white placeholder-white placeholder-opacity-30 focus:border-white focus:outline-none focus:border-opacity-100 transition-all"
+                className="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl md:text-3xl font-bold border-2 border-white border-opacity-40 rounded-lg sm:rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:border-white focus:outline-none focus:border-opacity-100 focus:ring-2 focus:ring-blue-500 transition-all opacity-100"
+                style={{
+                  color: '#111827',
+                  backgroundColor: '#FFFFFF',
+                  caretColor: '#1D4ED8',
+                  WebkitTextFillColor: '#111827',
+                }}
                 autoComplete="off"
                 inputMode="numeric"
               />

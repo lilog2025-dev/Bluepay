@@ -131,6 +131,52 @@
 }
 
 @layer utilities {
+  /* Premium Lion Animation - Right to Left, Left to Right with jump */
+  @keyframes lion-premium {
+    0% {
+      transform: translateX(-120%) translateY(0px);
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    20%, 30% {
+      transform: translateX(-40%) translateY(-8px);
+    }
+    40%, 60% {
+      transform: translateX(0px) translateY(0px);
+    }
+    70%, 80% {
+      transform: translateX(40%) translateY(-8px);
+    }
+    95% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(120%) translateY(0px);
+      opacity: 0;
+    }
+  }
+
+  .animate-lion-premium {
+    animation: lion-premium 10s ease-in-out infinite;
+  }
+
+  /* Floating effect for card */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Original slide-lion animation */
   @keyframes slide-lion {
     0% {
       transform: translateX(-100%);
@@ -176,5 +222,47 @@
 
   .animate-pulse-soft {
     animation: pulse-soft 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Fingerprint scanning line animation */
+  @keyframes fingerprint-scan {
+    0% {
+      top: 0;
+    }
+    100% {
+      top: 100%;
+    }
+  }
+
+  .animate-fingerprint-scan {
+    animation: fingerprint-scan 2s ease-in-out infinite;
+  }
+
+  /* Glow effect for fingerprint */
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 10px rgba(0, 0, 255, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(0, 0, 255, 0.6);
+    }
+  }
+
+  .animate-glow {
+    animation: glow 1.5s ease-in-out infinite;
+  }
+
+  /* Marquee animation for scrolling text */
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
   }
 }

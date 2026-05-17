@@ -100,7 +100,7 @@ export default function SetupSecurityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0000ff] to-[#4f46e5] flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#0000ff] to-[#3366ff] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Back Button */}
         {step !== 'options' && (
@@ -113,34 +113,34 @@ export default function SetupSecurityPage() {
           </button>
         )}
 
-        {/* Glass Card */}
-        <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white border-opacity-20">
+        {/* Glass Card - Premium Fintech Style */}
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-8">
           {/* Options Step */}
           {step === 'options' && (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                   Protect Your Account
                 </h1>
-                <p className="text-gray-600 text-sm">Choose a security method</p>
+                <p className="text-white/70 text-sm">Choose a security method to secure your BLUEPAY PRO V30 account</p>
               </div>
 
               <div className="space-y-4">
                 {/* Security PIN Option */}
                 <button
                   onClick={() => setStep('pin')}
-                  className="w-full p-6 border-2 border-gray-200 rounded-xl hover:border-blue-600 hover:bg-blue-50 transition group"
+                  className="w-full p-5 border-2 border-white/30 rounded-2xl hover:border-white hover:bg-white/10 transition group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-600 rounded-lg group-hover:bg-blue-700 transition">
+                    <div className="p-3 bg-[#0000ff] rounded-xl group-hover:bg-blue-700 transition">
                       <Lock className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-left flex-1">
-                      <h3 className="font-bold text-gray-900 mb-1">
+                      <h3 className="font-bold text-white mb-1">
                         Create 6-Digit PIN
                       </h3>
-                      <p className="text-sm text-gray-600">
-                        Secure your account with a personal identification number
+                      <p className="text-sm text-white/70">
+                        Secure your account with a personal 6-digit identification code
                       </p>
                     </div>
                   </div>
@@ -149,18 +149,18 @@ export default function SetupSecurityPage() {
                 {/* Fingerprint Option */}
                 <button
                   onClick={() => setStep('fingerprint')}
-                  className="w-full p-6 border-2 border-gray-200 rounded-xl hover:border-blue-600 hover:bg-blue-50 transition group"
+                  className="w-full p-5 border-2 border-white/30 rounded-2xl hover:border-white hover:bg-white/10 transition group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-600 rounded-lg group-hover:bg-blue-700 transition">
+                    <div className="p-3 bg-[#0000ff] rounded-xl group-hover:bg-blue-700 transition">
                       <Fingerprint className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-left flex-1">
-                      <h3 className="font-bold text-gray-900 mb-1">
-                        Enable Biometric Authentication
+                      <h3 className="font-bold text-white mb-1">
+                        Enable Fingerprint
                       </h3>
-                      <p className="text-sm text-gray-600">
-                        Use fingerprint or face recognition for quick access
+                      <p className="text-sm text-white/70">
+                        Use biometric fingerprint for fast and secure access
                       </p>
                     </div>
                   </div>
@@ -169,7 +169,7 @@ export default function SetupSecurityPage() {
                 {/* Skip Option */}
                 <button
                   onClick={() => setStep('profile')}
-                  className="w-full py-3 text-gray-600 hover:text-gray-900 font-semibold transition"
+                  className="w-full py-3 text-white hover:text-white/80 font-semibold transition"
                 >
                   Skip for Now
                 </button>
@@ -181,20 +181,20 @@ export default function SetupSecurityPage() {
           {step === 'pin' && (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-white mb-2">
                   {showPinMatches ? 'Confirm Your PIN' : 'Create Your PIN'}
                 </h1>
-                <p className="text-gray-600 text-sm">
+                <p className="text-white/70 text-sm">
                   {showPinMatches
                     ? 'Re-enter your PIN to confirm'
-                    : 'Enter a 6-digit PIN for your account'}
+                    : 'Enter a secure 6-digit PIN code for your account'}
                 </p>
               </div>
 
               {error && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-600 text-sm">{error}</p>
+                <div className="mb-6 bg-red-500/20 border border-red-400/50 rounded-lg p-3 flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
+                  <p className="text-red-200 text-sm">{error}</p>
                 </div>
               )}
 
@@ -207,22 +207,22 @@ export default function SetupSecurityPage() {
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handlePinChange(index, e.target.value)}
-                      className="w-12 h-12 md:w-14 md:h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-20 transition"
+                      className="w-12 h-12 md:w-14 md:h-14 text-center text-2xl font-bold border-2 border-white/30 rounded-lg bg-white/10 text-white placeholder-white/40 focus:border-white focus:outline-none focus:ring-2 focus:ring-white/30 transition"
                     />
                   ))}
                 </div>
 
                 {showPinMatches && pinConfirmation && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                    <Check className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                    <p className="text-green-600 font-semibold">PIN Confirmed!</p>
+                  <div className="bg-green-500/20 border border-green-400/50 rounded-lg p-4 text-center">
+                    <Check className="w-6 h-6 text-green-300 mx-auto mb-2" />
+                    <p className="text-green-200 font-semibold">PIN Confirmed!</p>
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 disabled:opacity-50"
+                  className="w-full bg-white text-[#0000ff] font-bold py-3 rounded-2xl hover:bg-gray-100 transition duration-300 disabled:opacity-70"
                 >
                   {showPinMatches ? 'NEXT' : 'CONTINUE'}
                 </button>
@@ -231,7 +231,7 @@ export default function SetupSecurityPage() {
               {showPinMatches && (
                 <button
                   onClick={() => setStep('profile')}
-                  className="w-full mt-4 py-2 text-blue-600 hover:text-blue-700 font-semibold"
+                  className="w-full mt-4 py-2 text-white hover:text-white/80 font-semibold"
                 >
                   Skip Biometric Setup
                 </button>
@@ -243,11 +243,11 @@ export default function SetupSecurityPage() {
           {step === 'fingerprint' && (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-white mb-2">
                   Biometric Authentication
                 </h1>
-                <p className="text-gray-600 text-sm">
-                  Enable fingerprint or face unlock
+                <p className="text-white/70 text-sm">
+                  Enable fingerprint scanning for fast and secure access
                 </p>
               </div>
 
@@ -259,10 +259,10 @@ export default function SetupSecurityPage() {
                     <div
                       className={`absolute inset-0 border-4 rounded-full transition-all duration-300 ${
                         isScanningFingerprint
-                          ? 'border-blue-600 animate-glow'
+                          ? 'border-white/60 animate-glow'
                           : fingerprintScanned
-                            ? 'border-green-600'
-                            : 'border-gray-300'
+                            ? 'border-green-400'
+                            : 'border-white/30'
                       }`}
                     />
 
@@ -273,9 +273,9 @@ export default function SetupSecurityPage() {
                       }`}
                     >
                       {fingerprintScanned ? (
-                        <Check className="w-16 h-16 text-green-600" />
+                        <Check className="w-16 h-16 text-green-300" />
                       ) : (
-                        <Fingerprint className="w-16 h-16 text-blue-600" />
+                        <Fingerprint className="w-16 h-16 text-[#0000ff]" />
                       )}
                     </div>
 
@@ -292,21 +292,21 @@ export default function SetupSecurityPage() {
                 <div className="text-center">
                   {fingerprintScanned ? (
                     <div>
-                      <p className="text-green-600 font-bold">Fingerprint Verified</p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-green-300 font-bold">Fingerprint Verified</p>
+                      <p className="text-sm text-white/70 mt-1">
                         Your fingerprint has been registered
                       </p>
                     </div>
                   ) : isScanningFingerprint ? (
                     <div>
-                      <p className="text-blue-600 font-bold">Scanning...</p>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-white font-bold">Scanning...</p>
+                      <p className="text-sm text-white/70 mt-1">
                         Place your finger on the sensor
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-white/70 text-sm">
                         Click the button below to scan your fingerprint
                       </p>
                     </div>
@@ -317,7 +317,7 @@ export default function SetupSecurityPage() {
                 <button
                   onClick={handleFingerprintScan}
                   disabled={isScanningFingerprint || fingerprintScanned}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 disabled:opacity-50"
+                  className="w-full bg-white text-[#0000ff] font-bold py-3 rounded-2xl hover:bg-gray-100 transition duration-300 disabled:opacity-70"
                 >
                   {fingerprintScanned
                     ? 'FINGERPRINT VERIFIED'
@@ -330,7 +330,7 @@ export default function SetupSecurityPage() {
                 {fingerprintScanned && (
                   <button
                     onClick={() => setStep('profile')}
-                    className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-bold py-3 rounded-xl transition"
+                    className="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-2xl border border-white/30 transition"
                   >
                     NEXT
                   </button>
@@ -339,7 +339,7 @@ export default function SetupSecurityPage() {
                 {/* Skip Option */}
                 <button
                   onClick={() => setStep('profile')}
-                  className="w-full text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                  className="w-full text-white hover:text-white/80 font-semibold text-sm"
                 >
                   Skip This Step
                 </button>
@@ -351,10 +351,10 @@ export default function SetupSecurityPage() {
           {step === 'profile' && (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-white mb-2">
                   Complete Your Profile
                 </h1>
-                <p className="text-gray-600 text-sm">
+                <p className="text-white/70 text-sm">
                   Add a profile picture (optional)
                 </p>
               </div>
@@ -367,19 +367,19 @@ export default function SetupSecurityPage() {
                       <img
                         src={profileImage}
                         alt="Profile"
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-600"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-[#0000ff]"
                       />
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
+                        className="absolute bottom-0 right-0 bg-[#0000ff] text-white p-2 rounded-full hover:bg-blue-700 transition"
                       >
                         <Camera className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
-                    <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-gray-300">
-                      <Upload className="w-8 h-8 text-gray-400" />
+                    <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-white/30">
+                      <Upload className="w-8 h-8 text-white/60" />
                     </div>
                   )}
 
@@ -394,16 +394,16 @@ export default function SetupSecurityPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                    className="text-white hover:text-white/80 font-semibold text-sm"
                   >
                     {profileImage ? 'Change Photo' : 'Upload Photo'}
                   </button>
                 </div>
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-red-600 text-sm">{error}</p>
+                  <div className="bg-red-500/20 border border-red-400/50 rounded-lg p-3 flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
+                    <p className="text-red-200 text-sm">{error}</p>
                   </div>
                 )}
 
@@ -412,7 +412,7 @@ export default function SetupSecurityPage() {
                   type="button"
                   onClick={handleFinishSetup}
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 disabled:opacity-50"
+                  className="w-full bg-white text-[#0000ff] font-bold py-3 rounded-2xl hover:bg-gray-100 transition duration-300 disabled:opacity-70"
                 >
                   {isLoading ? 'Setting Up...' : 'FINISH SETUP'}
                 </button>

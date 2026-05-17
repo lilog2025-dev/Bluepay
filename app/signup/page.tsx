@@ -97,12 +97,12 @@ export default function SignupPage() {
     <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md">
         {/* Welcome heading */}
-        <div className="text-center mb-5 sm:mb-8">
-          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
-            Welcome!
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
+            Create Account
           </h1>
           <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
-            Create your account to access airtime, data, transfers, and bill payments instantly.
+            Create your BLUEPAY PRO V30 account to start earning rewards, purchasing services, withdrawing funds and accessing premium financial solutions instantly.
           </p>
         </div>
 
