@@ -43,7 +43,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setMounted(true)
-    const storedName = sessionStorage.getItem('signupName')
+    const storedName = sessionStorage.getItem('signupFullName')
     const storedEmail = sessionStorage.getItem('signupEmail')
     if (storedName) {
       setFullName(storedName)
