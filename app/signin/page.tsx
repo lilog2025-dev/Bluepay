@@ -77,12 +77,12 @@ export default function SigninPage() {
   return (
     <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col">
-        {/* Header */}
-        <div className="text-center mb-5 sm:mb-8">
-          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg">
+        {/* Header - Shifted upward */}
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 drop-shadow-lg">
             BLUEPAY
           </h1>
-          <p className="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg mb-4 sm:mb-6">
+          <p className="text-lg sm:text-2xl font-bold text-white drop-shadow-lg mb-4">
             PRO V30
           </p>
         </div>
@@ -90,13 +90,13 @@ export default function SigninPage() {
         {/* Sign In Card */}
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
           {/* Title */}
-          <h2 className="text-2xl sm:text-4xl font-bold text-white text-center mb-1 sm:mb-2">
+          <h2 className="text-xl sm:text-3xl font-bold text-white text-center mb-2 sm:mb-3">
             Sign In
           </h2>
 
           {/* Subtitle */}
-          <p className="text-center text-white/80 text-xs sm:text-base mb-5 sm:mb-6">
-            Enter your email to receive a verification code
+          <p className="text-center text-white/80 text-xs sm:text-sm mb-5 sm:mb-6 leading-relaxed">
+            Welcome back to BLUEPAY PRO V30. Sign in securely to continue managing your transactions, withdrawals, rewards and financial activities.
           </p>
 
           {/* Form */}

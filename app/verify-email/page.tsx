@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react'
+import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 
 export default function VerifyEmailPage() {
   const router = useRouter()
@@ -13,6 +13,7 @@ export default function VerifyEmailPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [canResend, setCanResend] = useState(false)
   const [email, setEmail] = useState('')
+  const [showOtp, setShowOtp] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
@@ -144,19 +145,32 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col">
-        {/* Title */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-2 sm:mb-3">
+        {/* Title - Shifted upward */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-2 sm:mb-3">
           Verify Your Email
         </h1>
 
-        {/* Subtitle with email */}
-        <p className="text-white text-center text-xs sm:text-sm md:text-base mb-5 sm:mb-8 leading-relaxed">
-          Enter the 6-digit code sent to{' '}
-          <span className="font-bold break-all">{email}</span>
+        {/* Subtitle with email and instructions */}
+        <p className="text-white text-center text-xs sm:text-sm mb-5 sm:mb-8 leading-relaxed">
+          Please check your email inbox or spam folder for the OTP verification code sent to{' '}
+          <span className="font-bold break-all">{email}</span>. You must enter the correct OTP code before proceeding to secure your BLUEPAY PRO V30 account.
         </p>
 
         {/* OTP Container Card */}
         <div className="bg-[#0000ff] bg-opacity-40 backdrop-blur-md border border-white border-opacity-20 rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-4 sm:mb-8">
+          {/* OTP Label with Eye Toggle */}
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-white text-sm font-semibold">Enter 6-digit code</label>
+            <button
+              type="button"
+              onClick={() => setShowOtp(!showOtp)}
+              className="text-white/70 hover:text-white transition-colors"
+              title={showOtp ? 'Hide OTP' : 'Show OTP'}
+            >
+              {showOtp ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
           {/* OTP Input Boxes - Fintech Style */}
           <div className="flex gap-2 sm:gap-3 justify-center mb-5 sm:mb-8">
             {otp.map((digit, index) => (
@@ -165,9 +179,9 @@ export default function VerifyEmailPage() {
                 ref={(el) => {
                   inputRefs.current[index] = el
                 }}
-                type="text"
+                type={showOtp ? 'text' : 'password'}
                 maxLength={1}
-                value={digit}
+                value={showOtp ? digit : digit ? '●' : ''}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={handlePaste}
