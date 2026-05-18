@@ -36,23 +36,30 @@ export default function WelcomePage() {
         {/* Divider line */}
         <div className="w-20 h-1 bg-white/60 mb-6 sm:mb-8 rounded-full" />
 
-        {/* Lion Image Card - Premium with floating effect */}
-        <div className="w-full bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 mb-6 sm:mb-8 shadow-2xl animate-float">
-          <div className="relative h-40 sm:h-56 w-full flex items-center justify-center overflow-visible">
-            {/* Lion with sophisticated animation */}
-            <div className="animate-lion-premium absolute">
-              <div className="relative">
-                <Image
-                  src="/lion.png"
-                  alt="Lion mascot"
-                  width={200}
-                  height={180}
-                  className="object-contain drop-shadow-lg"
-                  priority
-                />
-                {/* Soft shadow under lion */}
-                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-8 bg-black/10 blur-xl rounded-full" />
-              </div>
+        {/* Lion Image Card - Premium with right-to-left animation */}
+        <div className="w-full bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 mb-6 sm:mb-8 shadow-2xl">
+          <div className="relative h-48 sm:h-64 w-full flex items-center justify-center overflow-hidden rounded-2xl">
+            {/* Lion with slow continuous right-to-left animation */}
+            <div className="animate-lion-slide absolute">
+              <Image
+                src="/lion-asset.jpg"
+                alt="Lion mascot"
+                width={280}
+                height={220}
+                className="object-contain drop-shadow-lg"
+                priority
+              />
+            </div>
+            {/* Duplicate for seamless loop */}
+            <div className="animate-lion-slide absolute -left-full">
+              <Image
+                src="/lion-asset.jpg"
+                alt="Lion mascot"
+                width={280}
+                height={220}
+                className="object-contain drop-shadow-lg"
+                priority
+              />
             </div>
           </div>
         </div>

