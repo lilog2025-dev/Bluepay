@@ -211,6 +211,19 @@
     animation: slide-left 15s linear infinite;
   }
 
+  @keyframes lion-slide {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-lion-slide {
+    animation: lion-slide 20s linear infinite;
+  }
+
   @keyframes pulse-soft {
     0%, 100% {
       opacity: 0.1;

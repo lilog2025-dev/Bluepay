@@ -112,54 +112,49 @@ export default function DashboardPage() {
             </div>
 
             {/* Balance Card - Compact */}
-            <div className="bg-[#0000ff] rounded-2xl p-5 text-white shadow-lg mb-5">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="text-white/70 text-xs mb-1">Available Balance</p>
-                  <div className="flex items-center gap-2 mb-3">
-                    <h3 className="text-2xl font-bold">
-                      {showBalance ? 'NGN 250,000.00' : '••••••••'}
-                    </h3>
-                    <button
-                      onClick={() => setShowBalance(!showBalance)}
-                      className="p-1 hover:bg-white/20 rounded-lg transition"
-                    >
-                      {showBalance ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                    </button>
-                  </div>
-
-                  {/* Daily Allocation */}
-                  <div className="mb-3">
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="text-xs">Daily Allocation</p>
-                      <p className="font-bold text-sm">NGN250,000.00</p>
-                    </div>
-                    <div className="w-full bg-white/20 rounded-full h-1.5">
-                      <div className="bg-white h-1.5 rounded-full" style={{ width: '70%' }} />
-                    </div>
-                  </div>
+            <div className="bg-[#0000ff] rounded-2xl p-4 text-white shadow-lg mb-4">
+              <p className="text-white/70 text-xs mb-2">Available Balance</p>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-bold">
+                    {showBalance ? 'NGN 250,000.00' : '••••••••'}
+                  </h3>
+                  <button
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="p-1 hover:bg-white/20 rounded-lg transition"
+                  >
+                    {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
                 </div>
-
                 <button
                   onClick={() => router.push('/withdraw')}
-                  className="px-4 py-2 bg-white text-[#0000ff] font-bold rounded-full text-sm hover:opacity-90 transition ml-3 whitespace-nowrap"
+                  className="px-3 py-1.5 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition"
                 >
                   Withdraw
                 </button>
               </div>
+
+              {/* Daily Allocation */}
+              <div className="flex justify-between items-center text-xs mb-2">
+                <p>Daily Allocation</p>
+                <p className="font-bold">NGN250,000.00</p>
+              </div>
+              <div className="w-full bg-white/20 rounded-full h-1">
+                <div className="bg-white h-1 rounded-full" style={{ width: '70%' }} />
+              </div>
             </div>
 
             {/* Primary Action Buttons */}
-            <div className="grid grid-cols-4 gap-2 mb-6">
+            <div className="grid grid-cols-4 gap-1.5 mb-4">
               {primaryButtons.map((btn) => {
                 const Icon = btn.icon
                 return (
                   <button
                     key={btn.label}
                     onClick={() => router.push(btn.path)}
-                    className={`${btn.color} rounded-xl p-3 flex flex-col items-center gap-1 hover:opacity-90 transition text-white shadow-md`}
+                    className={`${btn.color} rounded-lg p-2 flex flex-col items-center gap-0.5 hover:opacity-90 transition text-white shadow-sm`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4" />
                     <p className="text-xs font-bold text-center leading-tight">{btn.label}</p>
                   </button>
                 )
@@ -167,17 +162,17 @@ export default function DashboardPage() {
             </div>
 
             {/* More Services */}
-            <h3 className="text-sm font-bold text-gray-900 mb-3">More Services</h3>
-            <div className="grid grid-cols-4 gap-2 mb-6">
+            <h3 className="text-xs font-bold text-gray-900 mb-2">More Services</h3>
+            <div className="grid grid-cols-4 gap-1.5 mb-4">
               {moreServices.map((btn) => {
                 const Icon = btn.icon
                 return (
                   <button
                     key={btn.label}
                     onClick={() => router.push(btn.path)}
-                    className={`${btn.color} rounded-xl p-3 flex flex-col items-center gap-1 hover:opacity-90 transition text-white shadow-md`}
+                    className={`${btn.color} rounded-lg p-2 flex flex-col items-center gap-0.5 hover:opacity-90 transition text-white shadow-sm`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4" />
                     <p className="text-xs font-bold text-center leading-tight">{btn.label}</p>
                   </button>
                 )
