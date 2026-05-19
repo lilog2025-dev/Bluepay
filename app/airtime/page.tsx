@@ -19,6 +19,7 @@ export default function AirtimePage() {
   const router = useRouter()
   const [step, setStep] = useState<'form' | 'confirm' | 'success'>('form')
   const [selectedNetwork, setSelectedNetwork] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState('Nigeria')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [amount, setAmount] = useState('')
   const [bpcCode, setBpcCode] = useState('')
@@ -27,6 +28,14 @@ export default function AirtimePage() {
   const [error, setError] = useState('')
   const [bpcError, setBpcError] = useState('')
   const [copied, setCopied] = useState(false)
+
+  const countries = [
+    { name: 'Nigeria', code: '+234' },
+    { name: 'Ghana', code: '+233' },
+    { name: 'Kenya', code: '+254' },
+    { name: 'South Africa', code: '+27' },
+    { name: 'Uganda', code: '+256' },
+  ]
 
   const networks = [
     { name: 'MTN', color: 'bg-yellow-500', code: 'MTN' },
@@ -178,25 +187,36 @@ export default function AirtimePage() {
               </div>
             </div>
 
+            {/* Country Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Country
+              </label>
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+              >
+                {countries.map((country) => (
+                  <option key={country.code} value={country.name}>
+                    {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Phone Number
               </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">
-                    +234
-                  </span>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                    placeholder="801 234 5678"
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter phone number"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+              />
             </div>
 
             {/* Amount Selection */}
@@ -381,7 +401,7 @@ export default function AirtimePage() {
               <button
                 onClick={handleConfirm}
                 disabled={isLoading}
-                className="w-full bg-yellow-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -477,7 +497,7 @@ export default function AirtimePage() {
             <div className="space-y-3">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full bg-yellow-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
+                className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >
                 Back to Dashboard
               </button>

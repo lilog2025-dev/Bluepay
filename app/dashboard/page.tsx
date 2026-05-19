@@ -111,12 +111,12 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {/* Balance Card - Compact */}
-            <div className="bg-[#0000ff] rounded-2xl p-4 text-white shadow-lg mb-4">
+            {/* Balance Card - Compact and Clean */}
+            <div className="bg-[#0000ff] rounded-2xl p-3 text-white shadow-lg mb-4">
               <p className="text-white/70 text-xs mb-2">Available Balance</p>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-bold">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-1">
+                  <h3 className="text-lg font-bold">
                     {showBalance ? 'NGN 250,000.00' : '••••••••'}
                   </h3>
                   <button
@@ -128,19 +128,21 @@ export default function DashboardPage() {
                 </div>
                 <button
                   onClick={() => router.push('/withdraw')}
-                  className="px-3 py-1.5 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition"
+                  className="px-3 py-1 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition whitespace-nowrap"
                 >
                   Withdraw
                 </button>
               </div>
-
-              {/* Daily Allocation */}
-              <div className="flex justify-between items-center text-xs mb-2">
-                <p>Daily Allocation</p>
-                <p className="font-bold">NGN250,000.00</p>
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-1">
-                <div className="bg-white h-1 rounded-full" style={{ width: '70%' }} />
+              
+              {/* Daily Allocation - Compact */}
+              <div className="mt-2 pt-2 border-t border-white/20">
+                <div className="flex justify-between items-center text-xs mb-1">
+                  <p className="text-white/80">Daily Allocation</p>
+                  <p className="font-bold text-white">NGN250,000.00</p>
+                </div>
+                <div className="w-full bg-white/20 rounded-full h-0.5">
+                  <div className="bg-white h-0.5 rounded-full" style={{ width: '70%' }} />
+                </div>
               </div>
             </div>
 
@@ -196,7 +198,7 @@ export default function DashboardPage() {
                   <p className="font-bold text-sm text-green-600">+₦5,000</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">BPC2026_PRO_V30_650</p>
+                  <p className="text-xs text-gray-500">Success</p>
                   <p className="text-xs text-gray-400">Today 2:34 PM</p>
                 </div>
               </div>
@@ -207,7 +209,7 @@ export default function DashboardPage() {
                   <p className="font-bold text-sm text-red-600">-₦1,000</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">BPC2026_PRO_V30_650</p>
+                  <p className="text-xs text-gray-500">Success</p>
                   <p className="text-xs text-gray-400">Today 1:15 PM</p>
                 </div>
               </div>
@@ -218,7 +220,7 @@ export default function DashboardPage() {
                   <p className="font-bold text-sm text-red-600">-₦2,500</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">BPC2026_PRO_V30_650</p>
+                  <p className="text-xs text-gray-500">Success</p>
                   <p className="text-xs text-gray-400">Yesterday 4:22 PM</p>
                 </div>
               </div>
