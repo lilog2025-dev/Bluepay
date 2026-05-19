@@ -19,6 +19,7 @@ export default function DataPage() {
   const router = useRouter()
   const [step, setStep] = useState<'form' | 'confirm' | 'success'>('form')
   const [selectedNetwork, setSelectedNetwork] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState('Nigeria')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
   const [bpcCode, setBpcCode] = useState('')
@@ -27,6 +28,24 @@ export default function DataPage() {
   const [error, setError] = useState('')
   const [bpcError, setBpcError] = useState('')
   const [copied, setCopied] = useState(false)
+
+  const countries = [
+    { name: 'Nigeria', code: '+234' },
+    { name: 'Ghana', code: '+233' },
+    { name: 'Kenya', code: '+254' },
+    { name: 'South Africa', code: '+27' },
+    { name: 'Uganda', code: '+256' },
+    { name: 'Tanzania', code: '+255' },
+    { name: 'Ethiopia', code: '+251' },
+    { name: 'Cameroon', code: '+237' },
+    { name: 'Senegal', code: '+221' },
+    { name: 'Ivory Coast', code: '+225' },
+    { name: 'Rwanda', code: '+250' },
+    { name: 'Zimbabwe', code: '+263' },
+    { name: 'Botswana', code: '+267' },
+    { name: 'Namibia', code: '+264' },
+    { name: 'Zambia', code: '+260' },
+  ]
 
   const networks = [
     { name: 'MTN', color: 'bg-yellow-500', code: 'MTN' },
@@ -174,23 +193,36 @@ export default function DataPage() {
               </div>
             </div>
 
+            {/* Country Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Country
+              </label>
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+              >
+                {countries.map((country) => (
+                  <option key={country.code} value={country.name}>
+                    {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Phone Number
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">
-                  +234
-                </span>
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                  placeholder="801 234 5678"
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                />
-              </div>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter phone number"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+              />
             </div>
 
             {/* Data Plans */}

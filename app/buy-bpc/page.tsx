@@ -1,19 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CheckCircle, AlertCircle, Upload } from 'lucide-react'
+import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-react'
+import { Countdown } from '@/components/Countdown'
 
 export default function BuyBPCPage() {
   const router = useRouter()
-  const [step, setStep] = useState<'amount' | 'payment' | 'receipt' | 'success'>('amount')
+  const [step, setStep] = useState<'amount' | 'payment' | 'warning' | 'receipt' | 'success' | 'countdown' | 'receipt_countdown'>('amount')
   const [amount, setAmount] = useState(10650)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [transactionId, setTransactionId] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
 
   const BPC_PRICE = 10650
   const ACCOUNT_NUMBER = '6711230988'
-  const ACCOUNT_NAME = 'CHI MODE AGB'
+  const ACCOUNT_NAME = 'MONIEPOINT MFB'
+  const EDGE_FUNCTION_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-bpc-email'
+
+  // Get user data from session
+  useEffect(() => {
+    const name = sessionStorage.getItem('signupFullName') || 'User'
+    const email = sessionStorage.getItem('signupEmail') || ''
+    setFullName(name)
+    setUserEmail(email)
+  }, [])
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -25,18 +40,81 @@ export default function BuyBPCPage() {
     }
   }
 
+  const handleVerifyPayment = async () => {
+    if (!receiptFile) {
+      setError('Please upload receipt image')
+      return
+    }
+
+    if (!transactionId.trim()) {
+      setError('Please enter a transaction ID')
+      return
+    }
+
+    setIsVerifying(true)
+    setError('')
+
+    try {
+      // Call the Supabase Edge Function to send BPC email
+      const response = await fetch(EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transaction_id: transactionId,
+          full_name: fullName,
+          email: userEmail,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.message || 'Payment verification failed. Please try again.')
+        setIsVerifying(false)
+        return
+      }
+
+      // Success - show success state
+      setSuccess('Payment verified successfully. BPC email sent.')
+      setTimeout(() => {
+        setStep('success')
+      }, 1500)
+    } catch (err) {
+      console.error('[v0] Payment verification error:', err)
+      setError('An error occurred during verification. Please try again.')
+    } finally {
+      setIsVerifying(false)
+    }
+  }
+
   const handleProceed = () => {
     if (step === 'amount') {
-      setStep('payment')
+      setStep('countdown')
     } else if (step === 'payment') {
-      setStep('receipt')
+      setStep('receipt_countdown')
     } else if (step === 'receipt') {
       if (!receiptFile) {
         setError('Please upload receipt image')
         return
       }
-      setStep('success')
+      if (!transactionId.trim()) {
+        setError('Please enter transaction ID')
+        return
+      }
+      handleVerifyPayment()
+    } else if (step === 'warning') {
+      setStep('payment')
     }
+  }
+
+  const handleCountdownComplete = () => {
+    setStep('warning')
+  }
+
+  const handleReceiptCountdownComplete = () => {
+    setStep('receipt')
   }
 
   return (
@@ -152,9 +230,9 @@ export default function BuyBPCPage() {
         {step === 'receipt' && (
           <>
             <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200 mb-6">
-              <h3 className="font-bold text-gray-900 mb-2">Upload Payment Receipt</h3>
+              <h3 className="font-bold text-gray-900 mb-2">Upload Payment Receipt & Transaction ID</h3>
               <p className="text-gray-600 text-sm">
-                Please upload a screenshot or image of your payment receipt to confirm the transaction.
+                Please upload a screenshot of your payment receipt and enter the transaction ID to verify your payment.
               </p>
             </div>
 
@@ -166,6 +244,28 @@ export default function BuyBPCPage() {
                 </div>
               )}
 
+              {success && (
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 flex gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-green-600 text-sm">{success}</p>
+                </div>
+              )}
+
+              {/* Transaction ID Input */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Transaction ID
+                </label>
+                <input
+                  type="text"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value)}
+                  placeholder="Enter your transaction ID"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-[#0000ff]"
+                />
+              </div>
+
+              {/* Receipt Upload */}
               <div>
                 <label className="block w-full">
                   <div className="border-2 border-dashed border-[#0000ff] rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
@@ -189,19 +289,79 @@ export default function BuyBPCPage() {
               <div className="space-y-2">
                 <button
                   onClick={handleProceed}
-                  className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
+                  disabled={isVerifying}
+                  className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2"
                 >
-                  Verify Payment
+                  {isVerifying ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      VERIFYING PAYMENT...
+                    </>
+                  ) : (
+                    'VERIFY PAYMENT'
+                  )}
                 </button>
                 <button
                   onClick={() => setStep('payment')}
-                  className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition"
+                  disabled={isVerifying}
+                  className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition disabled:opacity-50"
                 >
                   Back
                 </button>
               </div>
             </div>
           </>
+        )}
+
+        {step === 'countdown' && (
+          <Countdown
+            seconds={7}
+            onComplete={handleCountdownComplete}
+            message="Preparing payment details..."
+          />
+        )}
+
+        {step === 'warning' && (
+          <div className="space-y-6">
+            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+              <div className="flex gap-4 mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-0.5" />
+                <h2 className="text-xl font-bold text-red-900">WARNING</h2>
+              </div>
+              <p className="text-red-800 font-semibold mb-4">
+                Dear BLUEPAY PRO V30 user,
+              </p>
+              <p className="text-red-800 mb-4">
+                Be informed that making payment via OPAY BANK is not available and any payment made via OPAY BANK will be declined due to our terms and service.
+              </p>
+              <p className="text-red-800 font-semibold">
+                Kindly proceed with other banks.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleProceed}
+                className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
+              >
+                PROCEED
+              </button>
+              <button
+                onClick={() => setStep('amount')}
+                className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition"
+              >
+                BACK
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 'receipt_countdown' && (
+          <Countdown
+            seconds={7}
+            onComplete={handleReceiptCountdownComplete}
+            message="Preparing upload page..."
+          />
         )}
 
         {step === 'success' && (
