@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, AlertCircle, Eye, EyeOff, Loader } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance, recordTransaction, subscribeToBalance } from '@/lib/fintech-utils'
+import { deductBalance, recordTransaction } from '@/lib/fintech-utils'
 
 export default function WithdrawPage() {
   const router = useRouter()
@@ -62,11 +62,6 @@ export default function WithdrawPage() {
         if (profile) {
           setFullName(profile.full_name || 'BLUEPAY User')
           setBalance(profile.balance || 0)
-          
-          // Subscribe to balance changes in realtime
-          subscribeToBalance(session.user.id, (newBalance) => {
-            setBalance(newBalance)
-          })
         }
       }
     } catch (err) {
