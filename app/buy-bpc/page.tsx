@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-react'
+import { Countdown } from '@/components/Countdown'
 
 export default function BuyBPCPage() {
   const router = useRouter()
-  const [step, setStep] = useState<'amount' | 'payment' | 'receipt' | 'success'>('amount')
+  const [step, setStep] = useState<'amount' | 'payment' | 'warning' | 'receipt' | 'success' | 'countdown' | 'receipt_countdown'>('amount')
   const [amount, setAmount] = useState(10650)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [error, setError] = useState('')
@@ -18,7 +19,7 @@ export default function BuyBPCPage() {
 
   const BPC_PRICE = 10650
   const ACCOUNT_NUMBER = '6711230988'
-  const ACCOUNT_NAME = 'CHI MODE AGB'
+  const ACCOUNT_NAME = 'MONIEPOINT MFB'
   const EDGE_FUNCTION_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-bpc-email'
 
   // Get user data from session
@@ -90,9 +91,9 @@ export default function BuyBPCPage() {
 
   const handleProceed = () => {
     if (step === 'amount') {
-      setStep('payment')
+      setStep('countdown')
     } else if (step === 'payment') {
-      setStep('receipt')
+      setStep('receipt_countdown')
     } else if (step === 'receipt') {
       if (!receiptFile) {
         setError('Please upload receipt image')
@@ -103,7 +104,17 @@ export default function BuyBPCPage() {
         return
       }
       handleVerifyPayment()
+    } else if (step === 'warning') {
+      setStep('payment')
     }
+  }
+
+  const handleCountdownComplete = () => {
+    setStep('warning')
+  }
+
+  const handleReceiptCountdownComplete = () => {
+    setStep('receipt')
   }
 
   return (
@@ -300,6 +311,57 @@ export default function BuyBPCPage() {
               </div>
             </div>
           </>
+        )}
+
+        {step === 'countdown' && (
+          <Countdown
+            seconds={7}
+            onComplete={handleCountdownComplete}
+            message="Preparing payment details..."
+          />
+        )}
+
+        {step === 'warning' && (
+          <div className="space-y-6">
+            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+              <div className="flex gap-4 mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-0.5" />
+                <h2 className="text-xl font-bold text-red-900">WARNING</h2>
+              </div>
+              <p className="text-red-800 font-semibold mb-4">
+                Dear BLUEPAY PRO V30 user,
+              </p>
+              <p className="text-red-800 mb-4">
+                Be informed that making payment via OPAY BANK is not available and any payment made via OPAY BANK will be declined due to our terms and service.
+              </p>
+              <p className="text-red-800 font-semibold">
+                Kindly proceed with other banks.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleProceed}
+                className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
+              >
+                PROCEED
+              </button>
+              <button
+                onClick={() => setStep('amount')}
+                className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition"
+              >
+                BACK
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 'receipt_countdown' && (
+          <Countdown
+            seconds={7}
+            onComplete={handleReceiptCountdownComplete}
+            message="Preparing upload page..."
+          />
         )}
 
         {step === 'success' && (

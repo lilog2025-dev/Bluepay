@@ -35,6 +35,16 @@ export default function AirtimePage() {
     { name: 'Kenya', code: '+254' },
     { name: 'South Africa', code: '+27' },
     { name: 'Uganda', code: '+256' },
+    { name: 'Tanzania', code: '+255' },
+    { name: 'Ethiopia', code: '+251' },
+    { name: 'Cameroon', code: '+237' },
+    { name: 'Senegal', code: '+221' },
+    { name: 'Ivory Coast', code: '+225' },
+    { name: 'Rwanda', code: '+250' },
+    { name: 'Zimbabwe', code: '+263' },
+    { name: 'Botswana', code: '+267' },
+    { name: 'Namibia', code: '+264' },
+    { name: 'Zambia', code: '+260' },
   ]
 
   const networks = [
