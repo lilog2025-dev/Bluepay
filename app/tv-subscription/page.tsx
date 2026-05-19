@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
-import { subscribeToBalance } from '@/lib/fintech-utils'
 
 export default function TVSubscriptionPage() {
   const router = useRouter()
@@ -19,8 +18,6 @@ export default function TVSubscriptionPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [transactionId, setTransactionId] = useState('')
-  const [balance, setBalance] = useState(0)
-  const [userId, setUserId] = useState('')
 
   const providers = [
     { id: 'dstv', name: 'DStv', plans: [
@@ -57,22 +54,13 @@ export default function TVSubscriptionPage() {
         )
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
-          setUserId(session.user.id)
           setUserEmail(session.user.email || '')
           const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name, balance')
+            .select('full_name')
             .eq('id', session.user.id)
             .single()
           if (profile?.full_name) setFullName(profile.full_name)
-          if (profile?.balance) {
-            setBalance(profile.balance)
-            
-            // Subscribe to balance changes in realtime
-            subscribeToBalance(session.user.id, (newBalance) => {
-              setBalance(newBalance)
-            })
-          }
         }
       } catch (err) {
         setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
@@ -255,12 +243,6 @@ export default function TVSubscriptionPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pt-6">
-        {/* Available Balance */}
-        <div className="bg-gradient-to-r from-[#0000ff] to-blue-600 rounded-xl p-4 text-white mb-6">
-          <p className="text-white/70 text-xs mb-1">Available Balance</p>
-          <h2 className="text-2xl font-bold">NGN {balance.toLocaleString()}.00</h2>
-        </div>
-
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Select TV Provider</label>
