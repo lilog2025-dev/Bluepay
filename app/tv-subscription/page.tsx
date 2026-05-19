@@ -205,9 +205,13 @@ export default function TVSubscriptionPage() {
                 <span className="text-gray-600">Plan</span>
                 <span className="font-bold text-gray-900">{currentPlan?.name}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between pb-3 border-b border-gray-200">
                 <span className="text-gray-600">Amount</span>
                 <span className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">BPC CODE</span>
+                <span className="font-mono font-bold text-gray-900">{bpcCode}</span>
               </div>
             </div>
           </div>
@@ -331,14 +335,14 @@ export default function TVSubscriptionPage() {
               <button
                 onClick={() => setStep('confirm')}
                 disabled={!bpcCode.trim()}
-                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-4"
+                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-6"
               >
                 Continue
               </button>
 
               <a
                 href="/buy-bpc"
-                className="block w-full text-center bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition mt-2"
+                className="block w-full text-center bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
               >
                 Buy BPC
               </a>

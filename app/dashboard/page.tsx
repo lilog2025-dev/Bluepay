@@ -26,11 +26,7 @@ import {
   Lightbulb,
   Share2,
   BarChart3,
-  ArrowDownLeft,
-  ArrowUpRight,
 } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-import { subscribeToBalance, getRecentTransactions, subscribeToRecentTransactions } from '@/lib/fintech-utils'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -41,83 +37,18 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-  const [balance, setBalance] = useState(0)
-  const [userId, setUserId] = useState('')
-  const [recentTransactions, setRecentTransactions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setMounted(true)
-    loadUserData()
-  }, [])
-
-  const loadUserData = async () => {
-    try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session?.user) {
-        setUserId(session.user.id)
-        
-        // Load profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, balance')
-          .eq('id', session.user.id)
-          .single()
-        
-        if (profile) {
-          setFullName(profile.full_name || 'BLUEPAY User')
-          setBalance(profile.balance || 0)
-          
-          // Subscribe to balance changes
-          const unsubscribeBalance = subscribeToBalance(session.user.id, (newBalance) => {
-            setBalance(newBalance)
-          })
-          
-          // Load recent transactions
-          const transactions = await getRecentTransactions(session.user.id, 5)
-          setRecentTransactions(transactions)
-          
-          // Subscribe to transaction changes
-          const unsubscribeTransactions = subscribeToRecentTransactions(session.user.id, (transactions) => {
-            setRecentTransactions(transactions.slice(0, 5))
-          })
-          
-          setLoading(false)
-          return () => {
-            unsubscribeBalance()
-            unsubscribeTransactions()
-          }
-        }
-      } else {
-        // Fallback to session storage
-        const storedName = sessionStorage.getItem('signupFullName')
-        const storedEmail = sessionStorage.getItem('signupEmail')
-        if (storedName) {
-          setFullName(storedName)
-        }
-        if (storedEmail) {
-          setUserEmail(storedEmail)
-        }
-        setLoading(false)
-      }
-    } catch (err) {
-      console.error('[v0] Error loading user data:', err)
-      const storedName = sessionStorage.getItem('signupFullName')
-      const storedEmail = sessionStorage.getItem('signupEmail')
-      if (storedName) {
-        setFullName(storedName)
-      }
-      if (storedEmail) {
-        setUserEmail(storedEmail)
-      }
-      setLoading(false)
+    const storedName = sessionStorage.getItem('signupFullName')
+    const storedEmail = sessionStorage.getItem('signupEmail')
+    if (storedName) {
+      setFullName(storedName)
     }
-  }
+    if (storedEmail) {
+      setUserEmail(storedEmail)
+    }
+  }, [])
 
   const handleLogout = () => {
     sessionStorage.clear()
@@ -181,25 +112,27 @@ export default function DashboardPage() {
             </div>
 
             {/* Balance Card - Compact */}
-            <div className="bg-gradient-to-r from-[#0000ff] to-blue-600 rounded-lg p-3 text-white shadow-md">
+            <div className="bg-[#0000ff] rounded-xl p-2.5 text-white shadow-lg mb-3">
               <p className="text-white/70 text-xs mb-1">Available Balance</p>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-2xl font-bold">
-                  {loading ? 'Loading...' : (showBalance ? `NGN ${balance.toLocaleString()}.00` : '••••••••')}
-                </p>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 flex-1">
+                  <h3 className="text-base font-bold">
+                    {showBalance ? 'NGN 250,000.00' : '••••••••'}
+                  </h3>
+                  <button
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="p-0.5 hover:bg-white/20 rounded-lg transition"
+                  >
+                    {showBalance ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                  </button>
+                </div>
                 <button
-                  onClick={() => setShowBalance(!showBalance)}
-                  className="p-1 hover:bg-blue-500/50 rounded-lg transition"
+                  onClick={() => router.push('/withdraw')}
+                  className="px-2 py-0.5 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition whitespace-nowrap"
                 >
-                  {showBalance ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                  Withdraw
                 </button>
               </div>
-              <button
-                onClick={() => router.push('/withdraw')}
-                className="px-2 py-0.5 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition whitespace-nowrap"
-              >
-                Withdraw
-              </button>
               
               {/* Daily Allocation - Compact */}
               <div className="mt-1.5 pt-1.5 border-t border-white/20">
@@ -259,35 +192,7 @@ export default function DashboardPage() {
             {/* Transaction History */}
             <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Transactions</h3>
             <div className="space-y-2">
-              {recentTransactions.length === 0 ? (
-                <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
-              ) : (
-                recentTransactions.map((tx, idx) => (
-                  <div key={idx} className="bg-white rounded-lg p-3 border border-gray-200 flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        tx.type === 'withdrawal' ? 'bg-red-100' : 'bg-green-100'
-                      }`}>
-                        {tx.type === 'withdrawal' ? (
-                          <ArrowUpRight className={`w-5 h-5 ${tx.type === 'withdrawal' ? 'text-red-600' : 'text-green-600'}`} />
-                        ) : (
-                          <ArrowDownLeft className="w-5 h-5 text-green-600" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-gray-900 truncate capitalize">{tx.type}</p>
-                        <p className="text-xs text-gray-600 truncate">{tx.description || tx.provider}</p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0 ml-2">
-                      <p className={`text-sm font-bold ${tx.type === 'withdrawal' ? 'text-red-600' : 'text-green-600'}`}>
-                        {tx.type === 'withdrawal' ? '-' : '+'}NGN {Math.abs(tx.amount).toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-600">{tx.status || 'Completed'}</p>
-                    </div>
-                  </div>
-                ))
-              )}
+              <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
             </div>
           </>
         )}
