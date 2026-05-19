@@ -76,67 +76,67 @@ export default function DashboardPage() {
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 relative">
-      {/* Top Blue Header */}
+    <div className="min-h-screen bg-gray-50 pb-20 relative">
+      {/* Top Blue Header - Compact */}
       <header className="sticky top-0 z-50 bg-[#0000ff] text-white">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 hover:bg-blue-600 rounded-lg">
-            <Menu className="w-6 h-6" />
+        <div className="px-3 py-2 flex items-center justify-between">
+          <button onClick={() => setMenuOpen(!menuOpen)} className="p-1 hover:bg-blue-600 rounded-lg">
+            <Menu className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold">BLUEPAY</h1>
-          <button className="relative p-2 hover:bg-blue-600 rounded-lg">
-            <Bell className="w-6 h-6" />
-            <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full" />
+          <h1 className="text-lg font-bold">BLUEPAY</h1>
+          <button className="relative p-1 hover:bg-blue-600 rounded-lg">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="px-4 py-4 max-w-2xl mx-auto">
+      {/* Main Content - Compact */}
+      <main className="px-3 py-2 max-w-2xl mx-auto">
         {activeTab === 'home' && (
           <>
-            {/* User Greeting */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-xl font-bold">
+            {/* User Greeting - Reduced */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-base font-bold">
                   {fullName.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p className="text-gray-500 text-xs">Good Morning</p>
-                  <h2 className="text-lg font-bold text-gray-900">{fullName}</h2>
+                  <h2 className="text-base font-bold text-gray-900">{fullName}</h2>
                 </div>
               </div>
-              <button className="p-3 bg-[#0000ff] rounded-full text-white hover:opacity-90">
-                <Bell className="w-5 h-5" />
+              <button className="p-2 bg-[#0000ff] rounded-full text-white hover:opacity-90">
+                <Bell className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Balance Card - Compact and Clean */}
-            <div className="bg-[#0000ff] rounded-2xl p-3 text-white shadow-lg mb-4">
-              <p className="text-white/70 text-xs mb-2">Available Balance</p>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 flex-1">
-                  <h3 className="text-lg font-bold">
+            {/* Balance Card - Compact */}
+            <div className="bg-[#0000ff] rounded-xl p-2.5 text-white shadow-lg mb-3">
+              <p className="text-white/70 text-xs mb-1">Available Balance</p>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 flex-1">
+                  <h3 className="text-base font-bold">
                     {showBalance ? 'NGN 250,000.00' : '••••••••'}
                   </h3>
                   <button
                     onClick={() => setShowBalance(!showBalance)}
-                    className="p-1 hover:bg-white/20 rounded-lg transition"
+                    className="p-0.5 hover:bg-white/20 rounded-lg transition"
                   >
-                    {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    {showBalance ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                   </button>
                 </div>
                 <button
                   onClick={() => router.push('/withdraw')}
-                  className="px-3 py-1 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition whitespace-nowrap"
+                  className="px-2 py-0.5 bg-white text-[#0000ff] font-bold rounded-full text-xs hover:opacity-90 transition whitespace-nowrap"
                 >
                   Withdraw
                 </button>
               </div>
               
               {/* Daily Allocation - Compact */}
-              <div className="mt-2 pt-2 border-t border-white/20">
-                <div className="flex justify-between items-center text-xs mb-1">
+              <div className="mt-1.5 pt-1.5 border-t border-white/20">
+                <div className="flex justify-between items-center text-xs mb-0.5">
                   <p className="text-white/80">Daily Allocation</p>
                   <p className="font-bold text-white">NGN250,000.00</p>
                 </div>
@@ -146,8 +146,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Primary Action Buttons */}
-            <div className="grid grid-cols-4 gap-1.5 mb-4">
+            {/* Primary Action Buttons - Compact */}
+            <div className="grid grid-cols-4 gap-1 mb-3">
               {primaryButtons.map((btn) => {
                 const Icon = btn.icon
                 return (
@@ -190,40 +190,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Transaction History */}
-            <h3 className="text-sm font-bold text-gray-900 mb-3">Transaction History</h3>
+            <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Transactions</h3>
             <div className="space-y-2">
-              <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-semibold text-sm text-gray-900">BPC Purchase</p>
-                  <p className="font-bold text-sm text-green-600">+₦5,000</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">Success</p>
-                  <p className="text-xs text-gray-400">Today 2:34 PM</p>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-semibold text-sm text-gray-900">Airtime Top-up</p>
-                  <p className="font-bold text-sm text-red-600">-₦1,000</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">Success</p>
-                  <p className="text-xs text-gray-400">Today 1:15 PM</p>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-semibold text-sm text-gray-900">Data Purchase</p>
-                  <p className="font-bold text-sm text-red-600">-₦2,500</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">Success</p>
-                  <p className="text-xs text-gray-400">Yesterday 4:22 PM</p>
-                </div>
-              </div>
+              <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
             </div>
           </>
         )}
