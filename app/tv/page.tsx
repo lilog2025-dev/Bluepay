@@ -10,7 +10,11 @@ import {
   Copy,
   Tv as TvIcon,
   Check,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
+
+const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
 export default function TVPage() {
   const router = useRouter()
@@ -18,14 +22,21 @@ export default function TVPage() {
   const [selectedProvider, setSelectedProvider] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
   const [iucNumber, setIucNumber] = useState('')
+  const [bpcCode, setBpcCode] = useState('')
+  const [showBpcCode, setShowBpcCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [bpcError, setBpcError] = useState('')
   const [copied, setCopied] = useState(false)
 
   const providers = [
-    { name: 'DStv', code: 'DSTV' },
-    { name: 'Gotv', code: 'GOTV' },
-    { name: 'Startimes', code: 'STARTIMES' },
+    { name: 'DSTV', code: 'DSTV' },
+    { name: 'GOTV', code: 'GOTV' },
+    { name: 'STARTIMES', code: 'STARTIMES' },
+    { name: 'SHOWMAX', code: 'SHOWMAX' },
+    { name: 'CONSAT', code: 'CONSAT' },
+    { name: 'TSTV', code: 'TSTV' },
+    { name: 'MYTV', code: 'MYTV' },
   ]
 
   const plans = {
@@ -47,6 +58,24 @@ export default function TVPage() {
       { name: 'Classic', price: 3300, duration: '1 month', channels: 80 },
       { name: 'Super', price: 7500, duration: '1 month', channels: 180 },
     ],
+    SHOWMAX: [
+      { name: 'Standard', price: 3900, duration: '1 month', channels: 'Unlimited' },
+      { name: 'Premium', price: 4900, duration: '1 month', channels: 'Unlimited' },
+    ],
+    CONSAT: [
+      { name: 'Basic', price: 2500, duration: '1 month', channels: 50 },
+      { name: 'Standard', price: 4500, duration: '1 month', channels: 100 },
+    ],
+    TSTV: [
+      { name: 'Basic', price: 1200, duration: '1 month', channels: 30 },
+      { name: 'Standard', price: 3500, duration: '1 month', channels: 80 },
+      { name: 'Premium', price: 6500, duration: '1 month', channels: 150 },
+    ],
+    MYTV: [
+      { name: 'Basic', price: 2000, duration: '1 month', channels: 40 },
+      { name: 'Standard', price: 4000, duration: '1 month', channels: 90 },
+      { name: 'Premium', price: 7000, duration: '1 month', channels: 150 },
+    ],
   }
 
   const validateForm = () => {
@@ -60,6 +89,14 @@ export default function TVPage() {
     }
     if (!iucNumber || iucNumber.length < 10) {
       setError('Please enter a valid IUC/Smart Card number')
+      return false
+    }
+    if (!bpcCode) {
+      setBpcError('Please enter your BPC CODE')
+      return false
+    }
+    if (bpcCode !== CORRECT_BPC_CODE) {
+      setBpcError('Invalid BPC CODE. Please check and try again.')
       return false
     }
     return true
@@ -226,6 +263,43 @@ export default function TVPage() {
               <p className="text-xs text-gray-600 mt-2">
                 Usually found on your decoder or billing statement
               </p>
+            </div>
+
+            {/* BPC CODE Input */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Enter Your BPC CODE
+              </label>
+              <div className="relative">
+                <input
+                  type={showBpcCode ? 'text' : 'password'}
+                  value={bpcCode}
+                  onChange={(e) => {
+                    setBpcCode(e.target.value)
+                    setBpcError('')
+                  }}
+                  placeholder="Enter BPC CODE"
+                  className={`w-full px-4 py-3 pr-10 border-2 rounded-xl focus:outline-none transition ${
+                    bpcError
+                      ? 'border-red-500 focus:ring-2 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-2 focus:ring-teal-500'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowBpcCode(!showBpcCode)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
+                >
+                  {showBpcCode ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              {bpcError && (
+                <p className="text-xs text-red-600 mt-2">{bpcError}</p>
+              )}
             </div>
 
             {/* Error Message */}
