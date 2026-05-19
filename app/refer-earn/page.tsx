@@ -103,12 +103,16 @@ export default function ReferAndEarnPage() {
   }, [referralCode])
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(referralCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    if (referralLink) {
+      navigator.clipboard.writeText(referralLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   }
 
   const handleShareLink = async () => {
+    if (!referralLink) return
+
     const message = `Join BLUEPAY PRO V30 and earn rewards!\n\nUse my referral link:\n${referralLink}`
 
     if (navigator.share) {
@@ -122,7 +126,7 @@ export default function ReferAndEarnPage() {
       }
     } else {
       // Fallback to clipboard
-      navigator.clipboard.writeText(message)
+      navigator.clipboard.writeText(referralLink)
       alert('Referral link copied!')
     }
   }

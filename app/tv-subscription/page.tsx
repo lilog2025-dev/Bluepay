@@ -1,21 +1,23 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Check } from 'lucide-react'
+import { ChevronLeft, Check, Eye, EyeOff } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
 
-const TRANSACTION_CODE = 'BPC2026_PRO_V30_650'
-
 export default function TVSubscriptionPage() {
   const router = useRouter()
+  const [step, setStep] = useState<'select' | 'confirm' | 'countdown' | 'success'>('select')
   const [selectedProvider, setSelectedProvider] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
+  const [bpcCode, setBpcCode] = useState('')
+  const [showBpc, setShowBpc] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [countdown, setCountdown] = useState(0)
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [transactionId, setTransactionId] = useState('')
 
   const providers = [
     { id: 'dstv', name: 'DStv', plans: [
@@ -33,9 +35,17 @@ export default function TVSubscriptionPage() {
       { id: 'classic', name: 'Classic', price: 4500 },
       { id: 'premium', name: 'Premium', price: 9800 },
     ]},
+    { id: 'showmax', name: 'ShowMax', plans: [
+      { id: 'standard', name: 'Standard', price: 3999 },
+      { id: 'premium', name: 'Premium', price: 5999 },
+    ]},
+    { id: 'nollywood', name: 'Nollywood+', plans: [
+      { id: 'monthly', name: 'Monthly', price: 1999 },
+      { id: 'quarterly', name: 'Quarterly', price: 4999 },
+    ]},
   ]
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadUserData = async () => {
       try {
         const supabase = createClient(
@@ -60,54 +70,166 @@ export default function TVSubscriptionPage() {
     loadUserData()
   }, [])
 
+  useEffect(() => {
+    if (step === 'countdown' && countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+      return () => clearTimeout(timer)
+    } else if (step === 'countdown' && countdown === 0 && step === 'countdown') {
+      setStep('success')
+    }
+  }, [countdown, step])
+
   const currentProvider = providers.find(p => p.id === selectedProvider)
   const currentPlan = currentProvider?.plans.find(pl => pl.id === selectedPlan)
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!selectedProvider || !selectedPlan) {
-      alert('Please select a provider and plan')
+  const handleActivateSubscription = async () => {
+    if (!bpcCode.trim()) {
+      alert('Please enter your BPC CODE')
       return
     }
 
-    setLoading(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Send debit alert
-      const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
-      
-      await sendDebitAlert({
-        fullName: fullName,
-        email: userEmail,
-        amount: currentPlan?.price || 0,
-        transactionType: 'TV Subscription',
-        transactionId: transactionId,
-        date: date,
-        time: time,
-      })
-      
-      setSuccess(true)
-      setTimeout(() => router.push('/dashboard'), 2000)
-    } catch (error) {
-      alert('Transaction failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    setCountdown(7)
+    setStep('countdown')
+
+    // Send debit alert
+    const txId = generateTransactionId()
+    setTransactionId(txId)
+
+    await sendDebitAlert({
+      email: userEmail,
+      full_name: fullName,
+      transaction_type: 'TV Subscription',
+      amount: currentPlan?.price || 0,
+      recipient_name: currentProvider?.name || '',
+      recipient_account_number: bpcCode,
+      recipient_bank_name: currentPlan?.name || '',
+      transaction_id: txId,
+      transaction_date: getCurrentDateTime(),
+    })
   }
 
-  if (success) {
+  const handleProceed = () => {
+    setCountdown(7)
+    setStep('countdown')
+  }
+
+  if (step === 'success') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-10 h-10 text-white" />
+      <div className="min-h-screen bg-gray-50 pb-8">
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
+          <div className="flex items-center gap-3 max-w-2xl mx-auto">
+            <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
+              <ChevronLeft className="w-6 h-6 text-gray-900" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">Subscription Activated</h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Subscription Activated!</h1>
-          <p className="text-gray-600">Your TV subscription is now active</p>
-          <p className="text-sm text-gray-500 mt-2">Transaction: {TRANSACTION_CODE}</p>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 pt-8">
+          <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-6 text-center">
+            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Subscription Activated!</h2>
+            <p className="text-gray-600 mb-6">Your TV subscription is now active and ready to use.</p>
+
+            <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-3 mb-6 text-left">
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Provider</p>
+                <p className="font-bold text-gray-900">{currentProvider?.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Plan</p>
+                <p className="font-bold text-gray-900">{currentPlan?.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Amount</p>
+                <p className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Transaction ID</p>
+                <p className="font-mono font-bold text-gray-900 text-xs">{transactionId}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Date & Time</p>
+                <p className="font-bold text-gray-900 text-xs">{getCurrentDateTime()}</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (step === 'countdown') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center pb-8">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          <div className="text-6xl font-bold text-[#0000ff] mb-4 tabular-nums">{countdown}</div>
+          <p className="text-gray-600 text-lg">Processing your TV subscription...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we activate your subscription</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (step === 'confirm') {
+    return (
+      <div className="min-h-screen bg-gray-50 pb-8">
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
+          <div className="flex items-center gap-3 max-w-2xl mx-auto">
+            <button onClick={() => setStep('select')} className="p-2 hover:bg-gray-100 rounded-lg">
+              <ChevronLeft className="w-6 h-6 text-gray-900" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">Confirm Details</h1>
+          </div>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 pt-6">
+          <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-4 mb-6">
+            <h3 className="font-bold text-gray-900 text-lg">Subscription Summary</h3>
+
+            <div className="space-y-3">
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600">Provider</span>
+                <span className="font-bold text-gray-900">{currentProvider?.name}</span>
+              </div>
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600">Plan</span>
+                <span className="font-bold text-gray-900">{currentPlan?.name}</span>
+              </div>
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600">Amount</span>
+                <span className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">BPC CODE</span>
+                <span className="font-mono font-bold text-gray-900">{bpcCode}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setStep('select')}
+              className="w-full bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
+            >
+              EDIT
+            </button>
+            <button
+              onClick={handleProceed}
+              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition"
+            >
+              PROCEED
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -125,7 +247,7 @@ export default function TVSubscriptionPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pt-6">
-        <form onSubmit={handleSubscribe} className="space-y-4">
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-2">Select TV Provider</label>
             <select
@@ -170,38 +292,63 @@ export default function TVSubscriptionPage() {
           )}
 
           {currentPlan && (
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-              <p className="text-sm text-gray-600 mb-2">Subscription Summary</p>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Provider</span>
-                  <span className="font-bold text-gray-900">{currentProvider?.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Plan</span>
-                  <span className="font-bold text-gray-900">{currentPlan.name}</span>
-                </div>
-                <div className="flex justify-between border-t border-blue-200 pt-2 mt-2">
-                  <span className="text-gray-700 font-semibold">Total Amount</span>
-                  <span className="font-bold text-blue-600">₦{currentPlan.price.toLocaleString()}</span>
+            <>
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                <p className="text-sm text-gray-600 mb-2">Subscription Summary</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Provider</span>
+                    <span className="font-bold text-gray-900">{currentProvider?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Plan</span>
+                    <span className="font-bold text-gray-900">{currentPlan.name}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-blue-200 pt-2 mt-2">
+                    <span className="text-gray-700 font-semibold">Total Amount</span>
+                    <span className="font-bold text-blue-600">₦{currentPlan.price.toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">BPC CODE</label>
+                <div className="relative">
+                  <input
+                    type={showBpc ? 'text' : 'password'}
+                    placeholder="Enter your BPC CODE"
+                    value={bpcCode}
+                    onChange={(e) => setBpcCode(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowBpc(!showBpc)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
+                  >
+                    {showBpc ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Enter your Bank Processing Code</p>
+              </div>
+
+              <button
+                onClick={() => setStep('confirm')}
+                disabled={!bpcCode.trim()}
+                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-6"
+              >
+                Continue
+              </button>
+
+              <a
+                href="/buy-bpc"
+                className="block w-full text-center bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
+              >
+                Buy BPC
+              </a>
+            </>
           )}
-
-          <div className="bg-blue-50 rounded-xl p-4">
-            <p className="text-sm text-gray-600 mb-1">Transaction Code</p>
-            <p className="text-lg font-bold text-gray-900">{TRANSACTION_CODE}</p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !currentPlan}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-8"
-          >
-            {loading ? 'Processing...' : 'Activate Subscription'}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   )
