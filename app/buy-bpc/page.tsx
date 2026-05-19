@@ -9,7 +9,7 @@ import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
 
 export default function BuyBPCPage() {
   const router = useRouter()
-  const [step, setStep] = useState<'amount' | 'payment' | 'warning' | 'receipt' | 'success' | 'countdown' | 'receipt_countdown'>('amount')
+  const [step, setStep] = useState<'amount' | 'payment' | 'warning' | 'receipt' | 'success' | 'countdown' | 'receipt_countdown' | 'verify_countdown'>('amount')
   const [amount, setAmount] = useState(10650)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [error, setError] = useState('')
@@ -83,39 +83,18 @@ export default function BuyBPCPage() {
     setError('')
 
     try {
-      // Get date and time for email
-      const { date, time } = formatDateTimeForEmail()
-
-      // Send BPC verification email using the email service
-      const emailResult = await sendBPCEmail({
-        fullName: fullName,
-        email: userEmail,
-        amount: amount,
-        transactionId: sessionId,
-        date: date,
-        time: time,
-      })
-
-      if (emailResult.success) {
-        setSuccess(emailResult.message)
-      } else {
-        // Show error but still proceed to success page
-        setError('Payment verified, but email delivery pending. Check your email inbox.')
-      }
-
-      // Show success page regardless of email status
-      setTimeout(() => {
-        setStep('success')
-      }, 2000)
+      // Trigger 6-second countdown before showing success
+      setStep('verify_countdown')
     } catch (err) {
       console.error('[v0] Payment verification error:', err)
       setError('Payment submitted. Please check your email for confirmation.')
-      setTimeout(() => {
-        setStep('success')
-      }, 2000)
     } finally {
       setIsVerifying(false)
     }
+  }
+
+  const handleVerifyCountdownComplete = () => {
+    setStep('success')
   }
 
   const handleProceed = () => {
@@ -337,6 +316,14 @@ export default function BuyBPCPage() {
 
         {step === 'warning' && (
           <div className="space-y-6">
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/opay-logo.jpg" 
+                alt="OPay Logo" 
+                className="w-24 h-24 rounded-full shadow-lg object-cover"
+              />
+            </div>
+            
             <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
               <div className="flex gap-4 mb-4">
                 <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-0.5" />
@@ -378,52 +365,64 @@ export default function BuyBPCPage() {
           />
         )}
 
+        {step === 'verify_countdown' && (
+          <Countdown
+            seconds={6}
+            onComplete={handleVerifyCountdownComplete}
+            message="Verifying payment and processing BPC CODE..."
+          />
+        )}
+
         {step === 'success' && (
           <>
-            <div className="bg-green-50 rounded-3xl p-8 text-center mb-6">
+            <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-3xl p-6 text-center mb-6">
               <div className="flex justify-center mb-4">
-                <CheckCircle className="w-20 h-20 text-green-600" />
+                <CheckCircle className="w-24 h-24 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Purchase Successful!</h2>
-              <p className="text-gray-600 mb-6">
-                Your BPC code has been verified and is now active on your account.
-              </p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">BPC CODE ORDER</h2>
+              <h3 className="text-xl font-bold text-green-600 mb-4">SUCCESSFULLY ORDERED</h3>
+              
+              <div className="mb-4">
+                <p className="text-gray-700 text-sm mb-3">
+                  Dear {fullName},
+                </p>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Your BPC CODE order has been received successfully.
+                </p>
+                <p className="text-gray-600 text-sm leading-relaxed mt-2">
+                  Kindly check your email inbox or spam folder while your BPC CODE is being processed.
+                </p>
+              </div>
 
-              <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 text-left mb-6">
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Amount</p>
-                    <p className="font-bold text-gray-900">NGN {amount.toLocaleString()}.00</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Transaction ID</p>
-                    <p className="font-mono font-bold text-[#0000ff]">TXN20260517001</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Status</p>
-                    <p className="font-bold text-green-600">Verified</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Time</p>
-                    <p className="font-bold text-gray-900">May 17, 2026 • 08:19 AM</p>
-                  </div>
+              <div className="bg-white rounded-2xl p-4 border-2 border-green-200 text-left mb-6 space-y-3">
+                <div>
+                  <p className="text-xs text-gray-600 mb-1 font-semibold">Full Name</p>
+                  <p className="font-bold text-gray-900">{fullName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-1 font-semibold">Email</p>
+                  <p className="font-bold text-gray-900">{userEmail}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-1 font-semibold">Amount Used</p>
+                  <p className="font-bold text-[#0000ff]">NGN {amount.toLocaleString()}.00</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-1 font-semibold">Transaction ID</p>
+                  <p className="font-mono font-bold text-gray-900 text-sm break-all">{sessionId}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-1 font-semibold">Date & Time</p>
+                  <p className="font-bold text-gray-900">May 19, 2026 • 10:45 AM</p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
-                >
-                  Back to Dashboard
-                </button>
-                <button
-                  onClick={() => router.push('/transactions')}
-                  className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition"
-                >
-                  View Transactions
-                </button>
-              </div>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-2xl hover:opacity-90 transition"
+              >
+                Back to Dashboard
+              </button>
             </div>
           </>
         )}
