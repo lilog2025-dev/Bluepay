@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, MessageSquare, HelpCircle, AlertCircle, Mail, MessageCircle } from 'lucide-react'
+import { ArrowLeft, MessageSquare, HelpCircle, AlertCircle, Mail, MessageCircle, Send, MessageSquareDot } from 'lucide-react'
 
 export default function SupportPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'ai-chat' | 'support' | 'review' | 'complaint'>('ai-chat')
   const [message, setMessage] = useState('')
+  const [complaintName, setComplaintName] = useState('')
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; text: string }>>([])
   const [isAITyping, setIsAITyping] = useState(false)
 
@@ -18,9 +19,12 @@ export default function SupportPage() {
     'referral': 'Earn rewards by referring friends! Each successful referral earns you 1000 NGN. Share your unique referral code via Refer & Earn page. There\'s no limit to how much you can earn!',
     'airtime': 'Buy airtime by: 1. Select network (MTN, GLO, etc.) 2. Enter phone number 3. Choose amount 4. Confirm purchase. Airtime is delivered instantly!',
     'data': 'Purchase data: 1. Go to Data page 2. Select network 3. Choose data plan 4. Confirm. Data is activated immediately on your phone.',
+    'betting': 'Fund your betting account: 1. Go to Betting page 2. Enter amount 3. Confirm payment 4. Balance updates instantly. You can then place bets on your favorite sports.',
+    'tv': 'Subscribe to TV: 1. Go to TV Subscription 2. Select provider 3. Enter BPC CODE 4. Choose package 5. Confirm. Subscription activates within minutes.',
+    'electricity': 'Pay electricity bills: 1. Go to Electricity 2. Enter meter number 3. Choose amount 4. Confirm payment. Receipt will be sent to your email.',
     'transaction': 'View all your transactions on the Transactions page. Each transaction shows: Type, Amount, Status, Date & Time, and Transaction ID.',
     'account': 'Account issues can be resolved through: 1. Security settings to reset PIN 2. Profile page to update details 3. Contact support for technical issues.',
-    'default': 'Hello! I\'m BLUEPAY AI Assistant. I can help you with: BPC CODE, Withdrawals, Referrals, Airtime, Data, Transactions, and Account issues. What would you like help with?'
+    'default': 'Hello! I\'m BLUEPAY AI Assistant. I can help you with: BPC CODE, Withdrawals, Referrals, Airtime, Data, Betting, TV Subscriptions, Electricity, Transactions, and Account issues. What would you like help with?'
   }
 
   const findAIResponse = (userInput: string): string => {
@@ -50,6 +54,24 @@ export default function SupportPage() {
     const aiMsg = { id: (Date.now() + 1).toString(), type: 'ai' as const, text: aiResponse }
     setChatMessages(prev => [...prev, aiMsg])
     setIsAITyping(false)
+  }
+
+  const handleSubmitComplaint = () => {
+    if (!complaintName.trim() || !message.trim()) {
+      alert('Please fill in your name and complaint details')
+      return
+    }
+
+    const now = new Date().toLocaleString()
+    const complaintText = `COMPLAINT from BLUEPAY:\n\nName: ${complaintName}\nDate/Time: ${now}\nComplaint: ${message}`
+    const whatsappUrl = `https://wa.me/2347078434086?text=${encodeURIComponent(complaintText)}`
+    
+    window.open(whatsappUrl, '_blank')
+    
+    // Reset form
+    setComplaintName('')
+    setMessage('')
+    alert('Redirecting you to WhatsApp to file your complaint...')
   }
 
   return (
@@ -113,19 +135,16 @@ export default function SupportPage() {
 
       <main className="px-3 py-3 max-w-2xl mx-auto">
         {/* Contact Methods */}
-        <div className="bg-gradient-to-r from-blue-50 to-[#0000ff]/5 rounded-2xl p-3 border border-[#0000ff]/20 mb-4">
-          <h3 className="font-bold text-gray-900 text-xs mb-3">Quick Contact Support</h3>
-          <div className="grid grid-cols-2 gap-2">
+        <div className="bg-gradient-to-r from-blue-50 to-[#0000ff]/5 rounded-2xl p-4 border border-[#0000ff]/20 mb-4">
+          <h3 className="font-bold text-gray-900 text-sm mb-3">Contact Support</h3>
+          <div className="grid grid-cols-2 gap-3">
             {/* Email Support */}
             <a
               href="mailto:supportbluepaypro.com@gmail.com"
-              className="bg-white rounded-lg p-2.5 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition"
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2"
             >
-              <div className="flex flex-col items-center text-center gap-1">
-                <Mail className="w-5 h-5 text-[#0000ff]" />
-                <p className="font-semibold text-gray-900 text-xs">Email Support</p>
-                <p className="text-xs text-gray-600 truncate">supportbluepaypro.com@gmail.com</p>
-              </div>
+              <Mail className="w-6 h-6 text-[#0000ff]" />
+              <p className="font-semibold text-gray-900 text-xs">Contact Us via Email</p>
             </a>
 
             {/* WhatsApp Support */}
@@ -133,14 +152,31 @@ export default function SupportPage() {
               href="https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance."
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-lg p-2.5 border border-gray-200 hover:border-green-500 hover:shadow-md transition"
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-green-500 hover:shadow-md transition flex flex-col items-center text-center gap-2"
             >
-              <div className="flex flex-col items-center text-center gap-1">
-                <MessageCircle className="w-5 h-5 text-green-500" />
-                <p className="font-semibold text-gray-900 text-xs">WhatsApp Chat</p>
-                <p className="text-xs text-gray-600">+234 707 843 4086</p>
-              </div>
+              <MessageCircle className="w-6 h-6 text-green-500" />
+              <p className="font-semibold text-gray-900 text-xs">Contact Us via WhatsApp</p>
             </a>
+
+            {/* Telegram Channel */}
+            <a
+              href="https://t.me/bluepay2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-500 hover:shadow-md transition flex flex-col items-center text-center gap-2"
+            >
+              <MessageSquareDot className="w-6 h-6 text-blue-500" />
+              <p className="font-semibold text-gray-900 text-xs">Join Telegram Channel</p>
+            </a>
+
+            {/* Live Chat */}
+            <button
+              onClick={() => setActiveTab('ai-chat')}
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2"
+            >
+              <Send className="w-6 h-6 text-[#0000ff]" />
+              <p className="font-semibold text-gray-900 text-xs">Start Live Chat</p>
+            </button>
           </div>
         </div>
 
@@ -231,9 +267,12 @@ export default function SupportPage() {
 
             {/* Live Chat */}
             <div className="bg-[#0000ff]/10 rounded-lg p-3 border border-[#0000ff]/20 mt-4">
-              <p className="text-xs text-gray-900 mb-2 font-semibold">Need more help?</p>
-              <button className="w-full bg-[#0000ff] text-white font-bold py-2 rounded-lg hover:opacity-90 transition text-sm">
-                Start Live Chat
+              <p className="text-xs text-gray-900 mb-2 font-semibold">Need immediate assistance?</p>
+              <button
+                onClick={() => setActiveTab('ai-chat')}
+                className="w-full bg-[#0000ff] text-white font-bold py-2 rounded-lg hover:opacity-90 transition text-sm"
+              >
+                Start Live Chat with AI
               </button>
             </div>
           </div>
@@ -285,6 +324,19 @@ export default function SupportPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-900 mb-1.5">
+                  Your Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter your full name..."
+                  value={complaintName}
+                  onChange={(e) => setComplaintName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-900 mb-1.5">
                   Complaint Category
                 </label>
                 <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]">
@@ -300,7 +352,7 @@ export default function SupportPage() {
                   Complaint Details
                 </label>
                 <textarea
-                  placeholder="Describe your complaint..."
+                  placeholder="Describe your complaint in detail..."
                   rows={4}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -308,8 +360,11 @@ export default function SupportPage() {
                 />
               </div>
 
-              <button className="w-full bg-red-600 text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm">
-                Submit Complaint
+              <button
+                onClick={handleSubmitComplaint}
+                className="w-full bg-red-600 text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm"
+              >
+                Submit Complaint via WhatsApp
               </button>
             </div>
           </div>
