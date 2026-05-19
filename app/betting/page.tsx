@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { sendDebitAlert, formatDateTimeForEmail } from '@/lib/email-service'
+import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'

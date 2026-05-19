@@ -66,7 +66,7 @@ export default function DashboardPage() {
     { label: 'SUPPORT', icon: Headphones, color: 'bg-cyan-500', path: '/support' },
     { label: 'GROUP', icon: Users, color: 'bg-purple-500', path: '/group' },
     { label: 'EARN', icon: DollarSign, color: 'bg-yellow-400', path: '/earn' },
-    { label: 'DATA REVIEW', icon: TrendingUp, color: 'bg-pink-500', path: '/data-review' },
+    { label: 'DATA REVIEW', icon: TrendingUp, color: 'bg-pink-500', path: '/support' },
     { label: 'BETTING', icon: Dices, color: 'bg-indigo-600', path: '/betting' },
     { label: 'TV SUBSCRIPTION', icon: Tv, color: 'bg-red-500', path: '/tv-subscription' },
     { label: 'ELECTRICITY', icon: Lightbulb, color: 'bg-yellow-600', path: '/electricity' },
@@ -230,41 +230,39 @@ export default function DashboardPage() {
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-w-2xl mx-auto shadow-2xl">
         <div className="flex justify-around items-center">
           <button
-            onClick={() => setActiveTab('home')}
-            className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors ${
-              activeTab === 'home' ? 'text-orange-500' : 'text-gray-600'
-            }`}
+            onClick={() => router.push('/calendar')}
+            className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors text-gray-600 hover:text-orange-500`}
           >
             <Calendar className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Calendar</span>
           </button>
           <button
-            onClick={() => setActiveTab('home')}
-            className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors text-gray-600`}
+            onClick={() => router.push('/social')}
+            className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors text-gray-600 hover:text-pink-500`}
           >
             <MessageCircle className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Social</span>
           </button>
           <button
-            onClick={() => setActiveTab('home')}
-            className="flex-1 flex flex-col items-center justify-center py-3"
+            onClick={() => router.push('/quick-actions')}
+            className="flex-1 flex flex-col items-center justify-center py-3 hover:scale-110 transition"
           >
-            <div className="w-11 h-11 bg-[#0000ff] rounded-full flex items-center justify-center text-white">
+            <div className="w-11 h-11 bg-[#0000ff] rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl">
               <Plus className="w-6 h-6" />
             </div>
           </button>
           <button
-            onClick={() => setActiveTab('home')}
-            className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors text-gray-600`}
+            onClick={() => router.push('/support')}
+            className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors text-gray-600 hover:text-blue-500`}
           >
             <BarChart3 className="w-5 h-5 mb-1" />
-            <span className="text-xs font-medium">Data</span>
+            <span className="text-xs font-medium">Support</span>
           </button>
           <button
-            onClick={() => setActiveTab('profile')}
+            onClick={() => router.push('/profile')}
             className={`flex-1 flex flex-col items-center justify-center py-3 transition-colors ${
               activeTab === 'profile' ? 'text-purple-500' : 'text-gray-600'
-            }`}
+            } hover:text-purple-500`}
           >
             <UserCircle className="w-5 h-5 mb-1" />
             <span className="text-xs font-medium">Profile</span>

@@ -2,29 +2,89 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Copy, Check } from 'lucide-react'
-
-const TRANSACTION_CODE = 'BPC2026_PRO_V30_650'
+import { ChevronLeft, Copy, Check, Users, TrendingUp, Gift } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 
 export default function ReferAndEarnPage() {
   const router = useRouter()
   const [referralCode, setReferralCode] = useState('')
+  const [referralLink, setReferralLink] = useState('')
   const [copied, setCopied] = useState(false)
   const [fullName, setFullName] = useState('User')
+  const [totalReferrals, setTotalReferrals] = useState(0)
+  const [activeReferrals, setActiveReferrals] = useState(0)
+  const [totalEarned, setTotalEarned] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedName = sessionStorage.getItem('signupFullName')
-    if (storedName) {
-      setFullName(storedName)
+    const loadProfileData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          // Fetch profile data
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('full_name, referral_code, total_referrals, active_referrals, total_earned')
+            .eq('id', session.user.id)
+            .single()
+
+          if (profile) {
+            setFullName(profile.full_name || 'User')
+            setReferralCode(profile.referral_code || `BLUEPAY${Math.random().toString(36).substring(7).toUpperCase()}`)
+            setTotalReferrals(profile.total_referrals || 0)
+            setActiveReferrals(profile.active_referrals || 0)
+            setTotalEarned(profile.total_earned || 0)
+          }
+        }
+      } catch (err) {
+        console.error('[v0] Error loading profile:', err)
+        // Fallback to sessionStorage
+        const storedName = sessionStorage.getItem('signupFullName')
+        setFullName(storedName || 'User')
+        setReferralCode(`BLUEPAY${Math.random().toString(36).substring(7).toUpperCase()}`)
+      } finally {
+        setLoading(false)
+      }
     }
-    // Generate referral code based on user
-    setReferralCode(`BPY${storedName?.slice(0, 3).toUpperCase()}${Math.random().toString(36).substring(7).toUpperCase()}`)
+
+    loadProfileData()
   }, [])
 
-  const handleCopy = () => {
+  // Generate referral link
+  useEffect(() => {
+    if (referralCode) {
+      setReferralLink(`https://wwwbluepaywebauthdormaindigital-app.vercel.app/signup?ref=${referralCode}`)
+    }
+  }, [referralCode])
+
+  const handleCopyCode = () => {
     navigator.clipboard.writeText(referralCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleShareLink = async () => {
+    const message = `Join BLUEPAY PRO V30 and earn rewards!\n\nUse my referral link:\n${referralLink}`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'BLUEPAY PRO V30 - Referral',
+          text: message,
+        })
+      } catch (err) {
+        console.log('[v0] Share cancelled')
+      }
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(message)
+      alert('Referral link copied!')
+    }
   }
 
   return (
@@ -39,92 +99,105 @@ export default function ReferAndEarnPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 pt-6">
-        {/* Referral Code */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6">
-          <p className="text-sm mb-3 opacity-90">Your Referral Code</p>
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold">{referralCode}</p>
-            <button
-              onClick={handleCopy}
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg p-3 transition"
-            >
-              {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-            </button>
+        {/* Referral Link Card */}
+        <div className="bg-gradient-to-r from-[#0000ff] to-blue-600 rounded-2xl p-5 text-white mb-6">
+          <p className="text-sm mb-2 opacity-90">Your Referral Link</p>
+          <div className="bg-white bg-opacity-10 rounded-lg p-3 mb-4 break-all font-mono text-xs">
+            {referralLink}
           </div>
-        </div>
-
-        {/* How It Works */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">How It Works</h2>
-          <div className="space-y-3">
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center flex-shrink-0 font-bold">1</div>
-              <div>
-                <p className="font-semibold text-gray-900">Share Your Code</p>
-                <p className="text-sm text-gray-600">Share your unique referral code with friends</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center flex-shrink-0 font-bold">2</div>
-              <div>
-                <p className="font-semibold text-gray-900">Friends Sign Up</p>
-                <p className="text-sm text-gray-600">They create an account using your code</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center flex-shrink-0 font-bold">3</div>
-              <div>
-                <p className="font-semibold text-gray-900">You Earn</p>
-                <p className="text-sm text-gray-600">Get ₦1,000 for each successful referral</p>
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={handleCopyCode}
+            className="w-full bg-white text-[#0000ff] font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center gap-2"
+          >
+            {copied ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Copy Link
+              </>
+            )}
+          </button>
         </div>
 
         {/* Referral Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-2xl font-bold text-gray-900">0</p>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <Users className="w-5 h-5 text-[#0000ff]" />
+            </div>
+            <p className="text-2xl font-bold text-gray-900">{totalReferrals}</p>
             <p className="text-xs text-gray-600 mt-1">Total Referrals</p>
           </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-2xl font-bold text-green-600">₦0</p>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+            </div>
+            <p className="text-2xl font-bold text-green-600">NGN {totalEarned.toLocaleString()}</p>
             <p className="text-xs text-gray-600 mt-1">Total Earned</p>
           </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <p className="text-2xl font-bold text-gray-900">0</p>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <Gift className="w-5 h-5 text-purple-600" />
+            </div>
+            <p className="text-2xl font-bold text-gray-900">{activeReferrals}</p>
             <p className="text-xs text-gray-600 mt-1">Active Referrals</p>
           </div>
         </div>
 
+        {/* How It Works */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm mb-6 border border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">How It Works</h2>
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#0000ff] text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">1</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm">Share Your Link</p>
+                <p className="text-xs text-gray-600">Share your unique referral link with friends</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#0000ff] text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">2</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm">Friends Sign Up</p>
+                <p className="text-xs text-gray-600">They create an account using your referral link</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#0000ff] text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">3</div>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm">You Earn</p>
+                <p className="text-xs text-gray-600">Get ₦1,000 for each successful referral</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Share Buttons */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <button
-            onClick={() => {
-              const message = `Join BLUEPAY and earn rewards! Use my referral code: ${referralCode}. Download now!`
-              if (navigator.share) {
-                navigator.share({ title: 'BLUEPAY Referral', text: message })
-              } else {
-                navigator.clipboard.writeText(message)
-                alert('Link copied to clipboard!')
-              }
-            }}
-            className="w-full bg-blue-500 text-white font-bold py-3 rounded-xl hover:opacity-90 transition"
+            onClick={handleShareLink}
+            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition text-sm"
           >
-            Share with Friends
+            Invite Friends
           </button>
 
           <button
             onClick={() => router.push('/dashboard')}
-            className="w-full bg-gray-100 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-200 transition"
+            className="w-full bg-gray-100 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-200 transition text-sm"
           >
             Back to Dashboard
           </button>
         </div>
 
+        {/* Info Box */}
         <div className="bg-blue-50 rounded-xl p-4 mt-6 border border-blue-200">
-          <p className="text-sm text-blue-900">
-            <span className="font-semibold">Transaction Code:</span> {TRANSACTION_CODE}
+          <p className="text-xs text-blue-900">
+            <span className="font-semibold block mb-1">Referral Program:</span>
+            Earn ₦1,000 for each friend who signs up and completes their first transaction. Your friend also gets a ₦500 bonus!
           </p>
         </div>
       </div>

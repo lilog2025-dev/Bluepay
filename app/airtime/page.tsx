@@ -12,7 +12,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
-import { sendDebitAlert, formatDateTimeForEmail } from '@/lib/email-service'
+import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -147,25 +147,23 @@ export default function AirtimePage() {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       // Send debit alert email
-      const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
+      const transactionId = generateTransactionId()
       
-      const alertResult = await sendDebitAlert({
-        fullName: fullName,
+      await sendDebitAlert({
         email: userEmail,
+        full_name: fullName,
+        transaction_type: 'Airtime Purchase',
         amount: parseFloat(amount),
-        transactionType: 'Airtime Purchase',
-        transactionId: transactionId,
-        date: date,
-        time: time,
+        recipient_name: selectedNetwork,
+        recipient_account_number: phoneNumber,
+        recipient_bank_name: selectedCountry,
+        transaction_id: transactionId,
+        transaction_date: getCurrentDateTime(),
       })
 
-      // Show toast notification
-      if (alertResult.success) {
-        setToastMessage(alertResult.message)
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
-      }
+      setToastMessage('Airtime delivered successfully!')
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 3000)
 
       setStep('success')
     } catch (err) {
@@ -435,7 +433,7 @@ export default function AirtimePage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Amount</span>
                   <span className="font-bold text-gray-900">
-                    ₦{parseInt(amount).toLocaleString()}
+                    ���{parseInt(amount).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">

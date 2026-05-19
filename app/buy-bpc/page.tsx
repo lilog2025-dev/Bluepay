@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-reac
 import { Countdown } from '@/components/Countdown'
 import { createClient } from '@supabase/supabase-js'
 import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
+import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 
 export default function BuyBPCPage() {
   const router = useRouter()
@@ -93,7 +94,20 @@ export default function BuyBPCPage() {
     }
   }
 
-  const handleVerifyCountdownComplete = () => {
+  const handleVerifyCountdownComplete = async () => {
+    // Send debit alert for BPC purchase
+    const transactionId = generateTransactionId()
+    await sendDebitAlert({
+      email: userEmail,
+      full_name: fullName,
+      transaction_type: 'BPC CODE Purchase',
+      amount: amount,
+      recipient_name: 'BLUEPAY Platform',
+      recipient_account_number: ACCOUNT_NUMBER,
+      recipient_bank_name: ACCOUNT_NAME,
+      transaction_id: transactionId,
+      transaction_date: getCurrentDateTime(),
+    })
     setStep('success')
   }
 
@@ -141,133 +155,121 @@ export default function BuyBPCPage() {
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-6">
         {step === 'amount' && (
-          <>
-            <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200 mb-6">
-              <h3 className="font-bold text-gray-900 mb-2">BPC Code Information</h3>
-              <p className="text-gray-600 text-sm">
-                BLUEPAY PRO V30 codes are digital credits that can be used to access premium features and services on our platform.
+          <div className="space-y-3">
+            <div className="bg-blue-50 rounded-xl p-3 border-2 border-blue-200 mb-3">
+              <h3 className="font-bold text-gray-900 text-sm mb-1">BPC CODE Purchase</h3>
+              <p className="text-gray-600 text-xs">
+                Buy your Bank Processing Code to activate premium features.
               </p>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Standard Price
-                </label>
-                <input
-                  type="text"
-                  value={`NGN ${amount.toLocaleString()}`}
-                  disabled
-                  className="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl font-bold text-gray-900"
-                />
+            <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-gray-600">BPC CODE Price</p>
+                <p className="font-bold text-[#0000ff] text-base">NGN {amount.toLocaleString()}.00</p>
               </div>
-
-              <button
-                onClick={handleProceed}
-                className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
-              >
-                Proceed to Payment
-              </button>
+              <p className="text-xs text-gray-500">One-time payment for premium access</p>
             </div>
-          </>
+
+            <button
+              onClick={handleProceed}
+              className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
+            >
+              Proceed to Payment
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 transition text-sm"
+            >
+              Cancel
+            </button>
+          </div>
         )}
 
         {step === 'payment' && (
           <>
-            <div className="bg-yellow-50 rounded-2xl p-6 border-2 border-yellow-200 mb-6">
-              <div className="flex gap-2 mb-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="bg-green-50 rounded-xl p-3 border-2 border-green-200 mb-3">
+              <h3 className="font-bold text-gray-900 text-sm mb-1">Payment Details</h3>
+              <p className="text-gray-600 text-xs">
+                Make transfer to the account details below to verify payment.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-2.5 border border-gray-200 shadow-sm mb-3">
+              <div className="space-y-2">
                 <div>
-                  <h3 className="font-bold text-gray-900 text-sm mb-1">Important Notice</h3>
-                  <p className="text-gray-600 text-xs">
-                    BLUEPAY PRO V30 does not accept payments from OPay bank. Any payment made from OPay will be declined and not reversed. Kindly use other Nigerian banks.
-                  </p>
+                  <p className="text-xs text-gray-600 mb-0.5">Bank Name</p>
+                  <p className="font-bold text-gray-900 text-sm">MONIEPOINT MFB</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-0.5">Account Number</p>
+                  <p className="font-mono font-bold text-[#0000ff] text-sm">{ACCOUNT_NUMBER}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-0.5">Account Name</p>
+                  <p className="font-bold text-gray-900 text-sm">CHI.. MODE...AGB</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600 mb-0.5">Amount to Transfer</p>
+                  <p className="font-bold text-gray-900 text-sm">NGN {amount.toLocaleString()}.00</p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Bank Account Details
-                </label>
-                <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Bank Name</p>
-                      <p className="font-bold text-gray-900">MONIEPOINT MFB</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Account Number</p>
-                      <p className="font-mono font-bold text-[#0000ff] text-lg">{ACCOUNT_NUMBER}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Account Name</p>
-                      <p className="font-bold text-gray-900">CHI.. MODE...AGB</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Amount to Transfer</p>
-                      <p className="font-bold text-gray-900 text-lg">NGN {amount.toLocaleString()}.00</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <button
-                  onClick={handleProceed}
-                  className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
-                >
-                  I Have Made the Payment
-                </button>
-                <button
-                  onClick={() => setStep('amount')}
-                  className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition"
-                >
-                  Back
-                </button>
-              </div>
+            <div className="space-y-2">
+              <button
+                onClick={handleProceed}
+                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
+              >
+                I Have Made the Payment
+              </button>
+              <button
+                onClick={() => setStep('amount')}
+                className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 transition text-sm"
+              >
+                Back
+              </button>
             </div>
           </>
         )}
 
         {step === 'receipt' && (
           <>
-            <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200 mb-6">
-              <h3 className="font-bold text-gray-900 mb-2">Upload Payment Receipt</h3>
-              <p className="text-gray-600 text-sm">
+            <div className="bg-blue-50 rounded-xl p-3 border-2 border-blue-200 mb-3">
+              <h3 className="font-bold text-gray-900 text-sm mb-1">Upload Payment Receipt</h3>
+              <p className="text-gray-600 text-xs">
                 Please upload a screenshot of your payment receipt to verify your payment.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {error && (
-                <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-600 text-sm">{error}</p>
+                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-2 flex gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-red-600 text-xs">{error}</p>
                 </div>
               )}
 
               {success && (
-                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 flex gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-green-600 text-sm">{success}</p>
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-2 flex gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-green-600 text-xs">{success}</p>
                 </div>
               )}
 
               {/* Receipt Upload */}
               <div>
                 <label className="block w-full">
-                  <div className="border-2 border-dashed border-[#0000ff] rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
-                    <Upload className="w-12 h-12 text-[#0000ff] mb-3" />
-                    <p className="font-bold text-gray-900 text-center mb-1">
+                  <div className="border-2 border-dashed border-[#0000ff] rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
+                    <Upload className="w-8 h-8 text-[#0000ff] mb-2" />
+                    <p className="font-bold text-gray-900 text-center text-xs mb-0.5">
                       {receiptFile ? 'Receipt Uploaded ✓' : 'Tap to Upload Receipt'}
                     </p>
-                    <p className="text-xs text-gray-600 text-center mb-2">
+                    <p className="text-xs text-gray-600 text-center mb-1">
                       PNG, JPG or JPEG (Max. 5MB)
                     </p>
                     {receiptFile && (
-                      <p className="text-sm text-gray-600 font-semibold">{receiptFile.name}</p>
+                      <p className="text-xs text-gray-600 font-semibold truncate max-w-xs">{receiptFile.name}</p>
                     )}
                   </div>
                   <input
@@ -283,12 +285,12 @@ export default function BuyBPCPage() {
                 <button
                   onClick={handleProceed}
                   disabled={isVerifying}
-                  className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                  className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm"
                 >
                   {isVerifying ? (
                     <>
-                      <Loader className="w-5 h-5 animate-spin" />
-                      VERIFYING PAYMENT...
+                      <Loader className="w-4 h-4 animate-spin" />
+                      VERIFYING...
                     </>
                   ) : (
                     'VERIFY PAYMENT'
@@ -297,7 +299,7 @@ export default function BuyBPCPage() {
                 <button
                   onClick={() => setStep('payment')}
                   disabled={isVerifying}
-                  className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition disabled:opacity-50"
+                  className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 disabled:opacity-50 transition text-sm"
                 >
                   Back
                 </button>
@@ -315,41 +317,41 @@ export default function BuyBPCPage() {
         )}
 
         {step === 'warning' && (
-          <div className="space-y-6">
-            <div className="flex justify-center mb-6">
+          <div className="space-y-3">
+            <div className="flex justify-center mb-3">
               <img 
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2828%29-7an7GHzEj5Blc8fCV8ly4jLuP6jjQl.jpeg" 
                 alt="OPay - Beyond Banking" 
-                className="w-full max-w-sm rounded-2xl shadow-lg object-cover"
+                className="w-full max-w-xs rounded-lg shadow-md object-cover"
               />
             </div>
             
-            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
-              <div className="flex gap-4 mb-4">
-                <AlertCircle className="w-8 h-8 text-red-600 flex-shrink-0 mt-0.5" />
-                <h2 className="text-xl font-bold text-red-900">WARNING</h2>
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3">
+              <div className="flex gap-2 mb-2">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <h2 className="text-base font-bold text-red-900">WARNING</h2>
               </div>
-              <p className="text-red-800 font-semibold mb-4">
+              <p className="text-red-800 font-semibold mb-2 text-xs">
                 Dear BLUEPAY PRO V30 user,
               </p>
-              <p className="text-red-800 mb-4">
+              <p className="text-red-800 mb-2 text-xs">
                 Be informed that making payment via OPAY BANK is not available and any payment made via OPAY BANK will be declined due to our terms and service.
               </p>
-              <p className="text-red-800 font-semibold">
+              <p className="text-red-800 font-semibold text-xs">
                 Kindly proceed with other banks.
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
                 onClick={handleProceed}
-                className="w-full bg-[#0000ff] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition"
+                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
               >
                 PROCEED
               </button>
               <button
                 onClick={() => setStep('amount')}
-                className="w-full bg-gray-200 text-gray-900 font-bold py-4 rounded-2xl hover:bg-gray-300 transition"
+                className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 transition text-sm"
               >
                 BACK
               </button>
@@ -375,51 +377,48 @@ export default function BuyBPCPage() {
 
         {step === 'success' && (
           <>
-            <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-3xl p-6 text-center mb-6">
-              <div className="flex justify-center mb-4">
-                <CheckCircle className="w-24 h-24 text-green-600" />
+            <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-4 text-center mb-4">
+              <div className="flex justify-center mb-3">
+                <CheckCircle className="w-16 h-16 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">BPC CODE ORDER</h2>
-              <h3 className="text-xl font-bold text-green-600 mb-4">SUCCESSFULLY ORDERED</h3>
+              <h2 className="text-xl font-bold text-gray-900 mb-0.5">BPC CODE ORDER</h2>
+              <h3 className="text-lg font-bold text-green-600 mb-3">SUCCESSFULLY ORDERED</h3>
               
-              <div className="mb-4">
-                <p className="text-gray-700 text-sm mb-3">
+              <div className="mb-3">
+                <p className="text-gray-700 text-xs mb-2">
                   Dear {fullName},
                 </p>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Your BPC CODE order has been received successfully.
-                </p>
-                <p className="text-gray-600 text-sm leading-relaxed mt-2">
-                  Kindly check your email inbox or spam folder while your BPC CODE is being processed.
+                <p className="text-gray-600 text-xs leading-relaxed">
+                  your payment receipt has been successfully received and your Bank Processing Code (BPC CODE) has been sent to your email. Kindly check your email inbox or spam folder to get your activated BPC CODE.
                 </p>
               </div>
 
-              <div className="bg-white rounded-2xl p-4 border-2 border-green-200 text-left mb-6 space-y-3">
+              <div className="bg-white rounded-lg p-2.5 border-2 border-green-200 text-left mb-4 space-y-2">
                 <div>
-                  <p className="text-xs text-gray-600 mb-1 font-semibold">Full Name</p>
-                  <p className="font-bold text-gray-900">{fullName}</p>
+                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Full Name</p>
+                  <p className="font-bold text-gray-900 text-sm">{fullName}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-1 font-semibold">Email</p>
-                  <p className="font-bold text-gray-900">{userEmail}</p>
+                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Email</p>
+                  <p className="font-bold text-gray-900 text-xs break-all">{userEmail}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-1 font-semibold">Amount Used</p>
-                  <p className="font-bold text-[#0000ff]">NGN {amount.toLocaleString()}.00</p>
+                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Amount Used</p>
+                  <p className="font-bold text-[#0000ff] text-sm">NGN {amount.toLocaleString()}.00</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-1 font-semibold">Transaction ID</p>
-                  <p className="font-mono font-bold text-gray-900 text-sm break-all">{sessionId}</p>
+                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Transaction ID</p>
+                  <p className="font-mono font-bold text-gray-900 text-xs break-all">{sessionId}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-600 mb-1 font-semibold">Date & Time</p>
-                  <p className="font-bold text-gray-900">May 19, 2026 • 10:45 AM</p>
+                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Date & Time</p>
+                  <p className="font-bold text-gray-900 text-xs">May 19, 2026 • 10:45 AM</p>
                 </div>
               </div>
 
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-2xl hover:opacity-90 transition"
+                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
               >
                 Back to Dashboard
               </button>

@@ -11,7 +11,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
-import { sendDebitAlert, formatDateTimeForEmail } from '@/lib/email-service'
+import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -139,20 +139,18 @@ export default function WithdrawPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       // Send debit alert for withdrawal
-      const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
+      const transactionId = generateTransactionId()
       
       await sendDebitAlert({
-        fullName: fullName,
         email: userEmail,
+        full_name: fullName,
+        transaction_type: 'Withdrawal',
         amount: parseFloat(amount),
-        transactionType: 'Withdrawal',
-        transactionId: transactionId,
-        date: date,
-        time: time,
-        bankName: selectedBank,
-        accountNumber: accountNumber,
-        accountHolder: accountName,
+        recipient_name: accountName,
+        recipient_account_number: accountNumber,
+        recipient_bank_name: selectedBank,
+        transaction_id: transactionId,
+        transaction_date: getCurrentDateTime(),
       })
       
       setStep('success')
