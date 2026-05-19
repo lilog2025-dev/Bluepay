@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Copy, Check, Users, TrendingUp, Gift } from 'lucide-react'
+import { ChevronLeft, Copy, Check, Users, TrendingUp, Gift, UserCheck, Calendar } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
 export default function ReferAndEarnPage() {
@@ -14,7 +14,9 @@ export default function ReferAndEarnPage() {
   const [totalReferrals, setTotalReferrals] = useState(0)
   const [activeReferrals, setActiveReferrals] = useState(0)
   const [totalEarned, setTotalEarned] = useState(0)
+  const [balance, setBalance] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [referralHistory, setReferralHistory] = useState<Array<any>>([])
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -29,7 +31,7 @@ export default function ReferAndEarnPage() {
           // Fetch profile data
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('full_name, referral_code, total_referrals, active_referrals, total_earned')
+            .select('full_name, referral_code, total_referrals, active_referrals, total_earned, balance')
             .eq('id', session.user.id)
             .single()
 
@@ -39,6 +41,19 @@ export default function ReferAndEarnPage() {
             setTotalReferrals(profile.total_referrals || 0)
             setActiveReferrals(profile.active_referrals || 0)
             setTotalEarned(profile.total_earned || 0)
+            setBalance(profile.balance || 0)
+
+            // Fetch referral history from referrals table
+            const { data: referrals } = await supabase
+              .from('referral_transactions')
+              .select('*')
+              .eq('referrer_id', session.user.id)
+              .order('created_at', { ascending: false })
+              .limit(10)
+
+            if (referrals) {
+              setReferralHistory(referrals)
+            }
           }
         }
       } catch (err) {
@@ -55,10 +70,35 @@ export default function ReferAndEarnPage() {
     loadProfileData()
   }, [])
 
-  // Generate referral link
+  // Generate referral link and setup realtime updates
   useEffect(() => {
     if (referralCode) {
-      setReferralLink(`https://wwwbluepaywebauthdormaindigital-app.vercel.app/signup?ref=${referralCode}`)
+      setReferralLink(`https://wwwbluepaywebauthdormaindigital-app.vercel.app/?ref=${referralCode}`)
+
+      // Setup realtime subscription for profile updates
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      const { data: { session } } = supabase.auth.getSession()
+      if (session?.user) {
+        const subscription = supabase
+          .from(`profiles:id=eq.${session.user.id}`)
+          .on('*', payload => {
+            if (payload.new) {
+              setTotalReferrals(payload.new.total_referrals || 0)
+              setActiveReferrals(payload.new.active_referrals || 0)
+              setTotalEarned(payload.new.total_earned || 0)
+              setBalance(payload.new.balance || 0)
+            }
+          })
+          .subscribe()
+
+        return () => {
+          subscription.unsubscribe()
+        }
+      }
     }
   }, [referralCode])
 
@@ -148,6 +188,13 @@ export default function ReferAndEarnPage() {
           </div>
         </div>
 
+        {/* Available Balance */}
+        <div className="bg-gradient-to-r from-blue-600 to-[#0000ff] rounded-2xl p-5 text-white mb-6 shadow-lg">
+          <p className="text-sm opacity-90 mb-2">Available Balance</p>
+          <p className="text-3xl font-bold mb-1">NGN {balance.toLocaleString()}.00</p>
+          <p className="text-xs opacity-80">Withdraw anytime to your bank account</p>
+        </div>
+
         {/* How It Works */}
         <div className="bg-white rounded-2xl p-5 shadow-sm mb-6 border border-gray-100">
           <h2 className="text-lg font-bold text-gray-900 mb-4">How It Works</h2>
@@ -192,6 +239,37 @@ export default function ReferAndEarnPage() {
             Back to Dashboard
           </button>
         </div>
+
+        {/* Referral Activity History */}
+        {referralHistory.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 shadow-sm mb-6 border border-gray-100">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Referral Activity</h2>
+            <div className="space-y-3">
+              {referralHistory.map((referral, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#0000ff]/10 flex items-center justify-center">
+                      <UserCheck className="w-5 h-5 text-[#0000ff]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">{referral.referred_full_name || 'Referred User'}</p>
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mt-0.5">
+                        <Calendar className="w-3 h-3" />
+                        {referral.created_at ? new Date(referral.created_at).toLocaleDateString() : 'Recently'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-[#0000ff] text-sm">+NGN {(referral.reward_amount || 1000).toLocaleString()}</p>
+                    <p className={`text-xs font-semibold ${referral.status === 'active' ? 'text-green-600' : 'text-gray-600'}`}>
+                      {referral.status === 'active' ? 'Active' : 'Pending'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Info Box */}
         <div className="bg-blue-50 rounded-xl p-4 mt-6 border border-blue-200">
