@@ -318,9 +318,9 @@ export default function BuyBPCPage() {
           <div className="space-y-6">
             <div className="flex justify-center mb-6">
               <img 
-                src="/opay-logo.jpg" 
-                alt="OPay Logo" 
-                className="w-24 h-24 rounded-full shadow-lg object-cover"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2828%29-7an7GHzEj5Blc8fCV8ly4jLuP6jjQl.jpeg" 
+                alt="OPay - Beyond Banking" 
+                className="w-full max-w-sm rounded-2xl shadow-lg object-cover"
               />
             </div>
             
