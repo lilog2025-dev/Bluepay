@@ -10,6 +10,7 @@ export default function BettingPage() {
   const router = useRouter()
   const [amount, setAmount] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState('')
+  const [userId, setUserId] = useState('')
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -17,19 +18,33 @@ export default function BettingPage() {
   const [bpcError, setBpcError] = useState('')
 
   const platforms = [
-    'Bet365',
-    'SportyBet',
-    'Betking',
-    '1xBet',
-    'Nairabet',
-    'NaijaBet',
+    'BET9JA',
+    'SPORTYBET',
+    'NAIRABET',
+    'BETKING',
+    '1XBET',
+    'MSPORT',
+    'BANGBET',
+    'MERRYBET',
+    'SUPABET',
+    'WESTERNBET',
   ]
 
   const handleBet = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!amount || !selectedPlatform) {
-      alert('Please select a platform and enter an amount')
+    if (!selectedPlatform) {
+      alert('Please select a betting platform')
+      return
+    }
+
+    if (!userId.trim()) {
+      alert('Please enter your User ID')
+      return
+    }
+    
+    if (!amount) {
+      alert('Please enter a bet amount')
       return
     }
     
@@ -94,6 +109,18 @@ export default function BettingPage() {
                 <option key={platform} value={platform}>{platform}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Your User ID</label>
+            <input
+              type="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="Enter your betting platform User ID"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
           </div>
 
           <div>
