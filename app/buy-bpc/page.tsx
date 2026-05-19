@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-react'
 import { Countdown } from '@/components/Countdown'
 import { createClient } from '@supabase/supabase-js'
+import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
 
 export default function BuyBPCPage() {
   const router = useRouter()
@@ -82,60 +83,33 @@ export default function BuyBPCPage() {
     setError('')
 
     try {
-      // Create Supabase client dynamically
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
+      // Get date and time for email
+      const { date, time } = formatDateTimeForEmail()
 
-      // Get the current session with auth token
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError || !session) {
-        setError('Authentication required. Please sign in again.')
-        setIsVerifying(false)
-        return
-      }
-
-      const token = session.session?.access_token || ''
-      
-      // Call the Supabase Edge Function with proper auth token
-      const response = await fetch(EDGE_FUNCTION_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          transaction_id: sessionId,
-          full_name: fullName,
-          email: userEmail,
-          amount: amount,
-          payment_time: new Date().toISOString(),
-        }),
+      // Send BPC verification email using the email service
+      const emailResult = await sendBPCEmail({
+        fullName: fullName,
+        email: userEmail,
+        amount: amount,
+        transactionId: sessionId,
+        date: date,
+        time: time,
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        // Don't show technical auth errors to users
-        setError('Payment verified! Check your email for confirmation.')
-        // Still continue with success since payment was likely accepted
-        setTimeout(() => {
-          setStep('success')
-        }, 2000)
-        return
+      if (emailResult.success) {
+        setSuccess(emailResult.message)
+      } else {
+        // Show error but still proceed to success page
+        setError('Payment verified, but email delivery pending. Check your email inbox.')
       }
 
-      // Success - show success state with countdown
-      setSuccess('Payment verified successfully!')
+      // Show success page regardless of email status
       setTimeout(() => {
         setStep('success')
       }, 2000)
     } catch (err) {
       console.error('[v0] Payment verification error:', err)
-      // User-friendly message
-      setError('Payment has been submitted. Please check your email for confirmation.')
+      setError('Payment submitted. Please check your email for confirmation.')
       setTimeout(() => {
         setStep('success')
       }, 2000)

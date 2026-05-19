@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -12,6 +12,8 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
+import { sendDebitAlert, formatDateTimeForEmail } from '@/lib/email-service'
+import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
@@ -28,6 +30,10 @@ export default function DataPage() {
   const [error, setError] = useState('')
   const [bpcError, setBpcError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [fullName, setFullName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [toastMessage, setToastMessage] = useState('')
+  const [showToast, setShowToast] = useState(false)
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -62,6 +68,39 @@ export default function DataPage() {
     { size: '5GB', validity: '30 days', price: 2000 },
     { size: '10GB', validity: '30 days', price: 3500 },
   ]
+
+  // Load user data from Supabase
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUserEmail(session.user.email || '')
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .single()
+          
+          if (profile?.full_name) {
+            setFullName(profile.full_name)
+          }
+        }
+      } catch (err) {
+        console.error('[v0] Error loading user data:', err)
+        const name = sessionStorage.getItem('signupFullName') || 'BLUEPAY User'
+        const email = sessionStorage.getItem('signupEmail') || ''
+        setFullName(name)
+        setUserEmail(email)
+      }
+    }
+    loadUserData()
+  }, [])
 
   const validateForm = () => {
     if (!selectedNetwork) {
@@ -100,8 +139,30 @@ export default function DataPage() {
     
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000))
+      
+      // Send debit alert email
+      const transactionId = Date.now().toString()
+      const { date, time } = formatDateTimeForEmail()
+      
+      const alertResult = await sendDebitAlert({
+        fullName: fullName,
+        email: userEmail,
+        amount: parseFloat(selectedPlanObj?.price.toString() || '0'),
+        transactionType: 'Data Purchase',
+        transactionId: transactionId,
+        date: date,
+        time: time,
+      })
+
+      if (alertResult.success) {
+        setToastMessage(alertResult.message)
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 3000)
+      }
+
       setStep('success')
     } catch (err) {
+      console.error('[v0] Data purchase error:', err)
       setError('Failed to process data purchase. Please try again.')
     } finally {
       setIsLoading(false)

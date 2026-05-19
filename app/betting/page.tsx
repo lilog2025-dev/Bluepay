@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { sendDebitAlert, formatDateTimeForEmail } from '@/lib/email-service'
+import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
@@ -16,6 +18,8 @@ export default function BettingPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [bpcError, setBpcError] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
 
   const platforms = [
     'BET9JA',
@@ -29,6 +33,31 @@ export default function BettingPage() {
     'SUPABET',
     'WESTERNBET',
   ]
+
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUserEmail(session.user.email || '')
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .single()
+          if (profile?.full_name) setFullName(profile.full_name)
+        }
+      } catch (err) {
+        setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+        setUserEmail(sessionStorage.getItem('signupEmail') || '')
+      }
+    }
+    loadUserData()
+  }, [])
 
   const handleBet = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,6 +90,21 @@ export default function BettingPage() {
     setLoading(true)
     try {
       await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Send debit alert
+      const transactionId = Date.now().toString()
+      const { date, time } = formatDateTimeForEmail()
+      
+      await sendDebitAlert({
+        fullName: fullName,
+        email: userEmail,
+        amount: parseFloat(amount),
+        transactionType: 'Betting',
+        transactionId: transactionId,
+        date: date,
+        time: time,
+      })
+      
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
     } catch (error) {
