@@ -19,6 +19,7 @@ export default function BuyBPCPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [sessionId, setSessionId] = useState('')
+  const [currentDateTime, setCurrentDateTime] = useState('')
 
   const BPC_PRICE = 10650
   const ACCOUNT_NUMBER = '6711230988'
@@ -63,6 +64,31 @@ export default function BuyBPCPage() {
     }
     loadUserData()
   }, [])
+
+  // Update date/time when success step is reached
+  useEffect(() => {
+    if (step === 'success') {
+      const updateDateTime = () => {
+        const now = new Date()
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }
+        const formatted = now.toLocaleDateString('en-US', options)
+        setCurrentDateTime(formatted)
+      }
+      
+      updateDateTime()
+      const interval = setInterval(updateDateTime, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [step])
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -412,7 +438,7 @@ export default function BuyBPCPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5 font-semibold">Date & Time</p>
-                  <p className="font-bold text-gray-900 text-xs">May 19, 2026 • 10:45 AM</p>
+                  <p className="font-bold text-gray-900 text-xs">{currentDateTime || 'Loading...'}</p>
                 </div>
               </div>
 

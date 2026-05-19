@@ -2,12 +2,55 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, MessageSquare, HelpCircle, AlertCircle } from 'lucide-react'
+import { ArrowLeft, MessageSquare, HelpCircle, AlertCircle, Mail, MessageCircle } from 'lucide-react'
 
 export default function SupportPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'support' | 'review' | 'complaint'>('support')
+  const [activeTab, setActiveTab] = useState<'ai-chat' | 'support' | 'review' | 'complaint'>('ai-chat')
   const [message, setMessage] = useState('')
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; text: string }>>([])
+  const [isAITyping, setIsAITyping] = useState(false)
+
+  // AI Support Knowledge Base
+  const aiKnowledgeBase: Record<string, string> = {
+    'bpc code': 'To get your BPC CODE: 1. Go to Buy BPC page 2. Enter amount 3. Make transfer 4. Upload receipt 5. Verify payment. You\'ll receive your BPC CODE via email within 24 hours.',
+    'withdrawal': 'To withdraw: 1. Go to Withdraw 2. Enter amount and bank details 3. Confirm 4. You\'ll receive debit alert via email. Withdrawals typically process within 2-3 business days.',
+    'referral': 'Earn rewards by referring friends! Each successful referral earns you 1000 NGN. Share your unique referral code via Refer & Earn page. There\'s no limit to how much you can earn!',
+    'airtime': 'Buy airtime by: 1. Select network (MTN, GLO, etc.) 2. Enter phone number 3. Choose amount 4. Confirm purchase. Airtime is delivered instantly!',
+    'data': 'Purchase data: 1. Go to Data page 2. Select network 3. Choose data plan 4. Confirm. Data is activated immediately on your phone.',
+    'transaction': 'View all your transactions on the Transactions page. Each transaction shows: Type, Amount, Status, Date & Time, and Transaction ID.',
+    'account': 'Account issues can be resolved through: 1. Security settings to reset PIN 2. Profile page to update details 3. Contact support for technical issues.',
+    'default': 'Hello! I\'m BLUEPAY AI Assistant. I can help you with: BPC CODE, Withdrawals, Referrals, Airtime, Data, Transactions, and Account issues. What would you like help with?'
+  }
+
+  const findAIResponse = (userInput: string): string => {
+    const lowerInput = userInput.toLowerCase()
+    for (const [key, response] of Object.entries(aiKnowledgeBase)) {
+      if (lowerInput.includes(key)) {
+        return response
+      }
+    }
+    return aiKnowledgeBase['default']
+  }
+
+  const handleSendMessage = async () => {
+    if (!message.trim()) return
+
+    // Add user message
+    const userMsg = { id: Date.now().toString(), type: 'user' as const, text: message }
+    setChatMessages(prev => [...prev, userMsg])
+    setMessage('')
+
+    // Simulate AI thinking
+    setIsAITyping(true)
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    // Get AI response
+    const aiResponse = findAIResponse(message)
+    const aiMsg = { id: (Date.now() + 1).toString(), type: 'ai' as const, text: aiResponse }
+    setChatMessages(prev => [...prev, aiMsg])
+    setIsAITyping(false)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -24,10 +67,20 @@ export default function SupportPage() {
 
       {/* Tabs */}
       <div className="bg-white border-b border-gray-200 sticky top-11 z-40">
-        <div className="flex px-3">
+        <div className="flex px-3 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('ai-chat')}
+            className={`px-2 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
+              activeTab === 'ai-chat'
+                ? 'border-[#0000ff] text-[#0000ff]'
+                : 'border-transparent text-gray-600'
+            }`}
+          >
+            AI Chat
+          </button>
           <button
             onClick={() => setActiveTab('support')}
-            className={`flex-1 py-2 text-xs font-semibold border-b-2 transition ${
+            className={`px-2 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
               activeTab === 'support'
                 ? 'border-[#0000ff] text-[#0000ff]'
                 : 'border-transparent text-gray-600'
@@ -37,7 +90,7 @@ export default function SupportPage() {
           </button>
           <button
             onClick={() => setActiveTab('review')}
-            className={`flex-1 py-2 text-xs font-semibold border-b-2 transition ${
+            className={`px-2 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
               activeTab === 'review'
                 ? 'border-[#0000ff] text-[#0000ff]'
                 : 'border-transparent text-gray-600'
@@ -47,7 +100,7 @@ export default function SupportPage() {
           </button>
           <button
             onClick={() => setActiveTab('complaint')}
-            className={`flex-1 py-2 text-xs font-semibold border-b-2 transition ${
+            className={`px-2 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
               activeTab === 'complaint'
                 ? 'border-[#0000ff] text-[#0000ff]'
                 : 'border-transparent text-gray-600'
@@ -59,6 +112,101 @@ export default function SupportPage() {
       </div>
 
       <main className="px-3 py-3 max-w-2xl mx-auto">
+        {/* Contact Methods */}
+        <div className="bg-gradient-to-r from-blue-50 to-[#0000ff]/5 rounded-2xl p-3 border border-[#0000ff]/20 mb-4">
+          <h3 className="font-bold text-gray-900 text-xs mb-3">Quick Contact Support</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {/* Email Support */}
+            <a
+              href="mailto:supportbluepaypro.com@gmail.com"
+              className="bg-white rounded-lg p-2.5 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition"
+            >
+              <div className="flex flex-col items-center text-center gap-1">
+                <Mail className="w-5 h-5 text-[#0000ff]" />
+                <p className="font-semibold text-gray-900 text-xs">Email Support</p>
+                <p className="text-xs text-gray-600 truncate">supportbluepaypro.com@gmail.com</p>
+              </div>
+            </a>
+
+            {/* WhatsApp Support */}
+            <a
+              href="https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white rounded-lg p-2.5 border border-gray-200 hover:border-green-500 hover:shadow-md transition"
+            >
+              <div className="flex flex-col items-center text-center gap-1">
+                <MessageCircle className="w-5 h-5 text-green-500" />
+                <p className="font-semibold text-gray-900 text-xs">WhatsApp Chat</p>
+                <p className="text-xs text-gray-600">+234 707 843 4086</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        {/* AI Chat Tab */}
+        {activeTab === 'ai-chat' && (
+          <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-96">
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50">
+              {chatMessages.length === 0 && (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <MessageSquare className="w-12 h-12 text-[#0000ff]/30 mx-auto mb-2" />
+                    <p className="text-gray-600 text-xs font-medium">Start a conversation with AI Support</p>
+                    <p className="text-gray-500 text-xs mt-1">Ask me about withdrawals, BPC, referrals, and more!</p>
+                  </div>
+                </div>
+              )}
+              
+              {chatMessages.map(msg => (
+                <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-xs rounded-lg p-2.5 text-xs ${
+                    msg.type === 'user'
+                      ? 'bg-[#0000ff] text-white rounded-br-none'
+                      : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                  }`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+
+              {isAITyping && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-200 text-gray-900 rounded-lg rounded-bl-none p-2.5">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Chat Input */}
+            <div className="border-t border-gray-200 p-3 bg-white">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Ask a question..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isAITyping || !message.trim()}
+                  className="px-3 py-2 bg-[#0000ff] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition text-xs font-semibold"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'support' && (
           <div className="space-y-3">
             {/* FAQ */}
