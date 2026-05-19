@@ -1,100 +1,108 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Check, AlertCircle, Eye, EyeOff, Loader } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
+import {
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+  Loader,
+  Copy,
+  Zap,
+  Eye,
+  EyeOff,
+} from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance, recordTransaction } from '@/lib/fintech-utils'
+import { createClient } from '@supabase/supabase-js'
+
+const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
 export default function DataPage() {
   const router = useRouter()
-  const [step, setStep] = useState<'form' | 'countdown1' | 'confirm' | 'countdown2' | 'success'>('form')
+  const [step, setStep] = useState<'form' | 'confirm' | 'success'>('form')
   const [selectedNetwork, setSelectedNetwork] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState('Nigeria')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [amount, setAmount] = useState('')
+  const [selectedPlan, setSelectedPlan] = useState('')
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
-  const [userId, setUserId] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [bpcError, setBpcError] = useState('')
+  const [copied, setCopied] = useState(false)
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [countdown, setCountdown] = useState(0)
-  const [transactionId, setTransactionId] = useState('')
-  const [sessionId, setSessionId] = useState('')
-  const [balance, setBalance] = useState(0)
+  const [toastMessage, setToastMessage] = useState('')
+  const [showToast, setShowToast] = useState(false)
 
-  const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
-  const networks = ['MTN', 'Airtel', 'Glo', '9mobile']
-  const dataPlanMap: Record<string, { name: string; price: number }[]> = {
-    'MTN': [
-      { name: '500MB - 1 Day', price: 125 },
-      { name: '1GB - 14 Days', price: 500 },
-      { name: '3GB - 30 Days', price: 1500 },
-      { name: '5GB - 30 Days', price: 2500 },
-    ],
-    'Airtel': [
-      { name: '500MB', price: 100 },
-      { name: '1GB', price: 400 },
-      { name: '3GB', price: 1200 },
-      { name: '5GB', price: 2000 },
-    ],
-    'Glo': [
-      { name: '500MB', price: 75 },
-      { name: '1GB', price: 350 },
-      { name: '3GB', price: 1000 },
-      { name: '5GB', price: 1800 },
-    ],
-    '9mobile': [
-      { name: '500MB', price: 100 },
-      { name: '1GB', price: 400 },
-      { name: '3GB', price: 1200 },
-      { name: '5GB', price: 2000 },
-    ],
-  }
+  const countries = [
+    { name: 'Nigeria', code: '+234' },
+    { name: 'Ghana', code: '+233' },
+    { name: 'Kenya', code: '+254' },
+    { name: 'South Africa', code: '+27' },
+    { name: 'Uganda', code: '+256' },
+    { name: 'Tanzania', code: '+255' },
+    { name: 'Ethiopia', code: '+251' },
+    { name: 'Cameroon', code: '+237' },
+    { name: 'Senegal', code: '+221' },
+    { name: 'Ivory Coast', code: '+225' },
+    { name: 'Rwanda', code: '+250' },
+    { name: 'Zimbabwe', code: '+263' },
+    { name: 'Botswana', code: '+267' },
+    { name: 'Namibia', code: '+264' },
+    { name: 'Zambia', code: '+260' },
+  ]
 
-  useEffect(() => {
+  const networks = [
+    { name: 'MTN', color: 'bg-yellow-500', code: 'MTN' },
+    { name: 'Airtel', color: 'bg-red-500', code: 'ATL' },
+    { name: 'Glo', color: 'bg-green-500', code: 'GLO' },
+    { name: '9Mobile', color: 'bg-cyan-500', code: '9MB' },
+  ]
+
+  const dataPlans = [
+    { size: '100MB', validity: '1 day', price: 50 },
+    { size: '500MB', validity: '7 days', price: 200 },
+    { size: '1GB', validity: '30 days', price: 500 },
+    { size: '2GB', validity: '30 days', price: 900 },
+    { size: '5GB', validity: '30 days', price: 2000 },
+    { size: '10GB', validity: '30 days', price: 3500 },
+  ]
+
+  // Load user data from Supabase
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUserEmail(session.user.email || '')
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .single()
+          
+          if (profile?.full_name) {
+            setFullName(profile.full_name)
+          }
+        }
+      } catch (err) {
+        console.error('[v0] Error loading user data:', err)
+        const name = sessionStorage.getItem('signupFullName') || 'BLUEPAY User'
+        const email = sessionStorage.getItem('signupEmail') || ''
+        setFullName(name)
+        setUserEmail(email)
+      }
+    }
     loadUserData()
   }, [])
 
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
-      return () => clearTimeout(timer)
-    } else if (countdown === 0 && step === 'countdown1') {
-      setStep('confirm')
-    } else if (countdown === 0 && step === 'countdown2') {
-      setStep('success')
-    }
-  }, [countdown, step])
-
-  const loadUserData = async () => {
-    try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setUserId(session.user.id)
-        setUserEmail(session.user.email || '')
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, balance')
-          .eq('id', session.user.id)
-          .single()
-        if (profile) {
-          setFullName(profile.full_name || 'BLUEPAY User')
-          setBalance(profile.balance || 0)
-        }
-      }
-    } catch (err) {
-      console.error('[v0] Error loading user data:', err)
-    }
-  }
-
-  const validateForm = (): boolean => {
+  const validateForm = () => {
     if (!selectedNetwork) {
       setError('Please select a network')
       return false
@@ -103,16 +111,16 @@ export default function DataPage() {
       setError('Please enter a valid phone number')
       return false
     }
-    if (!amount) {
-      setError('Please select data plan')
+    if (!selectedPlan) {
+      setError('Please select a data plan')
       return false
     }
-    if (parseFloat(amount) > balance) {
-      setError('Insufficient balance')
+    if (!bpcCode) {
+      setBpcError('Please enter BPC CODE')
       return false
     }
     if (bpcCode !== CORRECT_BPC_CODE) {
-      setError('Invalid BPC CODE')
+      setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
       return false
     }
     return true
@@ -121,309 +129,466 @@ export default function DataPage() {
   const handleContinue = () => {
     setError('')
     if (validateForm()) {
-      setCountdown(7)
-      setStep('countdown1')
+      setStep('confirm')
     }
   }
 
-  const handleProceed = async () => {
-    setLoading(true)
+  const handleConfirm = async () => {
+    setIsLoading(true)
     setError('')
-    setCountdown(7)
-    setStep('countdown2')
-
+    
     try {
-      const txId = generateTransactionId()
-      const sId = `SESSION${Date.now()}`
-      setTransactionId(txId)
-      setSessionId(sId)
-
-      // Send debit alert
-      await sendDebitAlert({
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      
+      // Send debit alert email
+      const transactionId = Date.now().toString()
+      const { date, time } = formatDateTimeForEmail()
+      
+      const alertResult = await sendDebitAlert({
+        fullName: fullName,
         email: userEmail,
-        full_name: fullName,
-        transaction_type: 'Data Purchase',
-        amount: parseFloat(amount),
-        recipient_name: selectedNetwork,
-        recipient_account_number: phoneNumber,
-        recipient_bank_name: 'Telecom Provider',
-        transaction_id: txId,
-        transaction_date: getCurrentDateTime(),
+        amount: parseFloat(selectedPlanObj?.price.toString() || '0'),
+        transactionType: 'Data Purchase',
+        transactionId: transactionId,
+        date: date,
+        time: time,
       })
 
-      // Deduct balance
-      await deductBalance(userId, parseFloat(amount))
+      if (alertResult.success) {
+        setToastMessage(alertResult.message)
+        setShowToast(true)
+        setTimeout(() => setShowToast(false), 3000)
+      }
 
-      // Record transaction
-      await recordTransaction(userId, {
-        type: 'data',
-        amount: parseFloat(amount),
-        provider: selectedNetwork,
-        recipient: phoneNumber,
-        description: `Data purchase from ${selectedNetwork}`,
-        sessionId: sId,
-      })
+      setStep('success')
     } catch (err) {
-      console.error('[v0] Error processing data purchase:', err)
+      console.error('[v0] Data purchase error:', err)
+      setError('Failed to process data purchase. Please try again.')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
-  // Success Page
-  if (step === 'success') {
-    return (
-      <div className="min-h-screen bg-gray-50 pb-8">
-        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
-          <div className="flex items-center gap-3 max-w-2xl mx-auto">
-            <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
-              <ChevronLeft className="w-6 h-6 text-gray-900" />
-            </button>
-            <h1 className="text-xl font-bold text-gray-900">Data Purchase Successful!</h1>
-          </div>
-        </div>
-
-        <div className="max-w-2xl mx-auto px-4 pt-8">
-          <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-6 text-center">
-            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Purchase Successful!</h2>
-            <p className="text-gray-600 mb-6">Your data bundle has been activated</p>
-
-            <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-3 mb-6 text-left">
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Full Name</p>
-                <p className="font-bold text-gray-900">{fullName}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Network Provider</p>
-                <p className="font-bold text-gray-900">{selectedNetwork}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                <p className="font-mono font-bold text-gray-900">+234{phoneNumber.slice(-10)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Amount</p>
-                <p className="font-bold text-[#0000ff]">NGN {parseFloat(amount).toLocaleString()}.00</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Transaction Type</p>
-                <p className="font-bold text-gray-900">Data Purchase</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Transaction ID</p>
-                <p className="font-mono font-bold text-gray-900 text-xs">{transactionId}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Session ID</p>
-                <p className="font-mono font-bold text-gray-900 text-xs">{sessionId}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Date & Time</p>
-                <p className="font-bold text-gray-900 text-xs">{getCurrentDateTime()}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Status</p>
-                <p className="font-bold text-green-600">Successful</p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        </div>
-      </div>
-    )
+  const handleBack = () => {
+    if (step === 'form') {
+      router.back()
+    } else if (step === 'confirm') {
+      setStep('form')
+      setError('')
+    } else {
+      router.push('/dashboard')
+    }
   }
 
-  // Countdown Screens
-  if (step === 'countdown1' || step === 'countdown2') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center pb-8">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="text-6xl font-bold text-[#0000ff] mb-4 tabular-nums">{countdown}</div>
-          <p className="text-gray-600 text-lg">
-            {step === 'countdown1' ? 'Processing your data purchase...' : 'Finalizing your transaction...'}
-          </p>
-          <p className="text-gray-500 text-sm mt-2">Please wait while we process your request</p>
-        </div>
-      </div>
-    )
+  const selectedNetworkObj = networks.find((n) => n.name === selectedNetwork)
+  const selectedPlanObj = dataPlans.find((p) => p.size === selectedPlan)
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
-  // Confirm Page
-  if (step === 'confirm') {
-    return (
-      <div className="min-h-screen bg-gray-50 pb-8">
-        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-4">
-          <div className="flex items-center gap-3 max-w-2xl mx-auto">
-            <button onClick={() => setStep('form')} className="p-2 hover:bg-gray-100 rounded-lg">
-              <ChevronLeft className="w-6 h-6 text-gray-900" />
-            </button>
-            <h1 className="text-xl font-bold text-gray-900">Confirm Details</h1>
-          </div>
-        </div>
-
-        <div className="max-w-2xl mx-auto px-4 pt-6">
-          <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-4 mb-6">
-            <h3 className="font-bold text-gray-900 text-lg">Data Purchase Summary</h3>
-
-            <div className="space-y-3">
-              <div className="flex justify-between pb-3 border-b border-gray-200">
-                <span className="text-gray-600">Provider</span>
-                <span className="font-bold text-gray-900">{selectedNetwork}</span>
-              </div>
-              <div className="flex justify-between pb-3 border-b border-gray-200">
-                <span className="text-gray-600">Phone Number</span>
-                <span className="font-mono font-bold text-gray-900">+234{phoneNumber.slice(-10)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Amount</span>
-                <span className="font-bold text-[#0000ff]">NGN {parseFloat(amount).toLocaleString()}.00</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <button
-              onClick={() => setStep('form')}
-              className="w-full bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
-            >
-              EDIT
-            </button>
-            <button
-              onClick={handleProceed}
-              disabled={loading}
-              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader className="w-5 h-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                'PROCEED'
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Form Page
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
-        <div className="flex items-center gap-3 max-w-2xl mx-auto px-4 py-4">
-          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ChevronLeft className="w-6 h-6 text-gray-900" />
+    <div className="min-h-screen bg-white pb-8">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
+        <div className="max-w-sm mx-auto px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            className="p-2 hover:bg-gray-100 rounded-lg transition"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Buy Data</h1>
+          <h1 className="text-lg font-bold text-gray-900">Buy Data</h1>
+          <div className="w-10" />
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6">
-        <div className="bg-gradient-to-r from-[#0000ff] to-blue-600 rounded-xl p-4 text-white mb-4">
-          <p className="text-white/70 text-xs mb-1">Available Balance</p>
-          <h2 className="text-2xl font-bold">NGN {balance.toLocaleString()}</h2>
+      <main className="max-w-sm mx-auto px-4 py-6">
+        {/* Progress Indicator */}
+        <div className="flex gap-2 mb-8">
+          <div
+            className={`flex-1 h-1 rounded-full ${
+              step === 'form' || step === 'confirm' || step === 'success'
+                ? 'bg-cyan-500'
+                : 'bg-gray-200'
+            }`}
+          />
+          <div
+            className={`flex-1 h-1 rounded-full ${
+              step === 'confirm' || step === 'success'
+                ? 'bg-cyan-500'
+                : 'bg-gray-200'
+            }`}
+          />
+          <div
+            className={`flex-1 h-1 rounded-full ${
+              step === 'success' ? 'bg-cyan-500' : 'bg-gray-200'
+            }`}
+          />
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 flex gap-2">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            <p className="text-red-600 text-sm">{error}</p>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Select Network</label>
-            <select
-              value={selectedNetwork}
-              onChange={(e) => {
-                setSelectedNetwork(e.target.value)
-                setAmount('')
-              }}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
-            >
-              <option value="">Choose network</option>
-              {networks.map((network) => (
-                <option key={network} value={network}>{network}</option>
-              ))}
-            </select>
-          </div>
-
-          {selectedNetwork && (
+        {/* Form Step */}
+        {step === 'form' && (
+          <div className="space-y-6">
+            {/* Network Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Data Plan</label>
-              <div className="space-y-2">
-                {dataPlanMap[selectedNetwork]?.map((plan) => (
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Select Network
+              </label>
+              <div className="grid grid-cols-4 gap-3">
+                {networks.map((network) => (
                   <button
-                    key={plan.price}
-                    onClick={() => setAmount(plan.price.toString())}
-                    className={`w-full p-3 rounded-xl border-2 text-left transition ${
-                      amount === plan.price.toString()
-                        ? 'bg-blue-50 border-[#0000ff]'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
+                    key={network.code}
+                    onClick={() => setSelectedNetwork(network.name)}
+                    className={`py-4 px-2 rounded-xl font-semibold transition ${
+                      selectedNetwork === network.name
+                        ? `${network.color} text-white shadow-lg`
+                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     }`}
                   >
-                    <p className="font-semibold text-gray-900">{plan.name}</p>
-                    <p className={`text-sm ${amount === plan.price.toString() ? 'text-[#0000ff]' : 'text-gray-600'}`}>
-                      NGN {plan.price.toLocaleString()}
-                    </p>
+                    {network.name}
                   </button>
                 ))}
               </div>
             </div>
-          )}
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number</label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-              placeholder="Enter phone number"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
-            />
-          </div>
+            {/* Country Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Country
+              </label>
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+              >
+                {countries.map((country) => (
+                  <option key={country.code} value={country.name}>
+                    {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">BPC CODE</label>
-            <div className="relative">
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Phone Number
+              </label>
               <input
-                type={showBpcCode ? 'text' : 'password'}
-                value={bpcCode}
-                onChange={(e) => setBpcCode(e.target.value)}
-                placeholder="Enter BPC CODE"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-12"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter phone number"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
               />
+            </div>
+
+            {/* Data Plans */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                Select Data Plan
+              </label>
+              <div className="space-y-2">
+                {dataPlans.map((plan) => (
+                  <button
+                    key={plan.size}
+                    onClick={() => setSelectedPlan(plan.size)}
+                    className={`w-full py-3 px-4 rounded-xl font-semibold transition border-2 flex items-center justify-between ${
+                      selectedPlan === plan.size
+                        ? 'bg-cyan-50 border-cyan-500 text-cyan-700'
+                        : 'bg-white border-gray-200 text-gray-900 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="text-left">
+                      <p className="text-sm font-bold">{plan.size}</p>
+                      <p className="text-xs text-gray-600">{plan.validity}</p>
+                    </div>
+                    <p className="text-lg font-bold">₦{plan.price.toLocaleString()}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Benefits Info */}
+            {selectedPlan && selectedPlanObj && (
+              <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                <p className="text-xs text-gray-600 mb-3 font-semibold flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-cyan-600" />
+                  Plan Details
+                </p>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Data Size:</span>
+                    <span className="font-bold text-gray-900">{selectedPlanObj.size}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Validity:</span>
+                    <span className="font-semibold text-gray-900">
+                      {selectedPlanObj.validity}
+                    </span>
+                  </div>
+                  <div className="h-px bg-cyan-200 my-2" />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700 font-semibold">Amount to Pay:</span>
+                    <span className="font-bold text-cyan-600">
+                      ₦{selectedPlanObj.price.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* BPC CODE Input */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                INPUT BPC CODE
+              </label>
+              <div className="relative">
+                <input
+                  type={showBpcCode ? 'text' : 'password'}
+                  value={bpcCode}
+                  onChange={(e) => {
+                    setBpcCode(e.target.value)
+                    setBpcError('')
+                  }}
+                  placeholder="Enter BPC Code"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
+                  maxLength={CORRECT_BPC_CODE.length}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowBpcCode(!showBpcCode)}
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                >
+                  {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
               <button
                 type="button"
-                onClick={() => setShowBpcCode(!showBpcCode)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+                onClick={() => router.push('/buy-bpc')}
+                className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
-                {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                Buy BPC
+              </button>
+            </div>
+
+            {bpcError && (
+              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{bpcError}</p>
+              </div>
+            )}
+
+            {/* Continue Button */}
+            <button
+              onClick={handleContinue}
+              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-6"
+            >
+              Review & Confirm
+            </button>
+          </div>
+        )}
+
+        {/* Confirmation Step */}
+        {step === 'confirm' && (
+          <div className="space-y-6">
+            {/* Summary */}
+            <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+              <h2 className="text-lg font-bold text-gray-900">
+                Confirm Purchase
+              </h2>
+              
+              <div className="space-y-4 py-4 border-t border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Network</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-4 h-4 rounded ${selectedNetworkObj?.color}`}
+                    />
+                    <span className="font-bold text-gray-900">
+                      {selectedNetwork}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Phone Number</span>
+                  <span className="font-semibold text-gray-900">
+                    +234{phoneNumber.slice(-10)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Data Plan</span>
+                  <span className="font-bold text-gray-900">
+                    {selectedPlanObj?.size}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Validity</span>
+                  <span className="font-semibold text-gray-900">
+                    {selectedPlanObj?.validity}
+                  </span>
+                </div>
+                <div className="h-px bg-gray-200 my-2" />
+                <div className="flex justify-between text-lg">
+                  <span className="font-semibold text-gray-900">Total Debit</span>
+                  <span className="font-bold text-cyan-500">
+                    ₦{selectedPlanObj?.price.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-blue-800">
+                Data will be activated on your phone within seconds of confirmation. No refunds on data purchases.
+              </p>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={handleConfirm}
+                disabled={isLoading}
+                className="w-full bg-cyan-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Complete Purchase'
+                )}
+              </button>
+              <button
+                onClick={() => setStep('form')}
+                disabled={isLoading}
+                className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition disabled:opacity-50"
+              >
+                Edit Details
               </button>
             </div>
           </div>
+        )}
 
-          <button
-            onClick={handleContinue}
-            disabled={!selectedNetwork || !amount || !phoneNumber}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-6"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
+        {/* Success Step */}
+        {step === 'success' && (
+          <div className="space-y-6 text-center py-8">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-green-600" />
+              </div>
+            </div>
+
+            {/* Success Message */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Data Purchased!
+              </h2>
+              <p className="text-gray-600">
+                Data is being activated on your number.
+              </p>
+            </div>
+
+            {/* Details */}
+            <div className="bg-gray-50 rounded-2xl p-6 space-y-4 text-left mt-6">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Network</span>
+                <div className="flex items-center gap-2">
+                  <div className={`w-4 h-4 rounded ${selectedNetworkObj?.color}`} />
+                  <span className="font-semibold text-gray-900">
+                    {selectedNetwork}
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Phone Number</span>
+                <span className="font-semibold text-gray-900">
+                  +234{phoneNumber.slice(-10)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Data Received</span>
+                <span className="font-bold text-cyan-600">{selectedPlanObj?.size}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Validity</span>
+                <span className="font-semibold text-gray-900">
+                  {selectedPlanObj?.validity}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Status</span>
+                <span className="font-semibold text-green-600">Active</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Transaction ID</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-sm text-gray-900">
+                    TX{Date.now().toString().slice(-8)}
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(`TX${Date.now().toString().slice(-8)}`)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Copy className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Confirmation Message */}
+            {copied && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-800">
+                Transaction ID copied to clipboard
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full bg-cyan-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
+              >
+                Back to Dashboard
+              </button>
+              <button
+                onClick={() => {
+                  setStep('form')
+                  setPhoneNumber('')
+                  setSelectedPlan('')
+                  setError('')
+                }}
+                className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
+              >
+                Buy More Data
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   )
 }

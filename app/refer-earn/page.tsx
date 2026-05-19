@@ -17,8 +17,6 @@ export default function ReferAndEarnPage() {
   const [balance, setBalance] = useState(0)
   const [loading, setLoading] = useState(true)
   const [referralHistory, setReferralHistory] = useState<Array<any>>([])
-  const [showToast, setShowToast] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -106,17 +104,9 @@ export default function ReferAndEarnPage() {
 
   const handleCopyCode = () => {
     if (referralLink) {
-      navigator.clipboard.writeText(referralLink).then(() => {
-        setToastMessage('Referral link copied!')
-        setShowToast(true)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-        setTimeout(() => setShowToast(false), 3000)
-      }).catch(() => {
-        setToastMessage('Failed to copy link')
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
-      })
+      navigator.clipboard.writeText(referralLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
 
@@ -132,24 +122,12 @@ export default function ReferAndEarnPage() {
           text: message,
         })
       } catch (err) {
-        // Share cancelled or failed, fallback to clipboard
-        navigator.clipboard.writeText(referralLink).then(() => {
-          setToastMessage('Referral link copied!')
-          setShowToast(true)
-          setTimeout(() => setShowToast(false), 3000)
-        })
+        console.log('[v0] Share cancelled')
       }
     } else {
-      // No native share, use clipboard fallback
-      navigator.clipboard.writeText(referralLink).then(() => {
-        setToastMessage('Referral link copied!')
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
-      }).catch(() => {
-        setToastMessage('Failed to copy link')
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
-      })
+      // Fallback to clipboard
+      navigator.clipboard.writeText(referralLink)
+      alert('Referral link copied!')
     }
   }
 
@@ -305,13 +283,6 @@ export default function ReferAndEarnPage() {
           </p>
         </div>
       </div>
-
-      {/* Toast Notification */}
-      {showToast && (
-        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold animate-bounce z-50">
-          {toastMessage}
-        </div>
-      )}
     </div>
   )
 }
