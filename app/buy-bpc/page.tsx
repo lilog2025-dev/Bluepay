@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-reac
 import { Countdown } from '@/components/Countdown'
 import { createClient } from '@supabase/supabase-js'
 import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
+import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 
 export default function BuyBPCPage() {
   const router = useRouter()
@@ -93,7 +94,20 @@ export default function BuyBPCPage() {
     }
   }
 
-  const handleVerifyCountdownComplete = () => {
+  const handleVerifyCountdownComplete = async () => {
+    // Send debit alert for BPC purchase
+    const transactionId = generateTransactionId()
+    await sendDebitAlert({
+      email: userEmail,
+      full_name: fullName,
+      transaction_type: 'BPC CODE Purchase',
+      amount: amount,
+      recipient_name: 'BLUEPAY Platform',
+      recipient_account_number: ACCOUNT_NUMBER,
+      recipient_bank_name: ACCOUNT_NAME,
+      transaction_id: transactionId,
+      transaction_date: getCurrentDateTime(),
+    })
     setStep('success')
   }
 
