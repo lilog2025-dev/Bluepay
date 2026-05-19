@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-react'
+import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader, Copy } from 'lucide-react'
 import { Countdown } from '@/components/Countdown'
 import { createClient } from '@supabase/supabase-js'
 import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { copyToClipboard } from '@/lib/fintech-utils'
 
 export default function BuyBPCPage() {
   const router = useRouter()
@@ -20,6 +21,9 @@ export default function BuyBPCPage() {
   const [userEmail, setUserEmail] = useState('')
   const [sessionId, setSessionId] = useState('')
   const [currentDateTime, setCurrentDateTime] = useState('')
+  const [copied, setCopied] = useState<string | null>(null)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
 
   const BPC_PRICE = 10650
   const ACCOUNT_NUMBER = '6711230988'
@@ -161,6 +165,17 @@ export default function BuyBPCPage() {
     setStep('receipt')
   }
 
+  const handleCopyText = async (text: string, label: string) => {
+    const success = await copyToClipboard(text)
+    if (success) {
+      setCopied(label)
+      setToastMessage('Copied successfully')
+      setShowToast(true)
+      setTimeout(() => setCopied(null), 2000)
+      setTimeout(() => setShowToast(false), 3000)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white pb-20">
       {/* Header */}
@@ -229,11 +244,29 @@ export default function BuyBPCPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5">Account Number</p>
-                  <p className="font-mono font-bold text-[#0000ff] text-sm">{ACCOUNT_NUMBER}</p>
+                  <div className="flex items-center justify-between bg-blue-50 p-2 rounded-lg">
+                    <p className="font-mono font-bold text-[#0000ff] text-sm">{ACCOUNT_NUMBER}</p>
+                    <button
+                      onClick={() => handleCopyText(ACCOUNT_NUMBER, 'accountNumber')}
+                      className="p-1 hover:bg-blue-100 rounded transition"
+                      title="Copy"
+                    >
+                      <Copy className={`w-4 h-4 ${copied === 'accountNumber' ? 'text-green-600' : 'text-[#0000ff]'}`} />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5">Account Name</p>
-                  <p className="font-bold text-gray-900 text-sm">CHI.. MODE...AGB</p>
+                  <div className="flex items-center justify-between bg-blue-50 p-2 rounded-lg">
+                    <p className="font-bold text-gray-900 text-sm">CHI.. MODE...AGB</p>
+                    <button
+                      onClick={() => handleCopyText(ACCOUNT_NAME, 'accountName')}
+                      className="p-1 hover:bg-blue-100 rounded transition"
+                      title="Copy"
+                    >
+                      <Copy className={`w-4 h-4 ${copied === 'accountName' ? 'text-green-600' : 'text-[#0000ff]'}`} />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5">Amount to Transfer</p>
@@ -452,6 +485,13 @@ export default function BuyBPCPage() {
           </>
         )}
       </main>
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold animate-bounce z-50">
+          {toastMessage}
+        </div>
+      )}
     </div>
   )
 }

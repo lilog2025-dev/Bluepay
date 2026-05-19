@@ -291,11 +291,24 @@ export default function AirtimePage() {
               />
             </div>
 
-            {/* Amount Selection */}
+            {/* Custom Amount Input */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Select Amount
+                Enter Amount (₦)
               </label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter custom airtime amount"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+                min="100"
+                step="50"
+              />
+              <p className="text-xs text-gray-600 mt-1">Minimum: ₦100</p>
+            </div>
+
+            {/* Quick Presets (Optional) */}
               <div className="grid grid-cols-2 gap-3">
                 {airtimePlans.map((plan) => (
                   <button
@@ -312,7 +325,6 @@ export default function AirtimePage() {
                   </button>
                 ))}
               </div>
-            </div>
 
             {/* Error Message */}
             {error && (
