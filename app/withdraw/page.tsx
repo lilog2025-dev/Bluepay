@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -11,6 +11,8 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
+import { sendDebitAlert, formatDateTimeForEmail } from '@/lib/email-service'
+import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
@@ -26,6 +28,8 @@ export default function WithdrawPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [bpcError, setBpcError] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
 
   const banks = [
     { name: 'OPAY', code: 'OPAY' },
@@ -57,6 +61,31 @@ export default function WithdrawPage() {
     { name: 'KEYSTONE BANK', code: '082' },
     { name: 'PROVIDUS BANK', code: '101' },
   ]
+
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUserEmail(session.user.email || '')
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .single()
+          if (profile?.full_name) setFullName(profile.full_name)
+        }
+      } catch (err) {
+        setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+        setUserEmail(sessionStorage.getItem('signupEmail') || '')
+      }
+    }
+    loadUserData()
+  }, [])
 
   const validateForm = () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -109,17 +138,22 @@ export default function WithdrawPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
-      // In a real app, you would make an API call to process the withdrawal
-      // const response = await fetch('/api/withdraw', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     amount: parseFloat(amount),
-      //     bank: selectedBank,
-      //     accountNumber,
-      //     accountName,
-      //   }),
-      // })
+      // Send debit alert for withdrawal
+      const transactionId = Date.now().toString()
+      const { date, time } = formatDateTimeForEmail()
+      
+      await sendDebitAlert({
+        fullName: fullName,
+        email: userEmail,
+        amount: parseFloat(amount),
+        transactionType: 'Withdrawal',
+        transactionId: transactionId,
+        date: date,
+        time: time,
+        bankName: selectedBank,
+        accountNumber: accountNumber,
+        accountHolder: accountName,
+      })
       
       setStep('success')
     } catch (err) {
