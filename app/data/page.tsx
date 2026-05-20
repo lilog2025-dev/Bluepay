@@ -25,6 +25,7 @@ export default function DataPage() {
   const [selectedCountry, setSelectedCountry] = useState('Nigeria')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
+  const [customAmount, setCustomAmount] = useState('')
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -114,8 +115,13 @@ export default function DataPage() {
       setError('Please enter a valid phone number')
       return false
     }
-    if (!selectedPlan) {
-      setError('Please select a data plan')
+    // Check if either a plan or custom amount is selected
+    if (!selectedPlan && !customAmount) {
+      setError('Please select a data plan or enter a custom amount')
+      return false
+    }
+    if (customAmount && (parseFloat(customAmount) < 50 || parseFloat(customAmount) > 50000)) {
+      setError('Custom amount must be between ₦50 and ₦50,000')
       return false
     }
     if (!bpcCode) {
@@ -143,6 +149,12 @@ export default function DataPage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
+      // Determine the amount - either from custom input or selected plan
+      const amount = customAmount ? parseFloat(customAmount) : parseFloat(selectedPlanObj?.price.toString() || '0')
+      const description = customAmount 
+        ? `Data - Custom (${selectedNetwork})`
+        : `Data - ${selectedPlan} (${selectedNetwork})`
+      
       // Send debit alert email
       const transactionId = Date.now().toString()
       const { date, time } = formatDateTimeForEmail()
@@ -150,7 +162,7 @@ export default function DataPage() {
       const alertResult = await sendDebitAlert({
         fullName: fullName,
         email: userEmail,
-        amount: parseFloat(selectedPlanObj?.price.toString() || '0'),
+        amount: amount,
         transactionType: 'Data Purchase',
         transactionId: transactionId,
         date: date,
@@ -163,14 +175,37 @@ export default function DataPage() {
         setTimeout(() => setShowToast(false), 3000)
 
         // Deduct balance from wallet
-        if (userId && selectedPlanObj) {
-          const price = parseFloat(selectedPlanObj.price.toString())
-          const updatedBalance = await deductBalance(userId, price)
+        if (userId && amount > 0) {
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+          )
+          
+          const updatedBalance = await deductBalance(userId, amount)
           if (updatedBalance === null) {
             console.error('[v0] Balance deduction failed')
             // Continue even if balance deduction fails - transaction is complete
           } else {
             console.log('[v0] Balance deducted. New balance:', updatedBalance)
+            
+            // Record transaction in database
+            const { error: txError } = await supabase
+              .from('transactions')
+              .insert({
+                user_id: userId,
+                type: 'data',
+                amount: amount,
+                status: 'success',
+                description: description,
+                created_at: new Date().toISOString(),
+                transaction_id: transactionId,
+              })
+
+            if (txError) {
+              console.error('[v0] Transaction recording error:', txError)
+            } else {
+              console.log('[v0] Transaction recorded successfully')
+            }
           }
         }
       }
@@ -310,9 +345,12 @@ export default function DataPage() {
                 {dataPlans.map((plan) => (
                   <button
                     key={plan.size}
-                    onClick={() => setSelectedPlan(plan.size)}
+                    onClick={() => {
+                      setSelectedPlan(plan.size)
+                      setCustomAmount('')
+                    }}
                     className={`w-full py-3 px-4 rounded-xl font-semibold transition border-2 flex items-center justify-between ${
-                      selectedPlan === plan.size
+                      selectedPlan === plan.size && !customAmount
                         ? 'bg-cyan-50 border-cyan-500 text-cyan-700'
                         : 'bg-white border-gray-200 text-gray-900 hover:border-gray-300'
                     }`}
@@ -324,6 +362,32 @@ export default function DataPage() {
                     <p className="text-lg font-bold">₦{plan.price.toLocaleString()}</p>
                   </button>
                 ))}
+              </div>
+
+              {/* Custom Amount Option */}
+              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">
+                  Or Enter Custom Amount
+                </label>
+                <div className="flex gap-2">
+                  <span className="text-lg font-bold text-gray-900">₦</span>
+                  <input
+                    type="number"
+                    value={customAmount}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      if (val === '' || !isNaN(parseFloat(val))) {
+                        setCustomAmount(val)
+                        if (val) setSelectedPlan('')
+                      }
+                    }}
+                    placeholder="Enter custom data amount"
+                    min="50"
+                    max="50000"
+                    className="flex-1 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-semibold text-gray-900"
+                  />
+                </div>
+                <p className="text-xs text-gray-600 mt-2">Minimum: ₦50 | Maximum: ₦50,000</p>
               </div>
             </div>
 

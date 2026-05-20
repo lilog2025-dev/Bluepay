@@ -164,9 +164,16 @@ export default function AirtimePage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet
+      // Deduct balance from wallet and record transaction
       if (userId && amount) {
-        const updatedBalance = await deductBalance(userId, parseFloat(amount))
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        
+        const amountNum = parseFloat(amount)
+        const updatedBalance = await deductBalance(userId, amountNum)
+        
         if (updatedBalance === null) {
           console.error('[v0] Balance deduction failed')
           setError('Failed to deduct balance. Transaction may not be complete.')
@@ -174,7 +181,28 @@ export default function AirtimePage() {
           setIsLoading(false)
           return
         }
+        
         console.log('[v0] Balance deducted. New balance:', updatedBalance)
+
+        // Record transaction in database
+        const { error: txError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: userId,
+            type: 'airtime',
+            amount: amountNum,
+            status: 'success',
+            description: `Airtime - ${selectedNetwork} (${phoneNumber})`,
+            created_at: new Date().toISOString(),
+            transaction_id: transactionId,
+          })
+
+        if (txError) {
+          console.error('[v0] Transaction recording error:', txError)
+          // Continue even if recording fails - balance was already deducted
+        } else {
+          console.log('[v0] Transaction recorded successfully')
+        }
       }
 
       setToastMessage('Airtime delivered successfully!')
@@ -312,7 +340,7 @@ export default function AirtimePage() {
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Select Amount
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 {airtimePlans.map((plan) => (
                   <button
                     key={plan.amount}
@@ -327,6 +355,31 @@ export default function AirtimePage() {
                     <p className="text-xs text-gray-600">+₦{plan.bonus} bonus</p>
                   </button>
                 ))}
+              </div>
+
+              {/* Custom Amount Input */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">
+                  Or Enter Custom Amount
+                </label>
+                <div className="flex gap-2">
+                  <span className="text-lg font-bold text-gray-900">₦</span>
+                  <input
+                    type="number"
+                    value={!airtimePlans.find(p => p.amount.toString() === amount) ? amount : ''}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      if (val === '' || !isNaN(parseFloat(val))) {
+                        setAmount(val)
+                      }
+                    }}
+                    placeholder="Enter custom amount"
+                    min="50"
+                    max="250000"
+                    className="flex-1 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-semibold text-gray-900"
+                  />
+                </div>
+                <p className="text-xs text-gray-600 mt-2">Minimum: ₦50 | Maximum: ₦250,000</p>
               </div>
             </div>
 
