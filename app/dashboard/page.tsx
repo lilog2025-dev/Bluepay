@@ -27,6 +27,8 @@ import {
   Share2,
   BarChart3,
 } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { getCurrentBalance, subscribeToBalance } from '@/lib/balance'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -37,18 +39,175 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [balance, setBalance] = useState<number>(250000)
+  const [userId, setUserId] = useState<string>('')
+  const [loadingBalance, setLoadingBalance] = useState(true)
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [loadingTransactions, setLoadingTransactions] = useState(true)
 
   useEffect(() => {
     setMounted(true)
-    const storedName = sessionStorage.getItem('signupFullName')
-    const storedEmail = sessionStorage.getItem('signupEmail')
-    if (storedName) {
-      setFullName(storedName)
-    }
-    if (storedEmail) {
-      setUserEmail(storedEmail)
-    }
+    loadUserData()
   }, [])
+
+  const getTransactionIcon = (type: string) => {
+    switch(type) {
+      case 'airtime': return <Phone className="w-4 h-4" />
+      case 'data': return <Radio className="w-4 h-4" />
+      case 'electricity': return <Lightbulb className="w-4 h-4" />
+      case 'tv': return <Tv className="w-4 h-4" />
+      case 'betting': return <Dices className="w-4 h-4" />
+      case 'withdrawal': return <DollarSign className="w-4 h-4" />
+      default: return <CreditCard className="w-4 h-4" />
+    }
+  }
+
+  const getTransactionColor = (type: string) => {
+    switch(type) {
+      case 'airtime': return 'text-yellow-600 bg-yellow-50'
+      case 'data': return 'text-cyan-600 bg-cyan-50'
+      case 'electricity': return 'text-orange-600 bg-orange-50'
+      case 'tv': return 'text-purple-600 bg-purple-50'
+      case 'betting': return 'text-red-600 bg-red-50'
+      case 'withdrawal': return 'text-green-600 bg-green-50'
+      default: return 'text-gray-600 bg-gray-50'
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    
+    if (date.toDateString() === today.toDateString()) {
+      return date.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday'
+    } else {
+      return date.toLocaleDateString('en-NG')
+    }
+  }
+
+  const loadRecentTransactions = async (userId: string, supabase: any) => {
+    try {
+      const { data: txData, error: txError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (!txError && txData) {
+        setTransactions(txData)
+        console.log('[v0] Transactions loaded:', txData)
+      }
+    } catch (err) {
+      console.error('[v0] Error loading transactions:', err)
+    }
+  }
+
+  const loadUserData = async () => {
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      // Get authenticated user
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setUserId(session.user.id)
+        setUserEmail(session.user.email || '')
+
+        // Fetch user profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', session.user.id)
+          .single()
+
+        if (profile?.full_name) {
+          setFullName(profile.full_name)
+        }
+
+        // Load current balance - will auto-initialize wallet if needed
+        const currentBalance = await getCurrentBalance(session.user.id)
+        // Ensure balance is never less than 0, use value as-is otherwise
+        const displayBalance = currentBalance >= 0 ? currentBalance : 250000
+        setBalance(displayBalance)
+        setLoadingBalance(false)
+
+        // Subscribe to balance changes in realtime
+        const unsubscribe = subscribeToBalance(session.user.id, (newBalance) => {
+          const validBalance = newBalance >= 0 ? newBalance : 250000
+          setBalance(validBalance)
+          console.log('[v0] Dashboard balance updated:', validBalance)
+        })
+
+        // Load recent transactions
+        const { data: txData, error: txError } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(10)
+
+        if (!txError && txData) {
+          setTransactions(txData)
+        }
+        setLoadingTransactions(false)
+
+        // Subscribe to transaction changes in realtime
+        const txChannel = supabase
+          .channel(`transactions:${session.user.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'transactions',
+              filter: `user_id=eq.${session.user.id}`,
+            },
+            (payload) => {
+              console.log('[v0] Transaction update:', payload)
+              // Refetch transactions on any change
+              loadRecentTransactions(session.user.id, supabase)
+            }
+          )
+          .subscribe()
+
+        // Cleanup subscription on unmount
+        return () => {
+          unsubscribe()
+          supabase.removeChannel(txChannel)
+        }
+      } else {
+        // Fallback to session storage if not authenticated
+        const storedName = sessionStorage.getItem('signupFullName')
+        const storedEmail = sessionStorage.getItem('signupEmail')
+        if (storedName) {
+          setFullName(storedName)
+        }
+        if (storedEmail) {
+          setUserEmail(storedEmail)
+        }
+        setBalance(250000)
+        setLoadingBalance(false)
+        setLoadingTransactions(false)
+      }
+    } catch (err) {
+      console.error('[v0] Error loading user data:', err)
+      const storedName = sessionStorage.getItem('signupFullName')
+      if (storedName) {
+        setFullName(storedName)
+      }
+      setBalance(250000)
+      setLoadingBalance(false)
+      setLoadingTransactions(false)
+    }
+  }
 
   const handleLogout = () => {
     sessionStorage.clear()
@@ -117,7 +276,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
                   <h3 className="text-base font-bold">
-                    {showBalance ? 'NGN 250,000.00' : '••••••••'}
+                    {loadingBalance ? 'Loading...' : (showBalance ? `NGN ${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00` : '••••••••')}
                   </h3>
                   <button
                     onClick={() => setShowBalance(!showBalance)}
@@ -138,7 +297,7 @@ export default function DashboardPage() {
               <div className="mt-1.5 pt-1.5 border-t border-white/20">
                 <div className="flex justify-between items-center text-xs mb-0.5">
                   <p className="text-white/80">Daily Allocation</p>
-                  <p className="font-bold text-white">NGN250,000.00</p>
+                  <p className="font-bold text-white">NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00</p>
                 </div>
                 <div className="w-full bg-white/20 rounded-full h-0.5">
                   <div className="bg-white h-0.5 rounded-full" style={{ width: '70%' }} />
@@ -192,7 +351,29 @@ export default function DashboardPage() {
             {/* Transaction History */}
             <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Transactions</h3>
             <div className="space-y-2">
-              <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
+              {loadingTransactions ? (
+                <p className="text-xs text-gray-600 text-center py-4">Loading transactions...</p>
+              ) : transactions.length === 0 ? (
+                <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
+              ) : (
+                transactions.map((tx, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`p-2 rounded-lg ${getTransactionColor(tx.type)}`}>
+                        {getTransactionIcon(tx.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-gray-900 truncate">{tx.description}</p>
+                        <p className="text-xs text-gray-500">{formatDate(tx.created_at)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-red-600">-₦{Math.abs(tx.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                      <p className="text-xs text-gray-500 capitalize">{tx.status}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}

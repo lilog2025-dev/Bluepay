@@ -57,6 +57,23 @@ export async function POST(request: NextRequest) {
       if (profileError && !profileError.message?.includes('duplicate')) {
         console.error('[v0] Profile creation error:', profileError)
       }
+
+      // Initialize wallet with default balance of 250,000 NGN
+      const { error: walletError } = await supabase
+        .from('wallets')
+        .insert({
+          user_id: data.user.id,
+          balance: 250000,
+        })
+        .select()
+        .single()
+
+      if (walletError && !walletError.message?.includes('duplicate')) {
+        console.error('[v0] Wallet initialization error:', walletError)
+        // Continue even if wallet initialization fails - user can still access the app
+      } else {
+        console.log('[v0] Wallet initialized for user:', data.user.id, 'with balance: 250000')
+      }
     }
 
     return NextResponse.json({
