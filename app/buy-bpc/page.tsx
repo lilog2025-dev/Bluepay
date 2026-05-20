@@ -192,7 +192,7 @@ export default function BuyBPCPage() {
             <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-gray-600">BPC CODE Price</p>
-                <p className="font-bold text-[#0000ff] text-base">NGN {amount.toLocaleString()}.00</p>
+                <p className="font-bold text-[#0000ff] text-base">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <p className="text-xs text-gray-500">One-time payment for premium access</p>
             </div>
@@ -237,7 +237,7 @@ export default function BuyBPCPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5">Amount to Transfer</p>
-                  <p className="font-bold text-gray-900 text-sm">NGN {amount.toLocaleString()}.00</p>
+                  <p className="font-bold text-gray-900 text-sm">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
               </div>
             </div>
@@ -430,7 +430,7 @@ export default function BuyBPCPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5 font-semibold">Amount Used</p>
-                  <p className="font-bold text-[#0000ff] text-sm">NGN {amount.toLocaleString()}.00</p>
+                  <p className="font-bold text-[#0000ff] text-sm">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-600 mb-0.5 font-semibold">Transaction ID</p>

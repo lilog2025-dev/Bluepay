@@ -70,6 +70,12 @@ export default function EarnMorePage() {
       setCompletedTasks([...completedTasks, taskId])
       setTotalEarnings(totalEarnings + task.reward)
 
+      // Store updated balance in sessionStorage so dashboard can reflect it
+      sessionStorage.setItem('earnMoreBalance', newBalance.toString())
+      
+      // Show success feedback
+      alert(`Reward claimed! +₦${task.reward.toLocaleString()}`)
+
       console.log('[v0] Reward claimed successfully:', { newBalance, taskId })
     } catch (err) {
       console.error('[v0] Error completing task:', err)
@@ -82,7 +88,7 @@ export default function EarnMorePage() {
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-gray-50 pb-8">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-3 py-3 flex items-center justify-between">

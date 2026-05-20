@@ -235,7 +235,7 @@ export default function BettingPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-8"
+            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-3"
           >
             {loading ? 'Processing...' : 'Place Bet'}
           </button>

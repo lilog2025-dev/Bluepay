@@ -266,7 +266,7 @@ export default function DataPage() {
 
       <main className="max-w-sm mx-auto px-4 py-6">
         {/* Progress Indicator */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-3">
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'form' || step === 'confirm' || step === 'success'
@@ -290,7 +290,7 @@ export default function DataPage() {
 
         {/* Form Step */}
         {step === 'form' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Network Selection */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -481,7 +481,7 @@ export default function DataPage() {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-6"
+              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
             >
               Review & Confirm
             </button>
@@ -490,9 +490,9 @@ export default function DataPage() {
 
         {/* Confirmation Step */}
         {step === 'confirm' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
               <h2 className="text-lg font-bold text-gray-900">
                 Confirm Purchase
               </h2>
@@ -582,7 +582,7 @@ export default function DataPage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="space-y-6 text-center py-8">
+          <div className="space-y-3 text-center py-4">
             {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -601,7 +601,7 @@ export default function DataPage() {
             </div>
 
             {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4 text-left mt-6">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4 text-left mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Network</span>
                 <div className="flex items-center gap-2">

@@ -133,7 +133,15 @@ export default function DashboardPage() {
         }
 
         // Load current balance - will auto-initialize wallet if needed
-        const currentBalance = await getCurrentBalance(session.user.id)
+        let currentBalance = await getCurrentBalance(session.user.id)
+        
+        // Check if there's a cached reward from Earn More page
+        const earnMoreBalance = sessionStorage.getItem('earnMoreBalance')
+        if (earnMoreBalance) {
+          currentBalance = Math.max(currentBalance, parseFloat(earnMoreBalance))
+          sessionStorage.removeItem('earnMoreBalance')
+        }
+        
         // Ensure balance is never less than 0, use value as-is otherwise
         const displayBalance = currentBalance >= 0 ? currentBalance : 250000
         setBalance(displayBalance)
@@ -276,7 +284,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
                   <h3 className="text-base font-bold">
-                    {loadingBalance ? 'Loading...' : (showBalance ? `NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00` : '••••••••')}
+                    {loadingBalance ? 'Loading...' : (showBalance ? `NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••••••')}
                   </h3>
                   <button
                     onClick={() => setShowBalance(!showBalance)}
@@ -297,7 +305,7 @@ export default function DashboardPage() {
               <div className="mt-1.5 pt-1.5 border-t border-white/20">
                 <div className="flex justify-between items-center text-xs mb-0.5">
                   <p className="text-white/80">Daily Allocation</p>
-                  <p className="font-bold text-white">NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00</p>
+                  <p className="font-bold text-white">NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
                 <div className="w-full bg-white/20 rounded-full h-0.5">
                   <div className="bg-white h-0.5 rounded-full" style={{ width: '70%' }} />
@@ -341,7 +349,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Promotional Banner */}
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-lg mb-6 overflow-hidden relative h-40 flex flex-col justify-center">
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-3 text-white shadow-lg mb-2 overflow-hidden relative h-32 flex flex-col justify-center">
               <div className="relative z-10">
                 <h4 className="text-lg font-bold mb-1">BLUEPAY V26 Promo</h4>
                 <p className="text-sm text-gray-300">Exclusive offers just for you!</p>
@@ -380,13 +388,13 @@ export default function DashboardPage() {
 
         {activeTab === 'profile' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-6 text-center shadow-sm">
+            <div className="bg-white rounded-2xl p-3 text-center shadow-sm">
               <div className="w-20 h-20 bg-[#0000ff] rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4">
                 {fullName.charAt(0).toUpperCase()}
               </div>
               <h2 className="text-xl font-bold text-gray-900 mb-1">{fullName}</h2>
               <p className="text-gray-600 text-sm mb-4">{userEmail}</p>
-              <button className="px-6 py-2 bg-[#0000ff] text-white rounded-xl hover:opacity-90 transition text-sm font-semibold">
+              <button className="px-3 py-2 bg-[#0000ff] text-white rounded-xl hover:opacity-90 transition text-sm font-semibold">
                 Edit Profile
               </button>
             </div>

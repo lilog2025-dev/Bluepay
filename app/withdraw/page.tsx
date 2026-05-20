@@ -97,7 +97,7 @@ export default function WithdrawPage() {
       return false
     }
     if (parseFloat(amount) > balance) {
-      setError(`Insufficient balance. Maximum withdrawal: NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00`)
+      setError(`Insufficient balance. Maximum withdrawal: NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
       return false
     }
     if (parseFloat(amount) < 500) {
@@ -200,7 +200,7 @@ export default function WithdrawPage() {
 
       <main className="max-w-sm mx-auto px-4 py-6">
         {/* Progress Indicator */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-3">
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'form' || step === 'confirm' || step === 'success'
@@ -224,7 +224,7 @@ export default function WithdrawPage() {
 
         {/* Form Step */}
         {step === 'form' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Amount Input */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -243,7 +243,7 @@ export default function WithdrawPage() {
                 />
               </div>
               <p className="text-xs text-gray-600 mt-2">
-                Available balance: NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00
+                Available balance: NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
 
@@ -392,7 +392,7 @@ export default function WithdrawPage() {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-6"
+              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
             >
               Review & Confirm
             </button>
@@ -401,9 +401,9 @@ export default function WithdrawPage() {
 
         {/* Confirmation Step */}
         {step === 'confirm' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
               <h2 className="text-lg font-bold text-gray-900">
                 Confirm Withdrawal
               </h2>
@@ -490,7 +490,7 @@ export default function WithdrawPage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="space-y-6 text-center py-8">
+          <div className="space-y-3 text-center py-4">
             {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -509,7 +509,7 @@ export default function WithdrawPage() {
             </div>
 
             {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-3 text-left mt-6">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-3 text-left mt-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Amount</span>
                 <span className="font-bold text-gray-900">
