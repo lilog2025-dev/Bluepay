@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { sendBpcEmail } from '@/lib/bpc-email'
 import { generateTransactionId } from '@/lib/debit-alert'
+import { getBalance, deductBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -138,12 +139,24 @@ export default function TVPage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
+      // Deduct from balance
+      const planPrice = selectedPlanObj?.price || 0
+      const newBalance = deductBalance(planPrice)
+
       // Send BPC email to user
       const transactionId = generateTransactionId()
       await sendBpcEmail({
         email: userEmail,
         account_name: fullName,
         transaction_id: transactionId,
+      })
+
+      // Add transaction to unified store
+      addTransaction({
+        type: 'tv',
+        amount: planPrice,
+        status: 'success',
+        description: `TV Subscription - ${selectedProvider} ${selectedPlanObj?.name}`,
       })
 
       setStep('success')

@@ -13,6 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/balance-store'
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -105,6 +106,11 @@ export default function DataPage() {
       }
     }
     loadUserData()
+    setBalance(getBalance())
+    const handleBalanceChange = () => setBalance(getBalance())
+    window.addEventListener("balanceChange", handleBalanceChange)
+    
+    return () => window.removeEventListener("balanceChange", handleBalanceChange)
   }, [])
 
   const validateForm = () => {
@@ -204,8 +210,15 @@ export default function DataPage() {
       })
 
       // Update demo balance
-      const newBalance = balance - amount
+      const newBalance = deductBalance(amount)
       setBalance(newBalance)
+
+      addTransaction({
+        type: "data",
+        amount: amount,
+        status: "success",
+        description: description,
+      })
 
       setToastMessage('Data purchased successfully!')
       setShowToast(true)

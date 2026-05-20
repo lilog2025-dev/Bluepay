@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -53,6 +54,13 @@ export default function ElectricityPage() {
       }
     }
     loadUserData()
+
+    // Load balance from unified store
+    setBalance(getBalance())
+    const handleBalanceChange = () => setBalance(getBalance())
+    window.addEventListener('balanceChange', handleBalanceChange)
+    
+    return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
 
   const handlePay = async (e: React.FormEvent) => {
@@ -93,9 +101,17 @@ export default function ElectricityPage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Update demo balance
-      const newBalance = balance - paymentAmount
+      // Update demo balance in unified store
+      const newBalance = deductBalance(paymentAmount)
       setBalance(newBalance)
+
+      // Add transaction to unified store
+      addTransaction({
+        type: 'electricity',
+        amount: paymentAmount,
+        status: 'success',
+        description: `Electricity - ${disco}`,
+      })
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)

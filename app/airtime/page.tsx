@@ -13,6 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -103,6 +104,13 @@ export default function AirtimePage() {
       }
     }
     loadUserData()
+
+    // Load balance from unified store and listen for changes
+    setBalance(getBalance())
+    const handleBalanceChange = () => setBalance(getBalance())
+    window.addEventListener('balanceChange', handleBalanceChange)
+    
+    return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
 
   const validateForm = () => {
@@ -163,9 +171,17 @@ export default function AirtimePage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Update demo balance
-      const newBalance = balance - amountNum
+      // Update demo balance in unified store
+      const newBalance = deductBalance(amountNum)
       setBalance(newBalance)
+
+      // Add transaction to unified store
+      addTransaction({
+        type: 'airtime',
+        amount: amountNum,
+        status: 'success',
+        description: `Airtime - ${selectedNetwork} (${phoneNumber})`,
+      })
 
       setToastMessage('Airtime delivered successfully!')
       setShowToast(true)

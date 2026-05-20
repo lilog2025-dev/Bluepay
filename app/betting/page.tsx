@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/balance-store'
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -61,6 +62,13 @@ export default function BettingPage() {
       }
     }
     loadUserData()
+
+    // Load balance from unified store and listen for changes
+    setBalance(getBalance())
+    const handleBalanceChange = () => setBalance(getBalance())
+    window.addEventListener('balanceChange', handleBalanceChange)
+    
+    return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
 
   const handleBet = async (e: React.FormEvent) => {
@@ -111,9 +119,17 @@ export default function BettingPage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Update demo balance
-      const newBalance = balance - betAmount
+      // Update demo balance in unified store
+      const newBalance = deductBalance(betAmount)
       setBalance(newBalance)
+
+      // Add transaction to unified store
+      addTransaction({
+        type: 'betting',
+        amount: betAmount,
+        status: 'success',
+        description: `Betting - ${selectedPlatform}`,
+      })
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
