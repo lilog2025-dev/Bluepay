@@ -12,8 +12,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { formatBalance } from '@/lib/format-balance'
-import { deductWalletBalance, recordTransaction } from '@/lib/wallet'
+import { deductBalance, getCurrentBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -179,7 +178,7 @@ export default function WithdrawPage() {
       })
 
       // Deduct from Supabase wallet
-      const newBalance = await deductWalletBalance(userId, withdrawAmount)
+      const newBalance = await deductBalance(userId, withdrawAmount)
       if (newBalance === null) {
         setError('Failed to process withdrawal. Insufficient balance.')
         setIsLoading(false)
@@ -187,16 +186,25 @@ export default function WithdrawPage() {
       }
 
       // Record transaction in Supabase
-      const recorded = await recordTransaction({
-        user_id: userId,
-        type: 'withdrawal',
-        amount: withdrawAmount,
-        status: 'success',
-        description: `Withdrawal to ${selectedBank} - ${accountNumber}`,
-      })
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      
+      const { error: txError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'withdrawal',
+          amount: withdrawAmount,
+          status: 'success',
+          description: `Withdrawal to ${selectedBank} - ${accountNumber}`,
+          created_at: new Date().toISOString(),
+          transaction_id: transactionId,
+        })
 
-      if (!recorded) {
-        console.warn('[v0] Transaction recording failed, but withdrawal was processed')
+      if (txError) {
+        console.warn('[v0] Transaction recording failed:', txError)
       }
 
       // Update local state

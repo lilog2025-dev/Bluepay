@@ -276,7 +276,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
                   <h3 className="text-base font-bold">
-                    {loadingBalance ? 'Loading...' : (showBalance ? `NGN ${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00` : '••••••••')}
+                    {loadingBalance ? 'Loading...' : (showBalance ? `NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00` : '••••••••')}
                   </h3>
                   <button
                     onClick={() => setShowBalance(!showBalance)}
