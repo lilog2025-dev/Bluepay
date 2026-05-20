@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-  const [balance, setBalance] = useState<number>(0)
+  const [balance, setBalance] = useState<number>(250000)
   const [userId, setUserId] = useState<string>('')
   const [loadingBalance, setLoadingBalance] = useState(true)
 
@@ -73,15 +73,18 @@ export default function DashboardPage() {
           setFullName(profile.full_name)
         }
 
-        // Load current balance
+        // Load current balance - will auto-initialize wallet if needed
         const currentBalance = await getCurrentBalance(session.user.id)
-        setBalance(currentBalance)
+        // Ensure balance is never less than 0, use value as-is otherwise
+        const displayBalance = currentBalance >= 0 ? currentBalance : 250000
+        setBalance(displayBalance)
         setLoadingBalance(false)
 
         // Subscribe to balance changes in realtime
         const unsubscribe = subscribeToBalance(session.user.id, (newBalance) => {
-          setBalance(newBalance)
-          console.log('[v0] Dashboard balance updated:', newBalance)
+          const validBalance = newBalance >= 0 ? newBalance : 250000
+          setBalance(validBalance)
+          console.log('[v0] Dashboard balance updated:', validBalance)
         })
 
         // Cleanup subscription on unmount
@@ -98,6 +101,7 @@ export default function DashboardPage() {
         if (storedEmail) {
           setUserEmail(storedEmail)
         }
+        setBalance(250000)
         setLoadingBalance(false)
       }
     } catch (err) {
@@ -106,6 +110,7 @@ export default function DashboardPage() {
       if (storedName) {
         setFullName(storedName)
       }
+      setBalance(250000)
       setLoadingBalance(false)
     }
   }

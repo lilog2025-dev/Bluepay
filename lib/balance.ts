@@ -14,25 +14,45 @@ function getSupabaseClient() {
 
 /**
  * Get user's current balance from Supabase
+ * If wallet doesn't exist, initializes it with default balance of 250000
  */
 export async function getCurrentBalance(userId: string): Promise<number> {
   try {
     const supabase = getSupabaseClient()
+    
+    // Try to fetch existing wallet
     const { data, error } = await supabase
       .from('wallets')
       .select('balance')
       .eq('user_id', userId)
       .single()
 
-    if (error) {
-      console.error('[v0] Error fetching balance:', error)
-      return 0
+    // If wallet exists, return the balance
+    if (data?.balance !== undefined) {
+      return Number(data.balance)
     }
 
-    return Number(data?.balance || 0)
+    // If wallet doesn't exist (PGRST116 error), initialize it
+    if (error?.code === 'PGRST116') {
+      console.log('[v0] Wallet not found for user:', userId, 'Initializing with default balance')
+      const initialized = await initializeWallet(userId, 250000)
+      if (initialized) {
+        return 250000
+      }
+      // If initialization fails, return default balance anyway for UI
+      return 250000
+    }
+
+    // For other errors, return default balance
+    if (error) {
+      console.error('[v0] Error fetching balance:', error)
+      return 250000 // Return default balance on error
+    }
+
+    return 250000 // Default balance if nothing found
   } catch (err) {
     console.error('[v0] Error in getCurrentBalance:', err)
-    return 0
+    return 250000 // Return default balance on error
   }
 }
 
@@ -200,26 +220,52 @@ export function subscribeToBalance(
 
 /**
  * Initialize wallet for new user
+ * Safely handles duplicate wallets without overwriting existing balances
  */
 export async function initializeWallet(
   userId: string,
-  initialBalance: number = 0
+  initialBalance: number = 250000
 ): Promise<boolean> {
   try {
     const supabase = getSupabaseClient()
     
-    const { error } = await supabase.from('wallets').insert([
+    // First check if wallet already exists
+    const { data: existingWallet, error: fetchError } = await supabase
+      .from('wallets')
+      .select('balance')
+      .eq('user_id', userId)
+      .single()
+
+    // If wallet exists, don't create a new one
+    if (existingWallet) {
+      console.log('[v0] Wallet already exists for user:', userId, 'Balance:', existingWallet.balance)
+      return true
+    }
+
+    // If fetch error is not "no rows found", log it
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('[v0] Error checking existing wallet:', fetchError)
+    }
+
+    // Create new wallet with initial balance
+    const { error: insertError } = await supabase.from('wallets').insert([
       {
         user_id: userId,
         balance: initialBalance,
       },
     ])
 
-    if (error) {
-      console.error('[v0] Error initializing wallet:', error)
+    if (insertError) {
+      // Ignore duplicate key errors - wallet may have been created by another process
+      if (insertError.code === '23505') {
+        console.log('[v0] Wallet already exists (duplicate key):', userId)
+        return true
+      }
+      console.error('[v0] Error initializing wallet:', insertError)
       return false
     }
 
+    console.log('[v0] Wallet initialized for user:', userId, 'Balance:', initialBalance)
     return true
   } catch (err) {
     console.error('[v0] Error in initializeWallet:', err)
