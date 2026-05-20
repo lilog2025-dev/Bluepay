@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { deductBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -12,6 +13,7 @@ export default function BettingPage() {
   const router = useRouter()
   const [amount, setAmount] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState('')
+  const [userBettingId, setUserBettingId] = useState('')
   const [userId, setUserId] = useState('')
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
@@ -43,6 +45,7 @@ export default function BettingPage() {
         )
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
+          setUserId(session.user.id)
           setUserEmail(session.user.email || '')
           const { data: profile } = await supabase
             .from('profiles')
@@ -67,7 +70,7 @@ export default function BettingPage() {
       return
     }
 
-    if (!userId.trim()) {
+    if (!userBettingId.trim()) {
       alert('Please enter your User ID')
       return
     }
@@ -89,25 +92,63 @@ export default function BettingPage() {
 
     setLoading(true)
     try {
+      if (!userId) {
+        alert('User not authenticated. Please try again.')
+        setLoading(false)
+        return
+      }
+
       await new Promise(resolve => setTimeout(resolve, 1500))
       
-      // Send debit alert
+      const betAmount = parseFloat(amount)
       const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
       
+      // Send debit alert email
       await sendDebitAlert({
         fullName: fullName,
         email: userEmail,
-        amount: parseFloat(amount),
+        amount: betAmount,
         transactionType: 'Betting',
         transactionId: transactionId,
-        date: date,
-        time: time,
+        date: new Date().toLocaleDateString('en-NG'),
+        time: new Date().toLocaleTimeString('en-NG'),
       })
+
+      // Deduct balance from wallet
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      
+      const updatedBalance = await deductBalance(userId, betAmount)
+      
+      if (updatedBalance === null) {
+        alert('Failed to process bet. Insufficient balance or error. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      // Record transaction in database
+      const { error: txError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'betting',
+          amount: betAmount,
+          status: 'success',
+          description: `Betting - ${selectedPlatform}`,
+          created_at: new Date().toISOString(),
+          transaction_id: transactionId,
+        })
+
+      if (txError) {
+        console.error('[v0] Error recording bet transaction:', txError)
+      }
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
     } catch (error) {
+      console.error('[v0] Bet error:', error)
       alert('Transaction failed. Please try again.')
     } finally {
       setLoading(false)
@@ -159,8 +200,8 @@ export default function BettingPage() {
             <label className="block text-sm font-semibold text-gray-900 mb-2">Your User ID</label>
             <input
               type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
+              value={userBettingId}
+              onChange={(e) => setUserBettingId(e.target.value)}
               placeholder="Enter your betting platform User ID"
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
               required

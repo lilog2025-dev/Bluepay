@@ -25,7 +25,8 @@ export default function ElectricityPage() {
 
   const discos = [
     'EKEDC', 'IKEDC', 'LEKKI EKO ELECTRICITY', 'AEDC',
-    'BENIN ELECTRICITY', 'KANO ELECTRIC', 'KADUNA ELECTRIC', 'ABUJA ELECTRICITY'
+    'BENIN ELECTRICITY', 'KANO ELECTRIC', 'KADUNA ELECTRIC', 'ABUJA ELECTRICITY',
+    'Enugu EEDC', 'IBEDC', 'KAEDCO'
   ]
 
   React.useEffect(() => {
@@ -74,35 +75,64 @@ export default function ElectricityPage() {
 
     setLoading(true)
     try {
+      if (!userId) {
+        alert('User not authenticated. Please try again.')
+        setLoading(false)
+        return
+      }
+
       await new Promise(resolve => setTimeout(resolve, 1500))
       
-      // Send debit alert
+      const paymentAmount = parseFloat(amount)
       const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
       
+      // Send debit alert
       await sendDebitAlert({
         fullName: fullName,
         email: userEmail,
-        amount: parseFloat(amount),
+        amount: paymentAmount,
         transactionType: 'Electricity Payment',
         transactionId: transactionId,
-        date: date,
-        time: time,
+        date: new Date().toLocaleDateString('en-NG'),
+        time: new Date().toLocaleTimeString('en-NG'),
       })
 
       // Deduct balance from wallet
-      if (userId && amount) {
-        const updatedBalance = await deductBalance(userId, parseFloat(amount))
-        if (updatedBalance === null) {
-          console.error('[v0] Balance deduction failed')
-        } else {
-          console.log('[v0] Balance deducted. New balance:', updatedBalance)
-        }
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      const updatedBalance = await deductBalance(userId, paymentAmount)
+      if (updatedBalance === null) {
+        alert('Failed to process payment. Insufficient balance or error. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      console.log('[v0] Balance deducted. New balance:', updatedBalance)
+
+      // Record transaction in database
+      const { error: txError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'electricity',
+          amount: paymentAmount,
+          status: 'success',
+          description: `Electricity - ${disco}`,
+          created_at: new Date().toISOString(),
+          transaction_id: transactionId,
+        })
+
+      if (txError) {
+        console.error('[v0] Error recording electricity transaction:', txError)
       }
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
     } catch (error) {
+      console.error('[v0] Electricity payment error:', error)
       alert('Transaction failed. Please try again.')
     } finally {
       setLoading(false)
