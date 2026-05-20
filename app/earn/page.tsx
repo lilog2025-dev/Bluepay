@@ -11,6 +11,8 @@ export default function EarnMorePage() {
   const [totalEarnings, setTotalEarnings] = useState(0)
   const [balance, setBalance] = useState(0)
   const [mounted, setMounted] = useState(false)
+  const [userId, setUserId] = useState('')
+  const [claimingTaskId, setClaimingTaskId] = useState<number | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -25,12 +27,22 @@ export default function EarnMorePage() {
       )
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
+        setUserId(session.user.id)
+
+        // Load balance from wallets table (primary source of truth)
+        const { data: walletData, error: walletError } = await supabase
+          .from('wallets')
           .select('balance')
-          .eq('id', session.user.id)
+          .eq('user_id', session.user.id)
           .single()
-        if (profile) setBalance(profile.balance || 0)
+
+        if (walletError) {
+          console.error('[v0] Error loading wallet:', walletError)
+          setBalance(0)
+        } else {
+          setBalance(walletData?.balance || 0)
+          console.log('[v0] Wallet balance loaded:', walletData?.balance)
+        }
       }
     } catch (err) {
       console.error('[v0] Error loading balance:', err)
@@ -52,32 +64,75 @@ export default function EarnMorePage() {
 
   const handleCompleteTask = async (taskId: number) => {
     if (completedTasks.includes(taskId)) return
+    if (claimingTaskId) return
 
     const task = tasks.find(t => t.id === taskId)
     if (!task) return
+
+    setClaimingTaskId(taskId)
 
     try {
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
-      const { data: { session } } = await supabase.auth.getSession()
       
-      if (session?.user) {
-        // Update balance in Supabase
-        const newBalance = balance + task.reward
-        await supabase
-          .from('profiles')
-          .update({ balance: newBalance })
-          .eq('id', session.user.id)
-
-        setBalance(newBalance)
-        setCompletedTasks([...completedTasks, taskId])
-        setTotalEarnings(totalEarnings + task.reward)
+      if (!userId) {
+        alert('User not loaded. Please refresh and try again.')
+        setClaimingTaskId(null)
+        return
       }
+
+      console.log('[v0] Claiming reward:', { taskId, reward: task.reward, userId })
+
+      // Step 1: Update balance in wallets table (primary source of truth)
+      const newBalance = balance + task.reward
+      const { error: walletError } = await supabase
+        .from('wallets')
+        .update({ balance: newBalance })
+        .eq('user_id', userId)
+
+      if (walletError) {
+        console.error('[v0] Error updating wallet:', walletError)
+        alert('Failed to claim reward. Please try again.')
+        setClaimingTaskId(null)
+        return
+      }
+
+      console.log('[v0] Wallet updated successfully')
+
+      // Step 2: Record transaction in transactions table
+      const transactionId = Date.now().toString()
+      const { error: txError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: userId,
+          type: 'reward',
+          amount: task.reward,
+          status: 'success',
+          description: `Reward Claim - ${task.title}`,
+          created_at: new Date().toISOString(),
+          transaction_id: transactionId,
+        })
+
+      if (txError) {
+        console.error('[v0] Error recording transaction:', txError)
+        // Continue even if transaction recording fails - reward was already claimed
+      } else {
+        console.log('[v0] Reward transaction recorded successfully')
+      }
+
+      // Step 3: Update local state
+      setBalance(newBalance)
+      setCompletedTasks([...completedTasks, taskId])
+      setTotalEarnings(totalEarnings + task.reward)
+
+      console.log('[v0] Reward claimed successfully:', { newBalance, taskId })
     } catch (err) {
       console.error('[v0] Error completing task:', err)
-      alert('Failed to complete task. Please try again.')
+      alert('Failed to claim reward. Please try again.')
+    } finally {
+      setClaimingTaskId(null)
     }
   }
 
@@ -151,14 +206,16 @@ export default function EarnMorePage() {
                   <p className="text-sm font-bold text-[#0000ff]">+₦{task.reward}</p>
                   <button
                     onClick={() => handleCompleteTask(task.id)}
-                    disabled={isCompleted}
+                    disabled={isCompleted || claimingTaskId === task.id}
                     className={`px-2.5 py-1 rounded text-xs font-semibold transition ${
                       isCompleted
                         ? 'bg-gray-200 text-gray-500'
-                        : 'bg-[#0000ff] text-white hover:opacity-90'
+                        : claimingTaskId === task.id
+                          ? 'bg-[#0000ff]/70 text-white'
+                          : 'bg-[#0000ff] text-white hover:opacity-90'
                     }`}
                   >
-                    {isCompleted ? '✓' : 'Claim'}
+                    {isCompleted ? '✓' : claimingTaskId === task.id ? 'Claiming...' : 'Claim'}
                   </button>
                 </div>
               </div>

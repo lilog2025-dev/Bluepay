@@ -147,13 +147,45 @@ export default function DataPage() {
     setError('')
     
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      
+      // Validate required data before processing
+      if (!selectedNetwork) {
+        setError('Please select a network')
+        setIsLoading(false)
+        return
+      }
+
+      if (!phoneNumber) {
+        setError('Please enter a phone number')
+        setIsLoading(false)
+        return
+      }
+
       // Determine the amount - either from custom input or selected plan
-      const amount = customAmount ? parseFloat(customAmount) : parseFloat(selectedPlanObj?.price.toString() || '0')
-      const description = customAmount 
-        ? `Data - Custom (${selectedNetwork})`
-        : `Data - ${selectedPlan} (${selectedNetwork})`
+      let amount = 0
+      let description = ''
+      
+      if (customAmount) {
+        amount = parseFloat(customAmount)
+        description = `Data - Custom (${selectedNetwork})`
+      } else if (selectedPlan && selectedPlanObj) {
+        amount = parseFloat(selectedPlanObj.price.toString())
+        description = `Data - ${selectedPlan} (${selectedNetwork})`
+      } else {
+        setError('Please select a data plan or enter a custom amount')
+        setIsLoading(false)
+        return
+      }
+
+      // Validate amount
+      if (!amount || amount <= 0) {
+        setError('Invalid amount selected. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      console.log('[v0] Processing data purchase:', { amount, description, userId })
+
+      await new Promise((resolve) => setTimeout(resolve, 2000))
       
       // Send debit alert email
       const transactionId = Date.now().toString()
@@ -181,12 +213,16 @@ export default function DataPage() {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
           )
           
+          console.log('[v0] Attempting to deduct balance:', { userId, amount })
           const updatedBalance = await deductBalance(userId, amount)
+          
           if (updatedBalance === null) {
             console.error('[v0] Balance deduction failed')
-            // Continue even if balance deduction fails - transaction is complete
+            setError('Failed to process payment. Please check your balance and try again.')
+            setIsLoading(false)
+            return
           } else {
-            console.log('[v0] Balance deducted. New balance:', updatedBalance)
+            console.log('[v0] Balance deducted successfully. New balance:', updatedBalance)
             
             // Record transaction in database
             const { error: txError } = await supabase
@@ -208,12 +244,17 @@ export default function DataPage() {
             }
           }
         }
+      } else {
+        setError('Failed to process data purchase. Please try again.')
+        setIsLoading(false)
+        return
       }
 
       setStep('success')
     } catch (err) {
       console.error('[v0] Data purchase error:', err)
-      setError('Failed to process data purchase. Please try again.')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process data purchase. Please try again.'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -237,6 +278,13 @@ export default function DataPage() {
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const formatDateTimeForEmail = () => {
+    const now = new Date()
+    const date = now.toLocaleDateString('en-NG')
+    const time = now.toLocaleTimeString('en-NG')
+    return { date, time }
   }
 
   return (
