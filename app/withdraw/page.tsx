@@ -12,6 +12,8 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { formatBalance } from '@/lib/format-balance'
+import { deductWalletBalance, recordTransaction } from '@/lib/wallet'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -30,6 +32,8 @@ export default function WithdrawPage() {
   const [bpcError, setBpcError] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [userId, setUserId] = useState('')
+  const [balance, setBalance] = useState(0)
 
   const banks = [
     { name: 'OPAY', code: 'OPAY' },
@@ -71,13 +75,27 @@ export default function WithdrawPage() {
         )
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
+          setUserId(session.user.id)
           setUserEmail(session.user.email || '')
+          
+          // Load user profile
           const { data: profile } = await supabase
             .from('profiles')
             .select('full_name')
             .eq('id', session.user.id)
             .single()
           if (profile?.full_name) setFullName(profile.full_name)
+
+          // Load wallet balance
+          const { data: walletData } = await supabase
+            .from('wallets')
+            .select('balance')
+            .eq('user_id', session.user.id)
+            .single()
+          
+          if (walletData) {
+            setBalance(walletData.balance)
+          }
         }
       } catch (err) {
         setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
@@ -92,12 +110,12 @@ export default function WithdrawPage() {
       setError('Please enter a valid amount')
       return false
     }
-    if (parseFloat(amount) > 250000) {
-      setError('Insufficient balance. Maximum withdrawal: NGN 250,000')
+    if (parseFloat(amount) > balance) {
+      setError(`Insufficient balance. Maximum withdrawal: ${formatBalance(balance)}`)
       return false
     }
     if (parseFloat(amount) < 500) {
-      setError('Minimum withdrawal amount is NGN 500')
+      setError('Minimum withdrawal amount is NGN500.00')
       return false
     }
     if (!selectedBank) {
@@ -131,30 +149,61 @@ export default function WithdrawPage() {
   }
 
   const handleConfirm = async () => {
-    setIsLoading(true)
     setError('')
-    
+    setIsLoading(true)
+
     try {
-      // Simulate API call
+      if (!userId) {
+        setError('User not authenticated. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      // Simulate processing time
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
-      // Send debit alert for withdrawal
-      const transactionId = generateTransactionId()
+      const withdrawAmount = parseFloat(amount)
       
+      // Send debit alert email
+      const transactionId = generateTransactionId()
       await sendDebitAlert({
         email: userEmail,
         full_name: fullName,
         transaction_type: 'Withdrawal',
-        amount: parseFloat(amount),
+        amount: withdrawAmount,
         recipient_name: accountName,
         recipient_account_number: accountNumber,
         recipient_bank_name: selectedBank,
         transaction_id: transactionId,
         transaction_date: getCurrentDateTime(),
       })
-      
+
+      // Deduct from Supabase wallet
+      const newBalance = await deductWalletBalance(userId, withdrawAmount)
+      if (newBalance === null) {
+        setError('Failed to process withdrawal. Insufficient balance.')
+        setIsLoading(false)
+        return
+      }
+
+      // Record transaction in Supabase
+      const recorded = await recordTransaction({
+        user_id: userId,
+        type: 'withdrawal',
+        amount: withdrawAmount,
+        status: 'success',
+        description: `Withdrawal to ${selectedBank} - ${accountNumber}`,
+      })
+
+      if (!recorded) {
+        console.warn('[v0] Transaction recording failed, but withdrawal was processed')
+      }
+
+      // Update local state
+      setBalance(newBalance)
       setStep('success')
     } catch (err) {
+      console.error('[v0] Withdrawal error:', err)
       setError('Failed to process withdrawal. Please try again.')
     } finally {
       setIsLoading(false)
@@ -235,7 +284,7 @@ export default function WithdrawPage() {
                 />
               </div>
               <p className="text-xs text-gray-600 mt-2">
-                Available balance: NGN 250,000.00
+                Available balance: {formatBalance(balance)}
               </p>
             </div>
 

@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { deductBalance } from '@/lib/balance'
+import { formatBalance } from '@/lib/format-balance'
+import { deductWalletBalance, recordTransaction } from '@/lib/wallet'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -37,6 +39,7 @@ export default function DataPage() {
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [userId, setUserId] = useState('')
+  const [balance, setBalance] = useState(0)
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -94,6 +97,17 @@ export default function DataPage() {
           if (profile?.full_name) {
             setFullName(profile.full_name)
           }
+
+          // Load wallet balance
+          const { data: walletData } = await supabase
+            .from('wallets')
+            .select('balance')
+            .eq('user_id', session.user.id)
+            .single()
+          
+          if (walletData) {
+            setBalance(walletData.balance)
+          }
         }
       } catch (err) {
         console.error('[v0] Error loading user data:', err)
@@ -148,6 +162,12 @@ export default function DataPage() {
     
     try {
       // Validate required data before processing
+      if (!userId) {
+        setError('User not authenticated. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
       if (!selectedNetwork) {
         setError('Please select a network')
         setIsLoading(false)
@@ -188,67 +208,50 @@ export default function DataPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       // Send debit alert email
-      const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
+      const transactionId = generateTransactionId()
       
-      const alertResult = await sendDebitAlert({
-        fullName: fullName,
+      await sendDebitAlert({
         email: userEmail,
+        full_name: fullName,
+        transaction_type: 'Data Purchase',
         amount: amount,
-        transactionType: 'Data Purchase',
-        transactionId: transactionId,
-        date: date,
-        time: time,
+        recipient_name: selectedNetwork,
+        recipient_account_number: phoneNumber,
+        recipient_bank_name: selectedCountry,
+        transaction_id: transactionId,
+        transaction_date: getCurrentDateTime(),
       })
 
-      if (alertResult.success) {
-        setToastMessage(alertResult.message)
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
-
-        // Deduct balance from wallet
-        if (userId && amount > 0) {
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-          )
-          
-          console.log('[v0] Attempting to deduct balance:', { userId, amount })
-          const updatedBalance = await deductBalance(userId, amount)
-          
-          if (updatedBalance === null) {
-            console.error('[v0] Balance deduction failed')
-            setError('Failed to process payment. Please check your balance and try again.')
-            setIsLoading(false)
-            return
-          } else {
-            console.log('[v0] Balance deducted successfully. New balance:', updatedBalance)
-            
-            // Record transaction in database
-            const { error: txError } = await supabase
-              .from('transactions')
-              .insert({
-                user_id: userId,
-                type: 'data',
-                amount: amount,
-                status: 'success',
-                description: description,
-                created_at: new Date().toISOString(),
-                transaction_id: transactionId,
-              })
-
-            if (txError) {
-              console.error('[v0] Transaction recording error:', txError)
-            } else {
-              console.log('[v0] Transaction recorded successfully')
-            }
-          }
-        }
-      } else {
-        setError('Failed to process data purchase. Please try again.')
+      // Deduct balance from wallet
+      const newBalance = await deductWalletBalance(userId, amount)
+      
+      if (newBalance === null) {
+        setError('Failed to process data purchase. Insufficient balance.')
         setIsLoading(false)
         return
       }
+
+      console.log('[v0] Balance deducted. New balance:', newBalance)
+      setBalance(newBalance)
+
+      // Record transaction in database
+      const recorded = await recordTransaction({
+        user_id: userId,
+        type: 'data',
+        amount: amount,
+        status: 'success',
+        description: description,
+      })
+
+      if (!recorded) {
+        console.warn('[v0] Transaction recording failed, but purchase was processed')
+      } else {
+        console.log('[v0] Transaction recorded successfully')
+      }
+
+      setToastMessage('Data purchased successfully!')
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 3000)
 
       setStep('success')
     } catch (err) {
