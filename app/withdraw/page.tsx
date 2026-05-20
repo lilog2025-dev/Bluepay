@@ -12,6 +12,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { deductBalance, getBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -31,7 +32,7 @@ export default function WithdrawPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(250000) // Demo balance
+  const [balance, setBalance] = useState(250000) // Will load from store
 
   const banks = [
     { name: 'OPAY', code: 'OPAY' },
@@ -82,6 +83,9 @@ export default function WithdrawPage() {
             .eq('id', session.user.id)
             .single()
           if (profile?.full_name) setFullName(profile.full_name)
+        } else {
+          setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+          setUserEmail(sessionStorage.getItem('signupEmail') || '')
         }
       } catch (err) {
         setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
@@ -89,6 +93,13 @@ export default function WithdrawPage() {
       }
     }
     loadUserData()
+
+    // Load balance from unified store and listen for changes
+    setBalance(getBalance())
+    const handleBalanceChange = () => setBalance(getBalance())
+    window.addEventListener('balanceChange', handleBalanceChange)
+    
+    return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
 
   const validateForm = () => {
@@ -156,10 +167,18 @@ export default function WithdrawPage() {
         transaction_id: transactionId,
         transaction_date: getCurrentDateTime(),
       })
-
-      // Update demo balance
-      const newBalance = balance - withdrawAmount
+      // Update demo balance in unified store
+      const newBalance = deductBalance(withdrawAmount)
       setBalance(newBalance)
+      
+      // Add transaction to unified store
+      addTransaction({
+        type: 'withdrawal',
+        amount: withdrawAmount,
+        status: 'success',
+        description: `Withdrawal to ${selectedBank} - ${accountNumber}`,
+      })
+      
       setStep('success')
     } catch (err) {
       console.error('[v0] Withdrawal error:', err)

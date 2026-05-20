@@ -28,7 +28,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
-import { getCurrentBalance, subscribeToBalance } from '@/lib/balance'
+import { getBalance, getTransactions, initializeBalance } from '@/lib/balance-store'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -50,73 +50,14 @@ export default function DashboardPage() {
     loadUserData()
   }, [])
 
-  const getTransactionIcon = (type: string) => {
-    switch(type) {
-      case 'airtime': return <Phone className="w-4 h-4" />
-      case 'data': return <Radio className="w-4 h-4" />
-      case 'electricity': return <Lightbulb className="w-4 h-4" />
-      case 'tv': return <Tv className="w-4 h-4" />
-      case 'betting': return <Dices className="w-4 h-4" />
-      case 'withdrawal': return <DollarSign className="w-4 h-4" />
-      default: return <CreditCard className="w-4 h-4" />
-    }
-  }
-
-  const getTransactionColor = (type: string) => {
-    switch(type) {
-      case 'airtime': return 'text-yellow-600 bg-yellow-50'
-      case 'data': return 'text-cyan-600 bg-cyan-50'
-      case 'electricity': return 'text-orange-600 bg-orange-50'
-      case 'tv': return 'text-purple-600 bg-purple-50'
-      case 'betting': return 'text-red-600 bg-red-50'
-      case 'withdrawal': return 'text-green-600 bg-green-50'
-      default: return 'text-gray-600 bg-gray-50'
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const today = new Date()
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    
-    if (date.toDateString() === today.toDateString()) {
-      return date.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday'
-    } else {
-      return date.toLocaleDateString('en-NG')
-    }
-  }
-
-  const loadRecentTransactions = async (userId: string, supabase: any) => {
-    try {
-      const { data: txData, error: txError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      if (!txError && txData) {
-        setTransactions(txData)
-        console.log('[v0] Transactions loaded:', txData)
-      }
-    } catch (err) {
-      console.error('[v0] Error loading transactions:', err)
-    }
-  }
-
-  const loadUserData = async () => {
+  async function loadUserData() {
     try {
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
-
-      // Get authenticated user
       const { data: { session } } = await supabase.auth.getSession()
-      
+
       if (session?.user) {
         setUserId(session.user.id)
         setUserEmail(session.user.email || '')
@@ -132,64 +73,36 @@ export default function DashboardPage() {
           setFullName(profile.full_name)
         }
 
-        // Load current balance - will auto-initialize wallet if needed
-        let currentBalance = await getCurrentBalance(session.user.id)
-        
-        // Check if there's a cached reward from Earn More page
-        const earnMoreBalance = sessionStorage.getItem('earnMoreBalance')
-        if (earnMoreBalance) {
-          currentBalance = Math.max(currentBalance, parseFloat(earnMoreBalance))
-          sessionStorage.removeItem('earnMoreBalance')
-        }
-        
-        // Ensure balance is never less than 0, use value as-is otherwise
-        const displayBalance = currentBalance >= 0 ? currentBalance : 250000
-        setBalance(displayBalance)
+        // Load balance from unified store
+        const initialBalance = initializeBalance()
+        setBalance(initialBalance)
         setLoadingBalance(false)
 
-        // Subscribe to balance changes in realtime
-        const unsubscribe = subscribeToBalance(session.user.id, (newBalance) => {
-          const validBalance = newBalance >= 0 ? newBalance : 250000
-          setBalance(validBalance)
-          console.log('[v0] Dashboard balance updated:', validBalance)
-        })
-
-        // Load recent transactions
-        const { data: txData, error: txError } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(10)
-
-        if (!txError && txData) {
-          setTransactions(txData)
+        // Subscribe to balance changes
+        const handleBalanceChange = () => {
+          const newBalance = getBalance()
+          setBalance(newBalance)
         }
+        
+        window.addEventListener('balanceChange', handleBalanceChange)
+
+        // Load recent transactions from unified store
+        const txData = getTransactions()
+        setTransactions(txData)
         setLoadingTransactions(false)
 
-        // Subscribe to transaction changes in realtime
-        const txChannel = supabase
-          .channel(`transactions:${session.user.id}`)
-          .on(
-            'postgres_changes',
-            {
-              event: '*',
-              schema: 'public',
-              table: 'transactions',
-              filter: `user_id=eq.${session.user.id}`,
-            },
-            (payload) => {
-              console.log('[v0] Transaction update:', payload)
-              // Refetch transactions on any change
-              loadRecentTransactions(session.user.id, supabase)
-            }
-          )
-          .subscribe()
+        // Subscribe to transaction changes
+        const handleTransactionsChange = () => {
+          const newTransactions = getTransactions()
+          setTransactions(newTransactions)
+        }
 
-        // Cleanup subscription on unmount
+        window.addEventListener('transactionsChange', handleTransactionsChange)
+
+        // Cleanup function
         return () => {
-          unsubscribe()
-          supabase.removeChannel(txChannel)
+          window.removeEventListener('balanceChange', handleBalanceChange)
+          window.removeEventListener('transactionsChange', handleTransactionsChange)
         }
       } else {
         // Fallback to session storage if not authenticated
@@ -201,8 +114,13 @@ export default function DashboardPage() {
         if (storedEmail) {
           setUserEmail(storedEmail)
         }
-        setBalance(250000)
+        
+        const initialBalance = initializeBalance()
+        setBalance(initialBalance)
         setLoadingBalance(false)
+        
+        const txData = getTransactions()
+        setTransactions(txData)
         setLoadingTransactions(false)
       }
     } catch (err) {
@@ -211,8 +129,13 @@ export default function DashboardPage() {
       if (storedName) {
         setFullName(storedName)
       }
-      setBalance(250000)
+      
+      const initialBalance = initializeBalance()
+      setBalance(initialBalance)
       setLoadingBalance(false)
+      
+      const txData = getTransactions()
+      setTransactions(txData)
       setLoadingTransactions(false)
     }
   }

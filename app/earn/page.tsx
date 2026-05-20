@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, CheckCircle, Gift, Zap, Star, Trophy } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import { getBalance, addBalance, addTransaction } from '@/lib/balance-store'
 
 export default function EarnMorePage() {
   const router = useRouter()
@@ -17,6 +18,13 @@ export default function EarnMorePage() {
   useEffect(() => {
     setMounted(true)
     loadProfileBalance()
+    
+    // Load balance from unified store
+    setBalance(getBalance())
+    const handleBalanceChange = () => setBalance(getBalance())
+    window.addEventListener('balanceChange', handleBalanceChange)
+    
+    return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
 
   const loadProfileBalance = async () => {
@@ -64,17 +72,19 @@ export default function EarnMorePage() {
       
       console.log('[v0] Claiming reward:', { taskId, reward: task.reward, userId })
 
-      // Update demo balance
-      const newBalance = balance + task.reward
+      // Update demo balance in unified store
+      const newBalance = addBalance(task.reward)
       setBalance(newBalance)
       setCompletedTasks([...completedTasks, taskId])
       setTotalEarnings(totalEarnings + task.reward)
 
-      // Store updated balance in sessionStorage so dashboard can reflect it
-      sessionStorage.setItem('earnMoreBalance', newBalance.toString())
-      
-      // Show success feedback
-      alert(`Reward claimed! +₦${task.reward.toLocaleString()}`)
+      // Add transaction to unified store
+      addTransaction({
+        type: 'reward',
+        amount: task.reward,
+        status: 'success',
+        description: `Reward Claim - ${task.title}`,
+      })
 
       console.log('[v0] Reward claimed successfully:', { newBalance, taskId })
     } catch (err) {
