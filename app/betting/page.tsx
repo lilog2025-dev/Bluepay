@@ -4,8 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { formatBalance } from '@/lib/format-balance'
-import { deductWalletBalance, recordTransaction } from '@/lib/wallet'
+
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -16,7 +15,7 @@ export default function BettingPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('')
   const [userBettingId, setUserBettingId] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState(250000) // Demo balance
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -55,17 +54,6 @@ export default function BettingPage() {
             .eq('id', session.user.id)
             .single()
           if (profile?.full_name) setFullName(profile.full_name)
-
-          // Load wallet balance
-          const { data: walletData } = await supabase
-            .from('wallets')
-            .select('balance')
-            .eq('user_id', session.user.id)
-            .single()
-          
-          if (walletData) {
-            setBalance(walletData.balance)
-          }
         }
       } catch (err) {
         setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
@@ -129,29 +117,9 @@ export default function BettingPage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet
-      const newBalance = await deductWalletBalance(userId, betAmount)
-      
-      if (newBalance === null) {
-        alert('Failed to process bet. Insufficient balance or error. Please try again.')
-        setLoading(false)
-        return
-      }
-
+      // Update demo balance
+      const newBalance = balance - betAmount
       setBalance(newBalance)
-
-      // Record transaction in database
-      const recorded = await recordTransaction({
-        user_id: userId,
-        type: 'betting',
-        amount: betAmount,
-        status: 'success',
-        description: `Betting - ${selectedPlatform}`,
-      })
-
-      if (!recorded) {
-        console.warn('[v0] Transaction recording failed, but bet was processed')
-      }
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
@@ -171,7 +139,7 @@ export default function BettingPage() {
             <Check className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Bet Placed Successfully!</h1>
-          <p className="text-gray-600">Transaction: {TRANSACTION_CODE}</p>
+          <p className="text-gray-600">Redirecting to dashboard...</p>
         </div>
       </div>
     )

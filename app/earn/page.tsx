@@ -9,7 +9,7 @@ export default function EarnMorePage() {
   const router = useRouter()
   const [completedTasks, setCompletedTasks] = useState<number[]>([])
   const [totalEarnings, setTotalEarnings] = useState(0)
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState(250000) // Demo balance
   const [mounted, setMounted] = useState(false)
   const [userId, setUserId] = useState('')
   const [claimingTaskId, setClaimingTaskId] = useState<number | null>(null)
@@ -28,24 +28,9 @@ export default function EarnMorePage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
         setUserId(session.user.id)
-
-        // Load balance from wallets table (primary source of truth)
-        const { data: walletData, error: walletError } = await supabase
-          .from('wallets')
-          .select('balance')
-          .eq('user_id', session.user.id)
-          .single()
-
-        if (walletError) {
-          console.error('[v0] Error loading wallet:', walletError)
-          setBalance(0)
-        } else {
-          setBalance(walletData?.balance || 0)
-          console.log('[v0] Wallet balance loaded:', walletData?.balance)
-        }
       }
     } catch (err) {
-      console.error('[v0] Error loading balance:', err)
+      console.error('[v0] Error loading user:', err)
     }
   }
 
@@ -85,44 +70,8 @@ export default function EarnMorePage() {
 
       console.log('[v0] Claiming reward:', { taskId, reward: task.reward, userId })
 
-      // Step 1: Update balance in wallets table (primary source of truth)
+      // Update demo balance
       const newBalance = balance + task.reward
-      const { error: walletError } = await supabase
-        .from('wallets')
-        .update({ balance: newBalance })
-        .eq('user_id', userId)
-
-      if (walletError) {
-        console.error('[v0] Error updating wallet:', walletError)
-        alert('Failed to claim reward. Please try again.')
-        setClaimingTaskId(null)
-        return
-      }
-
-      console.log('[v0] Wallet updated successfully')
-
-      // Step 2: Record transaction in transactions table
-      const transactionId = Date.now().toString()
-      const { error: txError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          type: 'reward',
-          amount: task.reward,
-          status: 'success',
-          description: `Reward Claim - ${task.title}`,
-          created_at: new Date().toISOString(),
-          transaction_id: transactionId,
-        })
-
-      if (txError) {
-        console.error('[v0] Error recording transaction:', txError)
-        // Continue even if transaction recording fails - reward was already claimed
-      } else {
-        console.log('[v0] Reward transaction recorded successfully')
-      }
-
-      // Step 3: Update local state
       setBalance(newBalance)
       setCompletedTasks([...completedTasks, taskId])
       setTotalEarnings(totalEarnings + task.reward)

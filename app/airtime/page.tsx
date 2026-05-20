@@ -13,9 +13,6 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance } from '@/lib/balance'
-import { formatBalance } from '@/lib/format-balance'
-import { deductWalletBalance, recordTransaction } from '@/lib/wallet'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -38,7 +35,7 @@ export default function AirtimePage() {
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState(250000) // Demo balance
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -96,21 +93,9 @@ export default function AirtimePage() {
           if (profile?.full_name) {
             setFullName(profile.full_name)
           }
-
-          // Load wallet balance
-          const { data: walletData } = await supabase
-            .from('wallets')
-            .select('balance')
-            .eq('user_id', session.user.id)
-            .single()
-          
-          if (walletData) {
-            setBalance(walletData.balance)
-          }
         }
       } catch (err) {
         console.error('[v0] Error loading user data:', err)
-        // Fallback to sessionStorage
         const name = sessionStorage.getItem('signupFullName') || 'BLUEPAY User'
         const email = sessionStorage.getItem('signupEmail') || ''
         setFullName(name)
@@ -166,7 +151,6 @@ export default function AirtimePage() {
         return
       }
 
-      // Simulate processing
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       const amountNum = parseFloat(amount)
@@ -185,32 +169,9 @@ export default function AirtimePage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet
-      const newBalance = await deductWalletBalance(userId, amountNum)
-      
-      if (newBalance === null) {
-        setError('Failed to process airtime purchase. Insufficient balance.')
-        setIsLoading(false)
-        return
-      }
-
-      console.log('[v0] Balance deducted. New balance:', newBalance)
+      // Update demo balance
+      const newBalance = balance - amountNum
       setBalance(newBalance)
-
-      // Record transaction in database
-      const recorded = await recordTransaction({
-        user_id: userId,
-        type: 'airtime',
-        amount: amountNum,
-        status: 'success',
-        description: `Airtime - ${selectedNetwork} (${phoneNumber})`,
-      })
-
-      if (!recorded) {
-        console.warn('[v0] Transaction recording failed, but purchase was processed')
-      } else {
-        console.log('[v0] Transaction recorded successfully')
-      }
 
       setToastMessage('Airtime delivered successfully!')
       setShowToast(true)

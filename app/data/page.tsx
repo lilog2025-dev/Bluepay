@@ -13,9 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance } from '@/lib/balance'
-import { formatBalance } from '@/lib/format-balance'
-import { deductWalletBalance, recordTransaction } from '@/lib/wallet'
+
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -39,7 +37,7 @@ export default function DataPage() {
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState(250000) // Demo balance
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -96,17 +94,6 @@ export default function DataPage() {
           
           if (profile?.full_name) {
             setFullName(profile.full_name)
-          }
-
-          // Load wallet balance
-          const { data: walletData } = await supabase
-            .from('wallets')
-            .select('balance')
-            .eq('user_id', session.user.id)
-            .single()
-          
-          if (walletData) {
-            setBalance(walletData.balance)
           }
         }
       } catch (err) {
@@ -222,32 +209,9 @@ export default function DataPage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet
-      const newBalance = await deductWalletBalance(userId, amount)
-      
-      if (newBalance === null) {
-        setError('Failed to process data purchase. Insufficient balance.')
-        setIsLoading(false)
-        return
-      }
-
-      console.log('[v0] Balance deducted. New balance:', newBalance)
+      // Update demo balance
+      const newBalance = balance - amount
       setBalance(newBalance)
-
-      // Record transaction in database
-      const recorded = await recordTransaction({
-        user_id: userId,
-        type: 'data',
-        amount: amount,
-        status: 'success',
-        description: description,
-      })
-
-      if (!recorded) {
-        console.warn('[v0] Transaction recording failed, but purchase was processed')
-      } else {
-        console.log('[v0] Transaction recorded successfully')
-      }
 
       setToastMessage('Data purchased successfully!')
       setShowToast(true)

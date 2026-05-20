@@ -12,7 +12,6 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance, getCurrentBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -32,7 +31,7 @@ export default function WithdrawPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState(250000) // Demo balance
 
   const banks = [
     { name: 'OPAY', code: 'OPAY' },
@@ -77,24 +76,12 @@ export default function WithdrawPage() {
           setUserId(session.user.id)
           setUserEmail(session.user.email || '')
           
-          // Load user profile
           const { data: profile } = await supabase
             .from('profiles')
             .select('full_name')
             .eq('id', session.user.id)
             .single()
           if (profile?.full_name) setFullName(profile.full_name)
-
-          // Load wallet balance
-          const { data: walletData } = await supabase
-            .from('wallets')
-            .select('balance')
-            .eq('user_id', session.user.id)
-            .single()
-          
-          if (walletData) {
-            setBalance(walletData.balance)
-          }
         }
       } catch (err) {
         setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
@@ -110,7 +97,7 @@ export default function WithdrawPage() {
       return false
     }
     if (parseFloat(amount) > balance) {
-      setError(`Insufficient balance. Maximum withdrawal: ${formatBalance(balance)}`)
+      setError(`Insufficient balance. Maximum withdrawal: NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00`)
       return false
     }
     if (parseFloat(amount) < 500) {
@@ -158,7 +145,6 @@ export default function WithdrawPage() {
         return
       }
 
-      // Simulate processing time
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       const withdrawAmount = parseFloat(amount)
@@ -177,37 +163,8 @@ export default function WithdrawPage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct from Supabase wallet
-      const newBalance = await deductBalance(userId, withdrawAmount)
-      if (newBalance === null) {
-        setError('Failed to process withdrawal. Insufficient balance.')
-        setIsLoading(false)
-        return
-      }
-
-      // Record transaction in Supabase
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      
-      const { error: txError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          type: 'withdrawal',
-          amount: withdrawAmount,
-          status: 'success',
-          description: `Withdrawal to ${selectedBank} - ${accountNumber}`,
-          created_at: new Date().toISOString(),
-          transaction_id: transactionId,
-        })
-
-      if (txError) {
-        console.warn('[v0] Transaction recording failed:', txError)
-      }
-
-      // Update local state
+      // Update demo balance
+      const newBalance = balance - withdrawAmount
       setBalance(newBalance)
       setStep('success')
     } catch (err) {
@@ -292,7 +249,7 @@ export default function WithdrawPage() {
                 />
               </div>
               <p className="text-xs text-gray-600 mt-2">
-                Available balance: {formatBalance(balance)}
+                Available balance: NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00
               </p>
             </div>
 
