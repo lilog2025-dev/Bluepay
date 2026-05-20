@@ -235,13 +235,24 @@ export default function DataPage() {
   }
 
   const handleBack = () => {
-    if (step === 'form') {
-      router.back()
-    } else if (step === 'confirm') {
-      setStep('form')
-      setError('')
-    } else {
-      router.push('/dashboard')
+    try {
+      if (step === 'form') {
+        router.back()
+      } else if (step === 'confirm') {
+        setStep('form')
+        setError('')
+      } else if (step === 'success') {
+        // Reset state instead of navigating away
+        setStep('form')
+        setSelectedNetwork('')
+        setSelectedCountry('')
+        setPhoneNumber('')
+        setSelectedPlan('')
+        setAmount('')
+        setError('')
+      }
+    } catch (err) {
+      console.error('[v0] Navigation error:', err)
     }
   }
 
@@ -670,7 +681,15 @@ export default function DataPage() {
             {/* Action Buttons */}
             <div className="space-y-3">
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => {
+                  setStep('form')
+                  setSelectedNetwork('')
+                  setSelectedCountry('')
+                  setPhoneNumber('')
+                  setSelectedPlan('')
+                  setAmount('')
+                  setError('')
+                }}
                 className="w-full bg-cyan-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >
                 Back to Dashboard

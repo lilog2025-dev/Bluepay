@@ -197,13 +197,22 @@ export default function AirtimePage() {
   }
 
   const handleBack = () => {
-    if (step === 'form') {
-      router.back()
-    } else if (step === 'confirm') {
-      setStep('form')
-      setError('')
-    } else {
-      router.push('/dashboard')
+    try {
+      if (step === 'form') {
+        router.back()
+      } else if (step === 'confirm') {
+        setStep('form')
+        setError('')
+      } else if (step === 'success') {
+        // Reset state instead of navigating away
+        setStep('form')
+        setSelectedNetwork('')
+        setPhoneNumber('')
+        setAmount('')
+        setError('')
+      }
+    } catch (err) {
+      console.error('[v0] Navigation error:', err)
     }
   }
 
@@ -392,7 +401,7 @@ export default function AirtimePage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-700 font-semibold">Total Value:</span>
                     <span className="font-bold text-yellow-600">
-                      ₦{(selectedPlan.amount + selectedPlan.bonus).toLocaleString()}
+                      ���{(selectedPlan.amount + selectedPlan.bonus).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -615,7 +624,13 @@ export default function AirtimePage() {
             {/* Action Buttons */}
             <div className="space-y-3">
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => {
+                  setStep('form')
+                  setSelectedNetwork('')
+                  setPhoneNumber('')
+                  setAmount('')
+                  setError('')
+                }}
                 className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >
                 Back to Dashboard

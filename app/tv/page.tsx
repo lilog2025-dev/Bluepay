@@ -168,13 +168,22 @@ export default function TVPage() {
   }
 
   const handleBack = () => {
-    if (step === 'form') {
-      router.back()
-    } else if (step === 'confirm') {
-      setStep('form')
-      setError('')
-    } else {
-      router.push('/dashboard')
+    try {
+      if (step === 'form') {
+        router.back()
+      } else if (step === 'confirm') {
+        setStep('form')
+        setError('')
+      } else if (step === 'success') {
+        // Reset state instead of navigating away
+        setStep('form')
+        setSelectedProvider('')
+        setSelectedPlan('')
+        setIucNumber('')
+        setError('')
+      }
+    } catch (err) {
+      console.error('[v0] Navigation error:', err)
     }
   }
 
@@ -527,7 +536,13 @@ export default function TVPage() {
             {/* Action Buttons */}
             <div className="space-y-3">
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => {
+                  setStep('form')
+                  setSelectedProvider('')
+                  setSelectedPlan('')
+                  setIucNumber('')
+                  setError('')
+                }}
                 className="w-full bg-teal-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >
                 Back to Dashboard

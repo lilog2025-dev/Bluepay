@@ -132,7 +132,13 @@ export default function BettingPage() {
       })
       
       setSuccess(true)
-      setTimeout(() => router.push('/dashboard'), 2000)
+      // Show success for 2 seconds then reset form
+      setTimeout(() => {
+        setSuccess(false)
+        setSelectedPlatform('')
+        setBetAmount('')
+        setLoading(false)
+      }, 2000)
     } catch (error) {
       console.error('[v0] Bet error:', error)
       alert('Transaction failed. Please try again.')
