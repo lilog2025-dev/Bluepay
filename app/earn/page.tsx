@@ -62,12 +62,6 @@ export default function EarnMorePage() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
       
-      if (!userId) {
-        alert('User not loaded. Please refresh and try again.')
-        setClaimingTaskId(null)
-        return
-      }
-
       console.log('[v0] Claiming reward:', { taskId, reward: task.reward, userId })
 
       // Update demo balance

@@ -75,12 +75,6 @@ export default function ElectricityPage() {
 
     setLoading(true)
     try {
-      if (!userId) {
-        alert('User not authenticated. Please try again.')
-        setLoading(false)
-        return
-      }
-
       await new Promise(resolve => setTimeout(resolve, 1500))
       
       const paymentAmount = parseFloat(amount)

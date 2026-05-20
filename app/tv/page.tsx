@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -13,6 +13,9 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
+import { sendBpcEmail } from '@/lib/bpc-email'
+import { generateTransactionId } from '@/lib/debit-alert'
+import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
@@ -28,6 +31,33 @@ export default function TVPage() {
   const [error, setError] = useState('')
   const [bpcError, setBpcError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [fullName, setFullName] = useState('')
+
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUserEmail(session.user.email || '')
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .single()
+          if (profile?.full_name) setFullName(profile.full_name)
+        }
+      } catch (err) {
+        setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+        setUserEmail(sessionStorage.getItem('signupEmail') || '')
+      }
+    }
+    loadUserData()
+  }, [])
 
   const providers = [
     { name: 'DSTV', code: 'DSTV' },
@@ -115,6 +145,15 @@ export default function TVPage() {
     
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Send BPC email to user
+      const transactionId = generateTransactionId()
+      await sendBpcEmail({
+        email: userEmail,
+        account_name: fullName,
+        transaction_id: transactionId,
+      })
+
       setStep('success')
     } catch (err) {
       setError('Failed to process subscription. Please try again.')

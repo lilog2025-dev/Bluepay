@@ -139,12 +139,6 @@ export default function WithdrawPage() {
     setIsLoading(true)
 
     try {
-      if (!userId) {
-        setError('User not authenticated. Please try again.')
-        setIsLoading(false)
-        return
-      }
-
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       const withdrawAmount = parseFloat(amount)

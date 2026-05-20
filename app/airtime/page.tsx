@@ -145,12 +145,6 @@ export default function AirtimePage() {
     setError('')
     
     try {
-      if (!userId) {
-        setError('User not authenticated. Please try again.')
-        setIsLoading(false)
-        return
-      }
-
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       const amountNum = parseFloat(amount)

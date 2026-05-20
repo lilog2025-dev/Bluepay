@@ -149,12 +149,6 @@ export default function DataPage() {
     
     try {
       // Validate required data before processing
-      if (!userId) {
-        setError('User not authenticated. Please try again.')
-        setIsLoading(false)
-        return
-      }
-
       if (!selectedNetwork) {
         setError('Please select a network')
         setIsLoading(false)
