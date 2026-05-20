@@ -139,13 +139,18 @@ export default function SupportPage() {
           <h3 className="font-bold text-gray-900 text-sm mb-3">Contact Support</h3>
           <div className="grid grid-cols-2 gap-3">
             {/* Email Support */}
-            <a
-              href="mailto:supportbluepaypro.com@gmail.com"
-              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2"
+            <button
+              onClick={() => {
+                const email = 'supportbluepaypro.com@gmail.com'
+                const subject = encodeURIComponent('BLUEPAY Support Request')
+                const body = encodeURIComponent('Hello BLUEPAY Support Team,\n\nI need assistance with...\n\nThank you.')
+                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
+              }}
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
             >
               <Mail className="w-6 h-6 text-[#0000ff]" />
               <p className="font-semibold text-gray-900 text-xs">Contact Us via Email</p>
-            </a>
+            </button>
 
             {/* WhatsApp Support */}
             <a
