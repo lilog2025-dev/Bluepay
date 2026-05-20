@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { deductBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -20,6 +21,7 @@ export default function ElectricityPage() {
   const [bpcError, setBpcError] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [userId, setUserId] = useState('')
 
   const discos = [
     'EKEDC', 'IKEDC', 'LEKKI EKO ELECTRICITY', 'AEDC',
@@ -35,6 +37,7 @@ export default function ElectricityPage() {
         )
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
+          setUserId(session.user.id)
           setUserEmail(session.user.email || '')
           const { data: profile } = await supabase
             .from('profiles')
@@ -86,6 +89,16 @@ export default function ElectricityPage() {
         date: date,
         time: time,
       })
+
+      // Deduct balance from wallet
+      if (userId && amount) {
+        const updatedBalance = await deductBalance(userId, parseFloat(amount))
+        if (updatedBalance === null) {
+          console.error('[v0] Balance deduction failed')
+        } else {
+          console.log('[v0] Balance deducted. New balance:', updatedBalance)
+        }
+      }
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)

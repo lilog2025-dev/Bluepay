@@ -13,6 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { deductBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -34,6 +35,7 @@ export default function DataPage() {
   const [userEmail, setUserEmail] = useState('')
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [userId, setUserId] = useState('')
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -80,6 +82,7 @@ export default function DataPage() {
         
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
+          setUserId(session.user.id)
           setUserEmail(session.user.email || '')
           const { data: profile } = await supabase
             .from('profiles')
@@ -158,6 +161,18 @@ export default function DataPage() {
         setToastMessage(alertResult.message)
         setShowToast(true)
         setTimeout(() => setShowToast(false), 3000)
+
+        // Deduct balance from wallet
+        if (userId && selectedPlanObj) {
+          const price = parseFloat(selectedPlanObj.price.toString())
+          const updatedBalance = await deductBalance(userId, price)
+          if (updatedBalance === null) {
+            console.error('[v0] Balance deduction failed')
+            // Continue even if balance deduction fails - transaction is complete
+          } else {
+            console.log('[v0] Balance deducted. New balance:', updatedBalance)
+          }
+        }
       }
 
       setStep('success')

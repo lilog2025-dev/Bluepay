@@ -27,6 +27,8 @@ import {
   Share2,
   BarChart3,
 } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { getCurrentBalance, subscribeToBalance } from '@/lib/balance'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -37,18 +39,76 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [balance, setBalance] = useState<number>(0)
+  const [userId, setUserId] = useState<string>('')
+  const [loadingBalance, setLoadingBalance] = useState(true)
 
   useEffect(() => {
     setMounted(true)
-    const storedName = sessionStorage.getItem('signupFullName')
-    const storedEmail = sessionStorage.getItem('signupEmail')
-    if (storedName) {
-      setFullName(storedName)
-    }
-    if (storedEmail) {
-      setUserEmail(storedEmail)
-    }
+    loadUserData()
   }, [])
+
+  const loadUserData = async () => {
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      // Get authenticated user
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setUserId(session.user.id)
+        setUserEmail(session.user.email || '')
+
+        // Fetch user profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', session.user.id)
+          .single()
+
+        if (profile?.full_name) {
+          setFullName(profile.full_name)
+        }
+
+        // Load current balance
+        const currentBalance = await getCurrentBalance(session.user.id)
+        setBalance(currentBalance)
+        setLoadingBalance(false)
+
+        // Subscribe to balance changes in realtime
+        const unsubscribe = subscribeToBalance(session.user.id, (newBalance) => {
+          setBalance(newBalance)
+          console.log('[v0] Dashboard balance updated:', newBalance)
+        })
+
+        // Cleanup subscription on unmount
+        return () => {
+          unsubscribe()
+        }
+      } else {
+        // Fallback to session storage if not authenticated
+        const storedName = sessionStorage.getItem('signupFullName')
+        const storedEmail = sessionStorage.getItem('signupEmail')
+        if (storedName) {
+          setFullName(storedName)
+        }
+        if (storedEmail) {
+          setUserEmail(storedEmail)
+        }
+        setLoadingBalance(false)
+      }
+    } catch (err) {
+      console.error('[v0] Error loading user data:', err)
+      const storedName = sessionStorage.getItem('signupFullName')
+      if (storedName) {
+        setFullName(storedName)
+      }
+      setLoadingBalance(false)
+    }
+  }
 
   const handleLogout = () => {
     sessionStorage.clear()
@@ -117,7 +177,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
                   <h3 className="text-base font-bold">
-                    {showBalance ? 'NGN 250,000.00' : '••••••••'}
+                    {loadingBalance ? 'Loading...' : (showBalance ? `NGN ${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00` : '••••••••')}
                   </h3>
                   <button
                     onClick={() => setShowBalance(!showBalance)}
@@ -138,7 +198,7 @@ export default function DashboardPage() {
               <div className="mt-1.5 pt-1.5 border-t border-white/20">
                 <div className="flex justify-between items-center text-xs mb-0.5">
                   <p className="text-white/80">Daily Allocation</p>
-                  <p className="font-bold text-white">NGN250,000.00</p>
+                  <p className="font-bold text-white">NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.00</p>
                 </div>
                 <div className="w-full bg-white/20 rounded-full h-0.5">
                   <div className="bg-white h-0.5 rounded-full" style={{ width: '70%' }} />

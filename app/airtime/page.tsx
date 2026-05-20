@@ -13,6 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import { deductBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -34,6 +35,7 @@ export default function AirtimePage() {
   const [userEmail, setUserEmail] = useState('')
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
+  const [userId, setUserId] = useState('')
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -80,6 +82,7 @@ export default function AirtimePage() {
         
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
+          setUserId(session.user.id)
           setUserEmail(session.user.email || '')
           const { data: profile } = await supabase
             .from('profiles')
@@ -160,6 +163,19 @@ export default function AirtimePage() {
         transaction_id: transactionId,
         transaction_date: getCurrentDateTime(),
       })
+
+      // Deduct balance from wallet
+      if (userId && amount) {
+        const updatedBalance = await deductBalance(userId, parseFloat(amount))
+        if (updatedBalance === null) {
+          console.error('[v0] Balance deduction failed')
+          setError('Failed to deduct balance. Transaction may not be complete.')
+          setStep('form')
+          setIsLoading(false)
+          return
+        }
+        console.log('[v0] Balance deducted. New balance:', updatedBalance)
+      }
 
       setToastMessage('Airtime delivered successfully!')
       setShowToast(true)
