@@ -144,7 +144,7 @@ export default function ReferAndEarnPage() {
 
       <div className="max-w-2xl mx-auto px-4 pt-6">
         {/* Referral Link Card */}
-        <div className="bg-gradient-to-r from-[#0000ff] to-blue-600 rounded-2xl p-5 text-white mb-6">
+        <div className="bg-gradient-to-r from-[#0000ff] to-blue-600 rounded-2xl p-5 text-white mb-2">
           <p className="text-sm mb-2 opacity-90">Your Referral Link</p>
           <div className="bg-white bg-opacity-10 rounded-lg p-3 mb-4 break-all font-mono text-xs">
             {referralLink}
@@ -168,7 +168,7 @@ export default function ReferAndEarnPage() {
         </div>
 
         {/* Referral Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-2">
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <Users className="w-5 h-5 text-[#0000ff]" />
@@ -193,14 +193,14 @@ export default function ReferAndEarnPage() {
         </div>
 
         {/* Available Balance */}
-        <div className="bg-gradient-to-r from-blue-600 to-[#0000ff] rounded-2xl p-5 text-white mb-6 shadow-lg">
+        <div className="bg-gradient-to-r from-blue-600 to-[#0000ff] rounded-2xl p-5 text-white mb-2 shadow-lg">
           <p className="text-sm opacity-90 mb-2">Available Balance</p>
-          <p className="text-3xl font-bold mb-1">NGN {balance.toLocaleString()}.00</p>
+          <p className="text-3xl font-bold mb-1">NGN {balance.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           <p className="text-xs opacity-80">Withdraw anytime to your bank account</p>
         </div>
 
         {/* How It Works */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm mb-6 border border-gray-100">
+        <div className="bg-white rounded-2xl p-5 shadow-sm mb-2 border border-gray-100">
           <h2 className="text-lg font-bold text-gray-900 mb-4">How It Works</h2>
           <div className="space-y-3">
             <div className="flex gap-3">
@@ -246,7 +246,7 @@ export default function ReferAndEarnPage() {
 
         {/* Referral Activity History */}
         {referralHistory.length > 0 && (
-          <div className="bg-white rounded-2xl p-5 shadow-sm mb-6 border border-gray-100">
+          <div className="bg-white rounded-2xl p-5 shadow-sm mb-2 border border-gray-100">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Referral Activity</h2>
             <div className="space-y-3">
               {referralHistory.map((referral, idx) => (
@@ -276,7 +276,7 @@ export default function ReferAndEarnPage() {
         )}
 
         {/* Info Box */}
-        <div className="bg-blue-50 rounded-xl p-4 mt-6 border border-blue-200">
+        <div className="bg-blue-50 rounded-xl p-4 mt-2 border border-blue-200">
           <p className="text-xs text-blue-900">
             <span className="font-semibold block mb-1">Referral Program:</span>
             Earn ₦1,000 for each friend who signs up and completes their first transaction. Your friend also gets a ₦500 bonus!

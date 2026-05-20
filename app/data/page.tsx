@@ -13,7 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance } from '@/lib/balance'
+
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -37,6 +37,7 @@ export default function DataPage() {
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [userId, setUserId] = useState('')
+  const [balance, setBalance] = useState(250000) // Demo balance
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -188,67 +189,27 @@ export default function DataPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       // Send debit alert email
-      const transactionId = Date.now().toString()
-      const { date, time } = formatDateTimeForEmail()
+      const transactionId = generateTransactionId()
       
-      const alertResult = await sendDebitAlert({
-        fullName: fullName,
+      await sendDebitAlert({
         email: userEmail,
+        full_name: fullName,
+        transaction_type: 'Data Purchase',
         amount: amount,
-        transactionType: 'Data Purchase',
-        transactionId: transactionId,
-        date: date,
-        time: time,
+        recipient_name: selectedNetwork,
+        recipient_account_number: phoneNumber,
+        recipient_bank_name: selectedCountry,
+        transaction_id: transactionId,
+        transaction_date: getCurrentDateTime(),
       })
 
-      if (alertResult.success) {
-        setToastMessage(alertResult.message)
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
+      // Update demo balance
+      const newBalance = balance - amount
+      setBalance(newBalance)
 
-        // Deduct balance from wallet
-        if (userId && amount > 0) {
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-          )
-          
-          console.log('[v0] Attempting to deduct balance:', { userId, amount })
-          const updatedBalance = await deductBalance(userId, amount)
-          
-          if (updatedBalance === null) {
-            console.error('[v0] Balance deduction failed')
-            setError('Failed to process payment. Please check your balance and try again.')
-            setIsLoading(false)
-            return
-          } else {
-            console.log('[v0] Balance deducted successfully. New balance:', updatedBalance)
-            
-            // Record transaction in database
-            const { error: txError } = await supabase
-              .from('transactions')
-              .insert({
-                user_id: userId,
-                type: 'data',
-                amount: amount,
-                status: 'success',
-                description: description,
-                created_at: new Date().toISOString(),
-                transaction_id: transactionId,
-              })
-
-            if (txError) {
-              console.error('[v0] Transaction recording error:', txError)
-            } else {
-              console.log('[v0] Transaction recorded successfully')
-            }
-          }
-        }
-      } else {
-        setError('Failed to process data purchase. Please try again.')
-        setIsLoading(false)
-        return
-      }
+      setToastMessage('Data purchased successfully!')
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 3000)
 
       setStep('success')
     } catch (err) {
@@ -305,7 +266,7 @@ export default function DataPage() {
 
       <main className="max-w-sm mx-auto px-4 py-6">
         {/* Progress Indicator */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-3">
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'form' || step === 'confirm' || step === 'success'
@@ -329,7 +290,7 @@ export default function DataPage() {
 
         {/* Form Step */}
         {step === 'form' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Network Selection */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -520,7 +481,7 @@ export default function DataPage() {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-6"
+              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
             >
               Review & Confirm
             </button>
@@ -529,9 +490,9 @@ export default function DataPage() {
 
         {/* Confirmation Step */}
         {step === 'confirm' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
               <h2 className="text-lg font-bold text-gray-900">
                 Confirm Purchase
               </h2>
@@ -621,7 +582,7 @@ export default function DataPage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="space-y-6 text-center py-8">
+          <div className="space-y-3 text-center py-4">
             {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -640,7 +601,7 @@ export default function DataPage() {
             </div>
 
             {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4 text-left mt-6">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4 text-left mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Network</span>
                 <div className="flex items-center gap-2">

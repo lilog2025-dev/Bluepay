@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -22,6 +21,7 @@ export default function ElectricityPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
+  const [balance, setBalance] = useState(250000) // Demo balance
 
   const discos = [
     'EKEDC', 'IKEDC', 'LEKKI EKO ELECTRICITY', 'AEDC',
@@ -75,59 +75,27 @@ export default function ElectricityPage() {
 
     setLoading(true)
     try {
-      if (!userId) {
-        alert('User not authenticated. Please try again.')
-        setLoading(false)
-        return
-      }
-
       await new Promise(resolve => setTimeout(resolve, 1500))
       
       const paymentAmount = parseFloat(amount)
-      const transactionId = Date.now().toString()
+      const transactionId = generateTransactionId()
       
       // Send debit alert
       await sendDebitAlert({
-        fullName: fullName,
         email: userEmail,
+        full_name: fullName,
+        transaction_type: 'Electricity Payment',
         amount: paymentAmount,
-        transactionType: 'Electricity Payment',
-        transactionId: transactionId,
-        date: new Date().toLocaleDateString('en-NG'),
-        time: new Date().toLocaleTimeString('en-NG'),
+        recipient_name: disco,
+        recipient_account_number: meterNumber,
+        recipient_bank_name: disco,
+        transaction_id: transactionId,
+        transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-
-      const updatedBalance = await deductBalance(userId, paymentAmount)
-      if (updatedBalance === null) {
-        alert('Failed to process payment. Insufficient balance or error. Please try again.')
-        setLoading(false)
-        return
-      }
-
-      console.log('[v0] Balance deducted. New balance:', updatedBalance)
-
-      // Record transaction in database
-      const { error: txError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          type: 'electricity',
-          amount: paymentAmount,
-          status: 'success',
-          description: `Electricity - ${disco}`,
-          created_at: new Date().toISOString(),
-          transaction_id: transactionId,
-        })
-
-      if (txError) {
-        console.error('[v0] Error recording electricity transaction:', txError)
-      }
+      // Update demo balance
+      const newBalance = balance - paymentAmount
+      setBalance(newBalance)
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
@@ -148,7 +116,7 @@ export default function ElectricityPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
           <p className="text-gray-600">Your electricity bill has been paid</p>
-          <p className="text-sm text-gray-500 mt-2">Transaction: {TRANSACTION_CODE}</p>
+          <p className="text-sm text-gray-500 mt-2">Redirecting to dashboard...</p>
         </div>
       </div>
     )
@@ -251,7 +219,7 @@ export default function ElectricityPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-8"
+            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-3"
           >
             {loading ? 'Processing...' : 'Pay Bill'}
           </button>

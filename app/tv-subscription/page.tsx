@@ -125,15 +125,15 @@ export default function TVSubscriptionPage() {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 pt-8">
-          <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-6 text-center">
+        <div className="max-w-2xl mx-auto px-4 pt-4">
+          <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-3 text-center">
             <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Subscription Activated!</h2>
-            <p className="text-gray-600 mb-6">Your TV subscription is now active and ready to use.</p>
+            <p className="text-gray-600 mb-2">Your TV subscription is now active and ready to use.</p>
 
-            <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-3 mb-6 text-left">
+            <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-3 mb-2 text-left">
               <div>
                 <p className="text-xs text-gray-600 mb-1">Provider</p>
                 <p className="font-bold text-gray-900">{currentProvider?.name}</p>
@@ -193,7 +193,7 @@ export default function TVSubscriptionPage() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 pt-6">
-          <div className="bg-white rounded-xl p-6 border border-gray-200 space-y-4 mb-6">
+          <div className="bg-white rounded-xl p-3 border border-gray-200 space-y-4 mb-2">
             <h3 className="font-bold text-gray-900 text-lg">Subscription Summary</h3>
 
             <div className="space-y-3">
@@ -335,7 +335,7 @@ export default function TVSubscriptionPage() {
               <button
                 onClick={() => setStep('confirm')}
                 disabled={!bpcCode.trim()}
-                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-6"
+                className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-2"
               >
                 Continue
               </button>

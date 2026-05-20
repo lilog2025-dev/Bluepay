@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -13,6 +13,9 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
+import { sendBpcEmail } from '@/lib/bpc-email'
+import { generateTransactionId } from '@/lib/debit-alert'
+import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
@@ -28,6 +31,33 @@ export default function TVPage() {
   const [error, setError] = useState('')
   const [bpcError, setBpcError] = useState('')
   const [copied, setCopied] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [fullName, setFullName] = useState('')
+
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setUserEmail(session.user.email || '')
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .single()
+          if (profile?.full_name) setFullName(profile.full_name)
+        }
+      } catch (err) {
+        setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+        setUserEmail(sessionStorage.getItem('signupEmail') || '')
+      }
+    }
+    loadUserData()
+  }, [])
 
   const providers = [
     { name: 'DSTV', code: 'DSTV' },
@@ -91,14 +121,6 @@ export default function TVPage() {
       setError('Please enter a valid IUC/Smart Card number')
       return false
     }
-    if (!bpcCode) {
-      setBpcError('Please enter your BPC CODE')
-      return false
-    }
-    if (bpcCode !== CORRECT_BPC_CODE) {
-      setBpcError('Invalid BPC CODE. Please check and try again.')
-      return false
-    }
     return true
   }
 
@@ -115,6 +137,15 @@ export default function TVPage() {
     
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Send BPC email to user
+      const transactionId = generateTransactionId()
+      await sendBpcEmail({
+        email: userEmail,
+        account_name: fullName,
+        transaction_id: transactionId,
+      })
+
       setStep('success')
     } catch (err) {
       setError('Failed to process subscription. Please try again.')
@@ -160,9 +191,9 @@ export default function TVPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-4 py-4">
         {/* Progress Indicator */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-3">
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'form' || step === 'confirm' || step === 'success'
@@ -186,7 +217,7 @@ export default function TVPage() {
 
         {/* Form Step */}
         {step === 'form' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Provider Selection */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -265,43 +296,6 @@ export default function TVPage() {
               </p>
             </div>
 
-            {/* BPC CODE Input */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Enter Your BPC CODE
-              </label>
-              <div className="relative">
-                <input
-                  type={showBpcCode ? 'text' : 'password'}
-                  value={bpcCode}
-                  onChange={(e) => {
-                    setBpcCode(e.target.value)
-                    setBpcError('')
-                  }}
-                  placeholder="Enter BPC CODE"
-                  className={`w-full px-4 py-3 pr-10 border-2 rounded-xl focus:outline-none transition ${
-                    bpcError
-                      ? 'border-red-500 focus:ring-2 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-2 focus:ring-teal-500'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowBpcCode(!showBpcCode)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
-                >
-                  {showBpcCode ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              {bpcError && (
-                <p className="text-xs text-red-600 mt-2">{bpcError}</p>
-              )}
-            </div>
-
             {/* Error Message */}
             {error && (
               <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
@@ -343,7 +337,7 @@ export default function TVPage() {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-teal-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-6"
+              className="w-full bg-teal-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
             >
               Review & Confirm
             </button>
@@ -352,9 +346,9 @@ export default function TVPage() {
 
         {/* Confirmation Step */}
         {step === 'confirm' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
               <h2 className="text-lg font-bold text-gray-900">
                 Confirm Subscription
               </h2>
@@ -439,7 +433,7 @@ export default function TVPage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="space-y-6 text-center py-8">
+          <div className="space-y-3 text-center py-4">
             {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -458,7 +452,7 @@ export default function TVPage() {
             </div>
 
             {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4 text-left mt-6">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4 text-left mt-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Provider</span>
                 <span className="font-semibold text-gray-900">

@@ -13,7 +13,6 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance } from '@/lib/balance'
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -36,6 +35,7 @@ export default function AirtimePage() {
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [userId, setUserId] = useState('')
+  const [balance, setBalance] = useState(250000) // Demo balance
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -96,7 +96,6 @@ export default function AirtimePage() {
         }
       } catch (err) {
         console.error('[v0] Error loading user data:', err)
-        // Fallback to sessionStorage
         const name = sessionStorage.getItem('signupFullName') || 'BLUEPAY User'
         const email = sessionStorage.getItem('signupEmail') || ''
         setFullName(name)
@@ -146,17 +145,17 @@ export default function AirtimePage() {
     setError('')
     
     try {
-      // Simulate processing
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
+      const amountNum = parseFloat(amount)
+
       // Send debit alert email
       const transactionId = generateTransactionId()
-      
       await sendDebitAlert({
         email: userEmail,
         full_name: fullName,
         transaction_type: 'Airtime Purchase',
-        amount: parseFloat(amount),
+        amount: amountNum,
         recipient_name: selectedNetwork,
         recipient_account_number: phoneNumber,
         recipient_bank_name: selectedCountry,
@@ -164,46 +163,9 @@ export default function AirtimePage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet and record transaction
-      if (userId && amount) {
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
-        
-        const amountNum = parseFloat(amount)
-        const updatedBalance = await deductBalance(userId, amountNum)
-        
-        if (updatedBalance === null) {
-          console.error('[v0] Balance deduction failed')
-          setError('Failed to deduct balance. Transaction may not be complete.')
-          setStep('form')
-          setIsLoading(false)
-          return
-        }
-        
-        console.log('[v0] Balance deducted. New balance:', updatedBalance)
-
-        // Record transaction in database
-        const { error: txError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: userId,
-            type: 'airtime',
-            amount: amountNum,
-            status: 'success',
-            description: `Airtime - ${selectedNetwork} (${phoneNumber})`,
-            created_at: new Date().toISOString(),
-            transaction_id: transactionId,
-          })
-
-        if (txError) {
-          console.error('[v0] Transaction recording error:', txError)
-          // Continue even if recording fails - balance was already deducted
-        } else {
-          console.log('[v0] Transaction recorded successfully')
-        }
-      }
+      // Update demo balance
+      const newBalance = balance - amountNum
+      setBalance(newBalance)
 
       setToastMessage('Airtime delivered successfully!')
       setShowToast(true)
@@ -256,7 +218,7 @@ export default function AirtimePage() {
 
       <main className="max-w-sm mx-auto px-4 py-6">
         {/* Progress Indicator */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-3">
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'form' || step === 'confirm' || step === 'success'
@@ -280,7 +242,7 @@ export default function AirtimePage() {
 
         {/* Form Step */}
         {step === 'form' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Network Selection */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -465,7 +427,7 @@ export default function AirtimePage() {
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-6"
+              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
             >
               Review & Confirm
             </button>
@@ -474,9 +436,9 @@ export default function AirtimePage() {
 
         {/* Confirmation Step */}
         {step === 'confirm' && (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Summary */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
               <h2 className="text-lg font-bold text-gray-900">
                 Confirm Purchase
               </h2>
@@ -566,7 +528,7 @@ export default function AirtimePage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="space-y-6 text-center py-8">
+          <div className="space-y-3 text-center py-4">
             {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -585,7 +547,7 @@ export default function AirtimePage() {
             </div>
 
             {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-6 space-y-4 text-left mt-6">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-4 text-left mt-2">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Network</span>
                 <div className="flex items-center gap-2">

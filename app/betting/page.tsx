@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance } from '@/lib/balance'
+
 import { createClient } from '@supabase/supabase-js'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
@@ -15,6 +15,7 @@ export default function BettingPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('')
   const [userBettingId, setUserBettingId] = useState('')
   const [userId, setUserId] = useState('')
+  const [balance, setBalance] = useState(250000) // Demo balance
   const [bpcCode, setBpcCode] = useState('')
   const [showBpcCode, setShowBpcCode] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -92,58 +93,27 @@ export default function BettingPage() {
 
     setLoading(true)
     try {
-      if (!userId) {
-        alert('User not authenticated. Please try again.')
-        setLoading(false)
-        return
-      }
-
       await new Promise(resolve => setTimeout(resolve, 1500))
       
       const betAmount = parseFloat(amount)
-      const transactionId = Date.now().toString()
+      const transactionId = generateTransactionId()
       
       // Send debit alert email
       await sendDebitAlert({
-        fullName: fullName,
         email: userEmail,
+        full_name: fullName,
+        transaction_type: 'Betting',
         amount: betAmount,
-        transactionType: 'Betting',
-        transactionId: transactionId,
-        date: new Date().toLocaleDateString('en-NG'),
-        time: new Date().toLocaleTimeString('en-NG'),
+        recipient_name: selectedPlatform,
+        recipient_account_number: userBettingId,
+        recipient_bank_name: 'Betting Platform',
+        transaction_id: transactionId,
+        transaction_date: getCurrentDateTime(),
       })
 
-      // Deduct balance from wallet
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      
-      const updatedBalance = await deductBalance(userId, betAmount)
-      
-      if (updatedBalance === null) {
-        alert('Failed to process bet. Insufficient balance or error. Please try again.')
-        setLoading(false)
-        return
-      }
-
-      // Record transaction in database
-      const { error: txError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          type: 'betting',
-          amount: betAmount,
-          status: 'success',
-          description: `Betting - ${selectedPlatform}`,
-          created_at: new Date().toISOString(),
-          transaction_id: transactionId,
-        })
-
-      if (txError) {
-        console.error('[v0] Error recording bet transaction:', txError)
-      }
+      // Update demo balance
+      const newBalance = balance - betAmount
+      setBalance(newBalance)
       
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
@@ -163,7 +133,7 @@ export default function BettingPage() {
             <Check className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Bet Placed Successfully!</h1>
-          <p className="text-gray-600">Transaction: {TRANSACTION_CODE}</p>
+          <p className="text-gray-600">Redirecting to dashboard...</p>
         </div>
       </div>
     )
@@ -265,7 +235,7 @@ export default function BettingPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-8"
+            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-3"
           >
             {loading ? 'Processing...' : 'Place Bet'}
           </button>
