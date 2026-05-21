@@ -683,13 +683,11 @@ export default function DataPage() {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  setStep('form')
-                  setSelectedNetwork('')
-                  setSelectedCountry('')
-                  setPhoneNumber('')
-                  setSelectedPlan('')
-                  setAmount('')
-                  setError('')
+                  // Dispatch event to notify dashboard of updates
+                  window.dispatchEvent(new Event('balanceChange'))
+                  window.dispatchEvent(new Event('transactionsChange'))
+                  // Navigate to dashboard
+                  router.push('/dashboard')
                 }}
                 className="w-full bg-cyan-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >

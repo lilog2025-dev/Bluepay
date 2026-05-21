@@ -638,11 +638,11 @@ export default function AirtimePage() {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  setStep('form')
-                  setSelectedNetwork('')
-                  setPhoneNumber('')
-                  setAmount('')
-                  setError('')
+                  // Dispatch event to notify dashboard of updates
+                  window.dispatchEvent(new Event('balanceChange'))
+                  window.dispatchEvent(new Event('transactionsChange'))
+                  // Navigate to dashboard
+                  router.push('/dashboard')
                 }}
                 className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >

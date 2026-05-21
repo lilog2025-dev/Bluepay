@@ -538,11 +538,11 @@ export default function TVPage() {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  setStep('form')
-                  setSelectedProvider('')
-                  setSelectedPlan('')
-                  setIucNumber('')
-                  setError('')
+                  // Dispatch event to notify dashboard of updates
+                  window.dispatchEvent(new Event('balanceChange'))
+                  window.dispatchEvent(new Event('transactionsChange'))
+                  // Navigate to dashboard
+                  router.push('/dashboard')
                 }}
                 className="w-full bg-teal-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >
