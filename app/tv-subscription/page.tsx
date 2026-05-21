@@ -210,8 +210,7 @@ export default function TVSubscriptionPage() {
                 <span className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">BPC CODE</span>
-                <span className="font-mono font-bold text-gray-900">{bpcCode}</span>
+                <span className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</span>
               </div>
             </div>
           </div>

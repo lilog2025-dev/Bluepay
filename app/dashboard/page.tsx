@@ -350,17 +350,17 @@ export default function DashboardPage() {
             </div>
 
             {/* Transaction History */}
-            <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Transactions</h3>
-            <div className="space-y-2">
+            <h3 className="text-xs font-bold text-gray-900 mb-2">Recent Transactions</h3>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
               {loadingTransactions ? (
-                <p className="text-xs text-gray-600 text-center py-4">Loading transactions...</p>
+                <p className="text-xs text-gray-600 text-center py-2">Loading...</p>
               ) : transactions.length === 0 ? (
-                <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
+                <p className="text-xs text-gray-600 text-center py-2">No transactions yet</p>
               ) : (
-                transactions.map((tx, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className={`p-2 rounded-lg ${getTransactionColor(tx.type)}`}>
+                transactions.slice(0, 8).map((tx, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 transition">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className={`p-1.5 rounded ${getTransactionColor(tx.type)}`}>
                         {getTransactionIcon(tx.type)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -368,9 +368,8 @@ export default function DashboardPage() {
                         <p className="text-xs text-gray-500">{formatDate(tx.created_at)}</p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right ml-2">
                       <p className="text-xs font-bold text-red-600">-₦{Math.abs(tx.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-xs text-gray-500 capitalize">{tx.status}</p>
                     </div>
                   </div>
                 ))
