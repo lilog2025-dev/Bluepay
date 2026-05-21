@@ -47,7 +47,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setMounted(true)
-    loadUserData()
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      loadUserData()
+    }
   }, [])
 
   async function loadUserData() {
@@ -78,32 +81,10 @@ export default function DashboardPage() {
         setBalance(initialBalance)
         setLoadingBalance(false)
 
-        // Subscribe to balance changes
-        const handleBalanceChange = () => {
-          const newBalance = getBalance()
-          setBalance(newBalance)
-        }
-        
-        window.addEventListener('balanceChange', handleBalanceChange)
-
         // Load recent transactions from unified store
         const txData = getTransactions()
         setTransactions(txData)
         setLoadingTransactions(false)
-
-        // Subscribe to transaction changes
-        const handleTransactionsChange = () => {
-          const newTransactions = getTransactions()
-          setTransactions(newTransactions)
-        }
-
-        window.addEventListener('transactionsChange', handleTransactionsChange)
-
-        // Cleanup function
-        return () => {
-          window.removeEventListener('balanceChange', handleBalanceChange)
-          window.removeEventListener('transactionsChange', handleTransactionsChange)
-        }
       } else {
         // Fallback to session storage if not authenticated
         const storedName = sessionStorage.getItem('signupFullName')
@@ -139,6 +120,41 @@ export default function DashboardPage() {
       setLoadingTransactions(false)
     }
   }
+
+  // Set up event listeners for balance and transaction changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const handleBalanceChange = () => {
+        try {
+          const newBalance = getBalance()
+          setBalance(newBalance)
+        } catch (e) {
+          console.error('[v0] Error updating balance:', e)
+        }
+      }
+      
+      const handleTransactionsChange = () => {
+        try {
+          const newTransactions = getTransactions()
+          setTransactions(newTransactions)
+        } catch (e) {
+          console.error('[v0] Error updating transactions:', e)
+        }
+      }
+
+      window.addEventListener('balanceChange', handleBalanceChange)
+      window.addEventListener('transactionsChange', handleTransactionsChange)
+
+      return () => {
+        window.removeEventListener('balanceChange', handleBalanceChange)
+        window.removeEventListener('transactionsChange', handleTransactionsChange)
+      }
+    } catch (err) {
+      console.error('[v0] Error setting up event listeners:', err)
+    }
+  }, [])
 
   const handleLogout = () => {
     sessionStorage.clear()

@@ -66,6 +66,9 @@ export default function WithdrawPage() {
   ]
 
   React.useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return
+
     const loadUserData = async () => {
       try {
         const supabase = createClient(
@@ -88,18 +91,30 @@ export default function WithdrawPage() {
           setUserEmail(sessionStorage.getItem('signupEmail') || '')
         }
       } catch (err) {
+        console.error('[v0] Error loading user data:', err)
         setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
         setUserEmail(sessionStorage.getItem('signupEmail') || '')
       }
     }
+    
     loadUserData()
 
     // Load balance from unified store and listen for changes
-    setBalance(getBalance())
-    const handleBalanceChange = () => setBalance(getBalance())
-    window.addEventListener('balanceChange', handleBalanceChange)
-    
-    return () => window.removeEventListener('balanceChange', handleBalanceChange)
+    try {
+      setBalance(getBalance())
+      const handleBalanceChange = () => {
+        try {
+          setBalance(getBalance())
+        } catch (e) {
+          console.error('[v0] Error updating balance:', e)
+        }
+      }
+      window.addEventListener('balanceChange', handleBalanceChange)
+      
+      return () => window.removeEventListener('balanceChange', handleBalanceChange)
+    } catch (err) {
+      console.error('[v0] Error setting up balance listener:', err)
+    }
   }, [])
 
   const validateForm = () => {

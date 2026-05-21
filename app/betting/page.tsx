@@ -39,6 +39,7 @@ export default function BettingPage() {
   ]
 
   React.useEffect(() => {
+    if (typeof window === "undefined") return
     const loadUserData = async () => {
       try {
         const supabase = createClient(
