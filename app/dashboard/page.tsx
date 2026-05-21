@@ -372,23 +372,28 @@ export default function DashboardPage() {
             {/* User Greeting - Reduced */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="relative w-12 h-12 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-base font-bold overflow-hidden group">
+                <label className="relative w-16 h-16 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-xl font-bold overflow-hidden cursor-pointer group transition hover:shadow-lg hover:ring-2 hover:ring-[#0000ff] hover:ring-offset-2">
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     fullName.charAt(0).toUpperCase()
                   )}
-                  <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
-                    <Camera className="w-4 h-4 text-white" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleProfileImageUpload}
-                      disabled={isUploadingProfile}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                    <Camera className="w-5 h-5 text-white" />
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileImageUpload}
+                    disabled={isUploadingProfile}
+                    className="hidden"
+                  />
+                  {!profileImage && (
+                    <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center text-white text-xs">
+                      <Plus className="w-3 h-3" />
+                    </div>
+                  )}
+                </label>
                 <div>
                   <p className="text-gray-500 text-xs">Good Morning</p>
                   <h2 className="text-base font-bold text-gray-900">{fullName}</h2>

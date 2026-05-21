@@ -228,11 +228,8 @@ export default function TVSubscriptionPage() {
                 <span className="text-gray-600">Plan</span>
                 <span className="font-bold text-gray-900">{currentPlan?.name}</span>
               </div>
-              <div className="flex justify-between pb-3 border-b border-gray-200">
-                <span className="text-gray-600">Amount</span>
-                <span className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</span>
-              </div>
               <div className="flex justify-between">
+                <span className="text-gray-600">Amount</span>
                 <span className="font-bold text-[#0000ff]">NGN {currentPlan?.price.toLocaleString()}.00</span>
               </div>
             </div>
