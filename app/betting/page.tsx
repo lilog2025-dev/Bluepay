@@ -152,11 +152,42 @@ export default function BettingPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 flex items-center justify-center px-4">
-        <div className="text-center">
+        <div className="w-full max-w-sm text-center">
           <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Bet Placed Successfully!</h1>
+          
+          {/* Details */}
+          <div className="bg-white rounded-2xl p-4 space-y-3 text-left mb-4">
+            <div className="flex justify-between">
+              <span className="text-gray-600">User Name</span>
+              <span className="font-bold text-gray-900">Guest User</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Transaction Date & Time</span>
+              <span className="font-semibold text-gray-900 text-xs">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                })}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Platform</span>
+              <span className="font-semibold text-gray-900">{selectedPlatform}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Bet Amount</span>
+              <span className="font-bold text-gray-900">₦{parseInt(amount).toLocaleString()}</span>
+            </div>
+          </div>
+          
           <p className="text-gray-600">Redirecting to dashboard...</p>
         </div>
       </div>

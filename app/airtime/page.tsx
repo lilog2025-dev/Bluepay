@@ -585,7 +585,27 @@ export default function AirtimePage() {
             </div>
 
             {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-3 space-y-4 text-left mt-2">
+            <div className="bg-gray-50 rounded-2xl p-3 space-y-3 text-left mt-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">User Name</span>
+                <span className="font-bold text-gray-900">
+                  Guest User
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Transaction Date & Time</span>
+                <span className="font-semibold text-gray-900 text-xs">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  })}
+                </span>
+              </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Network</span>
                 <div className="flex items-center gap-2">
