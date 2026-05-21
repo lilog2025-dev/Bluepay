@@ -28,6 +28,7 @@ import {
   BarChart3,
   Send,
   MessageSquare,
+  Camera,
 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { getBalance, getTransactions, initializeBalance } from '@/lib/balance-store'
@@ -41,6 +42,8 @@ export default function DashboardPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
+  const [profileImage, setProfileImage] = useState('')
+  const [isUploadingProfile, setIsUploadingProfile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showBalance, setShowBalance] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -169,6 +172,44 @@ export default function DashboardPage() {
     }
   }
 
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !userId) return
+
+    setIsUploadingProfile(true)
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      // Upload to storage
+      const filename = `profile-${userId}-${Date.now()}.jpg`
+      const { data, error } = await supabase.storage
+        .from('profile-images')
+        .upload(filename, file)
+
+      if (error) throw error
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(filename)
+
+      setProfileImage(publicUrl)
+
+      // Update profile
+      await supabase
+        .from('profiles')
+        .update({ profile_image_url: publicUrl })
+        .eq('id', userId)
+    } catch (err) {
+      console.error('[v0] Error uploading profile image:', err)
+    } finally {
+      setIsUploadingProfile(false)
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
     // Only run on client side
@@ -192,12 +233,15 @@ export default function DashboardPage() {
         // Fetch user profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name')
+          .select('full_name, profile_image_url')
           .eq('id', session.user.id)
           .single()
 
         if (profile?.full_name) {
           setFullName(profile.full_name)
+        }
+        if (profile?.profile_image_url) {
+          setProfileImage(profile.profile_image_url)
         }
 
         // Load balance from unified store
@@ -328,8 +372,22 @@ export default function DashboardPage() {
             {/* User Greeting - Reduced */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-base font-bold">
-                  {fullName.charAt(0).toUpperCase()}
+                <div className="relative w-12 h-12 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-base font-bold overflow-hidden group">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    fullName.charAt(0).toUpperCase()
+                  )}
+                  <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
+                    <Camera className="w-4 h-4 text-white" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfileImageUpload}
+                      disabled={isUploadingProfile}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
                 <div>
                   <p className="text-gray-500 text-xs">Good Morning</p>

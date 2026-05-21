@@ -580,10 +580,12 @@ export default function WithdrawPage() {
         {/* Success Step */}
         {step === 'success' && (
           <div className="space-y-3 text-center py-4">
-            {/* Success Icon */}
+            {/* Success Icon - Bank Building */}
             <div className="flex justify-center mb-4">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+              <div className="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center">
+                <svg className="w-12 h-12 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7v2h20V7L12 2M2 9v11h20V9M4 11v7h3v-7H4m5 0v7h3v-7H9m5 0v7h3v-7h-3m5 0v7h3v-7h-3M6 21h12v1H6v-1z" />
+                </svg>
               </div>
             </div>
 
@@ -607,15 +609,19 @@ export default function WithdrawPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Transaction Date & Time</span>
-                <span className="font-semibold text-gray-900 text-xs">
+                <span className="font-semibold text-gray-900 text-xs text-right">
                   {new Date().toLocaleDateString('en-US', { 
                     weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                  <br />
+                  {new Date().toLocaleTimeString('en-US', { 
                     hour: '2-digit',
                     minute: '2-digit',
-                    second: '2-digit'
+                    second: '2-digit',
+                    hour12: true
                   })}
                 </span>
               </div>
