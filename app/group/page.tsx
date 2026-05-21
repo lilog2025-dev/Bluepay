@@ -29,11 +29,12 @@ export default function GroupPage() {
         {/* Community Buttons */}
         <div className="space-y-4">
           {/* Telegram Channel */}
-          <a
-            href="https://t.me/bluepay2"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block bg-white rounded-xl p-4 border border-gray-200 hover:border-blue-500 hover:shadow-md transition"
+          <button
+            type="button"
+            onClick={() => {
+              window.open('https://t.me/bluepay2', '_blank')
+            }}
+            className="w-full block bg-white rounded-xl p-4 border border-gray-200 hover:border-blue-500 hover:shadow-md transition cursor-pointer text-left"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -45,14 +46,15 @@ export default function GroupPage() {
               </div>
               <div className="text-[#0000ff] font-bold text-2xl">→</div>
             </div>
-          </a>
+          </button>
 
           {/* WhatsApp Support */}
-          <a
-            href="https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block bg-white rounded-xl p-4 border border-gray-200 hover:border-green-500 hover:shadow-md transition"
+          <button
+            type="button"
+            onClick={() => {
+              window.open('https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance.', '_blank')
+            }}
+            className="w-full block bg-white rounded-xl p-4 border border-gray-200 hover:border-green-500 hover:shadow-md transition cursor-pointer text-left"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -64,7 +66,7 @@ export default function GroupPage() {
               </div>
               <div className="text-green-600 font-bold text-2xl">→</div>
             </div>
-          </a>
+          </button>
         </div>
 
         {/* Benefits Section */}

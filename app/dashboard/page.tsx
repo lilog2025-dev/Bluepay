@@ -26,6 +26,8 @@ import {
   Lightbulb,
   Share2,
   BarChart3,
+  Send,
+  MessageSquare,
 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { getBalance, getTransactions, initializeBalance } from '@/lib/balance-store'
@@ -43,6 +45,49 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true)
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
+
+  // Promotional banners
+  const banners = [
+    {
+      title: 'GLO Network',
+      description: 'Africa\'s Biggest & Best Network Communication',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2845%29-20a4b0TDd0SQc2CMBxKxb4sRhMfYB3.jpeg',
+    },
+    {
+      title: 'HILO Plus',
+      description: 'New Premium Device Launch',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2844%29-DdVNQxquhPZMHEOj3qm0HoXY9BblXN.jpeg',
+    },
+    {
+      title: 'MTN Network',
+      description: 'Premium Connectivity Solution',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%2828%29-qi7XH2apOj4ZhTdqe1AoTywpVpIGoL.jpeg',
+    },
+    {
+      title: 'Airtel Network',
+      description: 'Bigger Faster Growth',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2841%29-YSlg1sOd6KYrJzI976MhmOnduKiJYS.jpeg',
+    },
+    {
+      title: 'MTN Services',
+      description: 'Premium Communication Services',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2834%29-ZMCeOQ3ENpaslzOZDrtW0UwRYLrWaY.jpeg',
+    },
+    {
+      title: 'Airtel Premium',
+      description: 'Next Generation Network',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2840%29-Pboh80l5VJ1g4C6BVFsyc3KiE3OZIK.jpeg',
+    },
+  ]
+
+  // Auto-rotate banners every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prev) => (prev + 1) % banners.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Helper functions for transactions
   const getTransactionColor = (type: string): string => {
@@ -349,6 +394,45 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* Promotional Banner Carousel */}
+            <div className="mb-4">
+              <div className="relative w-full rounded-xl overflow-hidden shadow-md bg-gray-900 h-40 md:h-48">
+                {/* Banner Slide */}
+                <div className="relative w-full h-full">
+                  <img
+                    src={banners[currentBannerIndex].image}
+                    alt={banners[currentBannerIndex].title}
+                    className="w-full h-full object-cover transition-all duration-500 ease-in-out"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23e5e7eb" width="100" height="100"/%3E%3C/svg%3E'
+                    }}
+                  />
+                  {/* Dark overlay */}
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  
+                  {/* Banner caption */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+                    <p className="text-white text-xs font-bold">{banners[currentBannerIndex].title}</p>
+                    <p className="text-white text-xs opacity-90">{banners[currentBannerIndex].description}</p>
+                  </div>
+
+                  {/* Carousel indicators */}
+                  <div className="absolute top-2 right-3 flex gap-1">
+                    {banners.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentBannerIndex(idx)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${
+                          idx === currentBannerIndex ? 'bg-white w-4' : 'bg-white/50'
+                        }`}
+                        aria-label={`Go to banner ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Transaction History */}
             <h3 className="text-xs font-bold text-gray-900 mb-2">Recent Transactions</h3>
             <div className="space-y-1 max-h-48 overflow-y-auto">
@@ -406,6 +490,46 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Floating Customer Support Button */}
+      <button
+        onClick={() => {
+          window.open('https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance.', '_blank')
+        }}
+        className="fixed bottom-24 right-4 w-14 h-14 bg-green-500 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition flex items-center justify-center z-40"
+        title="Chat with Grace"
+      >
+        <MessageCircle className="w-6 h-6" />
+        <span className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 hover:opacity-100 transition pointer-events-none">
+          Hi I&apos;m Grace
+        </span>
+      </button>
+
+      {/* Floating Telegram Join Button with Animation */}
+      <button
+        onClick={() => {
+          window.open('https://t.me/bluepay2', '_blank')
+        }}
+        className="fixed bottom-32 right-4 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center z-40 animate-bounce"
+        style={{ animation: 'bounce 2s infinite' }}
+        title="Join our Telegram"
+      >
+        <MessageSquare className="w-6 h-6" />
+        <span className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 hover:opacity-100 transition pointer-events-none">
+          Join TELEGRAM
+        </span>
+      </button>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+      `}</style>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-w-2xl mx-auto shadow-2xl">
