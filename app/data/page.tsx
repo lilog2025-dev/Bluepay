@@ -76,6 +76,7 @@ export default function DataPage() {
 
   // Load user data from Supabase
   React.useEffect(() => {
+    if (typeof window === "undefined") return
     const loadUserData = async () => {
       try {
         const supabase = createClient(

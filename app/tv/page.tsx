@@ -36,6 +36,7 @@ export default function TVPage() {
   const [fullName, setFullName] = useState('')
 
   React.useEffect(() => {
+    if (typeof window === "undefined") return
     const loadUserData = async () => {
       try {
         const supabase = createClient(

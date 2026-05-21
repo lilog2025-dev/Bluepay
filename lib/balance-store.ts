@@ -33,11 +33,18 @@ export function getBalance(): number {
 // Update balance
 export function setBalance(amount: number): number {
   if (typeof window === 'undefined') return INITIAL_BALANCE
-  const newBalance = Math.max(0, amount)
-  localStorage.setItem(BALANCE_KEY, newBalance.toString())
-  // Trigger storage event for cross-tab updates
-  window.dispatchEvent(new Event('balanceChange'))
-  return newBalance
+  try {
+    const newBalance = Math.max(0, amount)
+    localStorage.setItem(BALANCE_KEY, newBalance.toString())
+    // Trigger storage event for cross-tab updates
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('balanceChange'))
+    }
+    return newBalance
+  } catch (err) {
+    console.error('[v0] Error setting balance:', err)
+    return amount
+  }
 }
 
 // Deduct amount from balance
@@ -64,25 +71,36 @@ export function addTransaction(transaction: Omit<Transaction, 'id' | 'timestamp'
     }
   }
 
-  const stored = localStorage.getItem(TRANSACTIONS_KEY)
-  const transactions: Transaction[] = stored ? JSON.parse(stored) : []
+  try {
+    const stored = localStorage.getItem(TRANSACTIONS_KEY)
+    const transactions: Transaction[] = stored ? JSON.parse(stored) : []
 
-  const newTransaction: Transaction = {
-    ...transaction,
-    id: `tx_${Date.now()}`,
-    timestamp: new Date().toISOString(),
+    const newTransaction: Transaction = {
+      ...transaction,
+      id: `tx_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+    }
+
+    transactions.unshift(newTransaction)
+    // Keep only last 50 transactions
+    if (transactions.length > 50) {
+      transactions.pop()
+    }
+
+    localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions))
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('transactionsChange'))
+    }
+
+    return newTransaction
+  } catch (err) {
+    console.error('[v0] Error adding transaction:', err)
+    return {
+      ...transaction,
+      id: `tx_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+    }
   }
-
-  transactions.unshift(newTransaction)
-  // Keep only last 50 transactions
-  if (transactions.length > 50) {
-    transactions.pop()
-  }
-
-  localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions))
-  window.dispatchEvent(new Event('transactionsChange'))
-
-  return newTransaction
 }
 
 // Get all transactions
