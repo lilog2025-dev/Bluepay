@@ -179,6 +179,55 @@ export default function DashboardPage() {
     { label: 'REFER AND EARN', icon: Share2, color: 'bg-emerald-500', path: '/refer-earn' },
   ]
 
+  // Helper functions for transactions
+  const getTransactionColor = (type: string) => {
+    const colors: Record<string, string> = {
+      withdrawal: 'bg-blue-100',
+      airtime: 'bg-green-100',
+      data: 'bg-cyan-100',
+      betting: 'bg-indigo-100',
+      electricity: 'bg-yellow-100',
+      tv: 'bg-teal-100',
+      reward: 'bg-purple-100',
+      default: 'bg-gray-100',
+    }
+    return colors[type] || colors.default
+  }
+
+  const getTransactionIcon = (type: string) => {
+    const icons: Record<string, React.ReactNode> = {
+      withdrawal: <CreditCard className="w-4 h-4 text-blue-600" />,
+      airtime: <Phone className="w-4 h-4 text-green-600" />,
+      data: <Radio className="w-4 h-4 text-cyan-600" />,
+      betting: <Dices className="w-4 h-4 text-indigo-600" />,
+      electricity: <Lightbulb className="w-4 h-4 text-yellow-600" />,
+      tv: <Tv className="w-4 h-4 text-teal-600" />,
+      reward: <DollarSign className="w-4 h-4 text-purple-600" />,
+    }
+    return icons[type] || <CreditCard className="w-4 h-4 text-gray-600" />
+  }
+
+  const formatDate = (date: string | undefined) => {
+    if (!date) return 'Today'
+    try {
+      const d = new Date(date)
+      const now = new Date()
+      const diffMs = now.getTime() - d.getTime()
+      const diffMins = Math.floor(diffMs / 60000)
+      const diffHours = Math.floor(diffMs / 3600000)
+      const diffDays = Math.floor(diffMs / 86400000)
+
+      if (diffMins < 1) return 'Just now'
+      if (diffMins < 60) return `${diffMins}m ago`
+      if (diffHours < 24) return `${diffHours}h ago`
+      if (diffDays < 7) return `${diffDays}d ago`
+      
+      return d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
+    } catch (e) {
+      return 'Today'
+    }
+  }
+
   if (!mounted) return null
 
   return (
