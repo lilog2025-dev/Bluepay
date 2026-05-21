@@ -79,6 +79,31 @@ export default function DashboardPage() {
       description: 'Next Generation Network',
       image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2840%29-Pboh80l5VJ1g4C6BVFsyc3KiE3OZIK.jpeg',
     },
+    {
+      title: 'Community Event',
+      description: 'Civic Engagement & Voting',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%2811%29-VN09k6KFAwCYAfZ8CEQ7mmbPtTaGR1.jpeg',
+    },
+    {
+      title: 'Financial Services',
+      description: 'Secure Banking Solutions',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%2814%29-o0FOTYp2huNpZrrB6H1leYFa3R96hk.jpeg',
+    },
+    {
+      title: 'Political Event',
+      description: 'National Leadership Summit',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%2822%29-7shg4AK3HAQPqWibAQsT2KXI5uYbM8.jpeg',
+    },
+    {
+      title: 'Community Service',
+      description: 'Public Outreach Program',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%282%29-jlucdY9rQLP0iVKPNYWMWT1yRhJExn.jpeg',
+    },
+    {
+      title: 'Public Rally',
+      description: 'Community Mobilization',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%2826%29-GusOUAJo4Jt8gHadGJBnsVCT07dXMt.jpeg',
+    },
   ]
 
   // Auto-rotate banners every 4 seconds
@@ -384,14 +409,6 @@ export default function DashboardPage() {
                   </button>
                 )
               })}
-            </div>
-
-            {/* Promotional Banner */}
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-3 text-white shadow-lg mb-2 overflow-hidden relative h-32 flex flex-col justify-center">
-              <div className="relative z-10">
-                <h4 className="text-lg font-bold mb-1">BLUEPAY V26 Promo</h4>
-                <p className="text-sm text-gray-300">Exclusive offers just for you!</p>
-              </div>
             </div>
 
             {/* Promotional Banner Carousel */}

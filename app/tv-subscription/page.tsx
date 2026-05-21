@@ -154,6 +154,14 @@ export default function TVSubscriptionPage() {
 
             <div className="bg-white rounded-xl p-4 border border-gray-200 space-y-3 mb-2 text-left">
               <div>
+                <p className="text-xs text-gray-600 mb-1">User Name</p>
+                <p className="font-bold text-gray-900">Guest User</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-600 mb-1">Transaction Date & Time</p>
+                <p className="font-bold text-gray-900 text-xs">{getCurrentDateTime()}</p>
+              </div>
+              <div>
                 <p className="text-xs text-gray-600 mb-1">Provider</p>
                 <p className="font-bold text-gray-900">{currentProvider?.name}</p>
               </div>
@@ -168,10 +176,6 @@ export default function TVSubscriptionPage() {
               <div>
                 <p className="text-xs text-gray-600 mb-1">Transaction ID</p>
                 <p className="font-mono font-bold text-gray-900 text-xs">{transactionId}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-600 mb-1">Date & Time</p>
-                <p className="font-bold text-gray-900 text-xs">{getCurrentDateTime()}</p>
               </div>
             </div>
 

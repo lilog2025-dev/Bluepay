@@ -134,13 +134,48 @@ export default function ElectricityPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 flex items-center justify-center px-4">
-        <div className="text-center">
+        <div className="w-full max-w-sm text-center">
           <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
-          <p className="text-gray-600">Your electricity bill has been paid</p>
-          <p className="text-sm text-gray-500 mt-2">Redirecting to dashboard...</p>
+          <p className="text-gray-600 mb-4">Your electricity bill has been paid</p>
+          
+          {/* Details */}
+          <div className="bg-white rounded-2xl p-4 space-y-3 text-left mb-4">
+            <div className="flex justify-between">
+              <span className="text-gray-600">User Name</span>
+              <span className="font-bold text-gray-900">Guest User</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Transaction Date & Time</span>
+              <span className="font-semibold text-gray-900 text-xs">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'short',
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                })}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Provider</span>
+              <span className="font-semibold text-gray-900">{disco}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Meter Number</span>
+              <span className="font-semibold text-gray-900">{meterNumber}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Amount Paid</span>
+              <span className="font-bold text-gray-900">₦{parseInt(amount).toLocaleString()}</span>
+            </div>
+          </div>
+          
+          <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
         </div>
       </div>
     )

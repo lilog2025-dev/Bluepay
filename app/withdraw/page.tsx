@@ -600,13 +600,45 @@ export default function WithdrawPage() {
             {/* Details */}
             <div className="bg-gray-50 rounded-2xl p-3 space-y-3 text-left mt-2">
               <div className="flex justify-between">
+                <span className="text-gray-600">User Name</span>
+                <span className="font-bold text-gray-900">
+                  {fullName || 'Guest User'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Transaction Date & Time</span>
+                <span className="font-semibold text-gray-900 text-xs">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-gray-600">Amount</span>
                 <span className="font-bold text-gray-900">
                   ₦{parseInt(amount).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Destination</span>
+                <span className="text-gray-600">Account Number</span>
+                <span className="font-semibold text-gray-900">
+                  {accountNumber}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Account Name</span>
+                <span className="font-semibold text-gray-900">
+                  {accountName}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Destination Bank</span>
                 <span className="font-semibold text-gray-900">
                   {selectedBank}
                 </span>
