@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader } from 'lucide-react'
+import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader, Copy, Check } from 'lucide-react'
 import { Countdown } from '@/components/Countdown'
 import { createClient } from '@supabase/supabase-js'
 import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
@@ -20,11 +20,24 @@ export default function BuyBPCPage() {
   const [userEmail, setUserEmail] = useState('')
   const [sessionId, setSessionId] = useState('')
   const [currentDateTime, setCurrentDateTime] = useState('')
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   const BPC_PRICE = 10650
   const ACCOUNT_NUMBER = '6711230988'
   const ACCOUNT_NAME = 'MONIEPOINT MFB'
   const EDGE_FUNCTION_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-bpc-email'
+
+  // Copy handler for account details
+  const handleCopy = (text: string, field: string) => {
+    try {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedField(field)
+        setTimeout(() => setCopiedField(null), 2000)
+      })
+    } catch (err) {
+      console.error('[v0] Copy failed:', err)
+    }
+  }
 
   // Get user data from Supabase session
   useEffect(() => {
@@ -223,21 +236,73 @@ export default function BuyBPCPage() {
 
             <div className="bg-white rounded-xl p-2.5 border border-gray-200 shadow-sm mb-3">
               <div className="space-y-2">
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5">Bank Name</p>
-                  <p className="font-bold text-gray-900 text-sm">MONIEPOINT MFB</p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-0.5">Bank Name</p>
+                    <p className="font-bold text-gray-900 text-sm">MONIEPOINT MFB</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy('MONIEPOINT MFB', 'bank')}
+                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
+                    title="Copy bank name"
+                  >
+                    {copiedField === 'bank' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5">Account Number</p>
-                  <p className="font-mono font-bold text-[#0000ff] text-sm">{ACCOUNT_NUMBER}</p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-0.5">Account Number</p>
+                    <p className="font-mono font-bold text-[#0000ff] text-sm">{ACCOUNT_NUMBER}</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(ACCOUNT_NUMBER, 'account')}
+                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
+                    title="Copy account number"
+                  >
+                    {copiedField === 'account' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5">Account Name</p>
-                  <p className="font-bold text-gray-900 text-sm">CHI.. MODE...AGB</p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-0.5">Account Name</p>
+                    <p className="font-bold text-gray-900 text-sm">CHI.. MODE...AGB</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy('CHI.. MODE...AGB', 'name')}
+                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
+                    title="Copy account name"
+                  >
+                    {copiedField === 'name' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5">Amount to Transfer</p>
-                  <p className="font-bold text-gray-900 text-sm">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-0.5">Amount to Transfer</p>
+                    <p className="font-bold text-gray-900 text-sm">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 'amount')}
+                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
+                    title="Copy amount"
+                  >
+                    {copiedField === 'amount' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

@@ -103,7 +103,7 @@ export default function EarnMorePage() {
       <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-3 py-3 flex items-center justify-between">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard')}
             className="flex items-center gap-2 text-[#0000ff] hover:opacity-80 transition"
           >
             <ArrowLeft className="w-5 h-5" />

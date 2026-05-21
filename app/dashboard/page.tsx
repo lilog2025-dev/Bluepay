@@ -26,24 +26,123 @@ import {
   Lightbulb,
   Share2,
   BarChart3,
+  Send,
+  MessageSquare,
 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { getBalance, getTransactions, initializeBalance } from '@/lib/balance-store'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('home')
-  const [showBalance, setShowBalance] = useState(true)
-  const [fullName, setFullName] = useState('User')
-  const [userEmail, setUserEmail] = useState('')
-  const [mounted, setMounted] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
-  const [balance, setBalance] = useState<number>(250000)
-  const [userId, setUserId] = useState<string>('')
+  const [balance, setBalance] = useState(250000)
   const [loadingBalance, setLoadingBalance] = useState(true)
-  const [transactions, setTransactions] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loadingTransactions, setLoadingTransactions] = useState(true)
+  const [fullName, setFullName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [userId, setUserId] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showBalance, setShowBalance] = useState(true)
+  const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState('home')
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
+
+  // Promotional banners
+  const banners = [
+    {
+      title: 'GLO Network',
+      description: 'Africa\'s Biggest & Best Network Communication',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2845%29-20a4b0TDd0SQc2CMBxKxb4sRhMfYB3.jpeg',
+    },
+    {
+      title: 'HILO Plus',
+      description: 'New Premium Device Launch',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2844%29-DdVNQxquhPZMHEOj3qm0HoXY9BblXN.jpeg',
+    },
+    {
+      title: 'MTN Network',
+      description: 'Premium Connectivity Solution',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%281%29%20%2828%29-qi7XH2apOj4ZhTdqe1AoTywpVpIGoL.jpeg',
+    },
+    {
+      title: 'Airtel Network',
+      description: 'Bigger Faster Growth',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2841%29-YSlg1sOd6KYrJzI976MhmOnduKiJYS.jpeg',
+    },
+    {
+      title: 'MTN Services',
+      description: 'Premium Communication Services',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2834%29-ZMCeOQ3ENpaslzOZDrtW0UwRYLrWaY.jpeg',
+    },
+    {
+      title: 'Airtel Premium',
+      description: 'Next Generation Network',
+      image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2840%29-Pboh80l5VJ1g4C6BVFsyc3KiE3OZIK.jpeg',
+    },
+  ]
+
+  // Auto-rotate banners every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prev) => (prev + 1) % banners.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Helper functions for transactions
+  const getTransactionColor = (type: string): string => {
+    const colors: Record<string, string> = {
+      withdrawal: 'bg-blue-100',
+      airtime: 'bg-green-100',
+      data: 'bg-cyan-100',
+      betting: 'bg-indigo-100',
+      electricity: 'bg-yellow-100',
+      tv: 'bg-teal-100',
+      reward: 'bg-purple-100',
+    }
+    return colors[type] || 'bg-gray-100'
+  }
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'withdrawal':
+        return <CreditCard className="w-4 h-4 text-blue-600" />
+      case 'airtime':
+        return <Phone className="w-4 h-4 text-green-600" />
+      case 'data':
+        return <Radio className="w-4 h-4 text-cyan-600" />
+      case 'betting':
+        return <Dices className="w-4 h-4 text-indigo-600" />
+      case 'electricity':
+        return <Lightbulb className="w-4 h-4 text-yellow-600" />
+      case 'tv':
+        return <Tv className="w-4 h-4 text-teal-600" />
+      case 'reward':
+        return <DollarSign className="w-4 h-4 text-purple-600" />
+      default:
+        return <CreditCard className="w-4 h-4 text-gray-600" />
+    }
+  }
+
+  const formatDate = (date: string | undefined): string => {
+    if (!date) return 'Today'
+    try {
+      const d = new Date(date)
+      const now = new Date()
+      const diffMs = now.getTime() - d.getTime()
+      const diffMins = Math.floor(diffMs / 60000)
+      const diffHours = Math.floor(diffMs / 3600000)
+      const diffDays = Math.floor(diffMs / 86400000)
+
+      if (diffMins < 1) return 'Just now'
+      if (diffMins < 60) return `${diffMins}m ago`
+      if (diffHours < 24) return `${diffHours}h ago`
+      if (diffDays < 7) return `${diffDays}d ago`
+      return d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
+    } catch {
+      return 'Today'
+    }
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -295,18 +394,57 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* Promotional Banner Carousel */}
+            <div className="mb-4">
+              <div className="relative w-full rounded-xl overflow-hidden shadow-md bg-gray-900 h-40 md:h-48">
+                {/* Banner Slide */}
+                <div className="relative w-full h-full">
+                  <img
+                    src={banners[currentBannerIndex].image}
+                    alt={banners[currentBannerIndex].title}
+                    className="w-full h-full object-cover transition-all duration-500 ease-in-out"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23e5e7eb" width="100" height="100"/%3E%3C/svg%3E'
+                    }}
+                  />
+                  {/* Dark overlay */}
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  
+                  {/* Banner caption */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+                    <p className="text-white text-xs font-bold">{banners[currentBannerIndex].title}</p>
+                    <p className="text-white text-xs opacity-90">{banners[currentBannerIndex].description}</p>
+                  </div>
+
+                  {/* Carousel indicators */}
+                  <div className="absolute top-2 right-3 flex gap-1">
+                    {banners.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentBannerIndex(idx)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${
+                          idx === currentBannerIndex ? 'bg-white w-4' : 'bg-white/50'
+                        }`}
+                        aria-label={`Go to banner ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Transaction History */}
-            <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Transactions</h3>
-            <div className="space-y-2">
+            <h3 className="text-xs font-bold text-gray-900 mb-2">Recent Transactions</h3>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
               {loadingTransactions ? (
-                <p className="text-xs text-gray-600 text-center py-4">Loading transactions...</p>
+                <p className="text-xs text-gray-600 text-center py-2">Loading...</p>
               ) : transactions.length === 0 ? (
-                <p className="text-xs text-gray-600 text-center py-4">No transactions yet</p>
+                <p className="text-xs text-gray-600 text-center py-2">No transactions yet</p>
               ) : (
-                transactions.map((tx, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className={`p-2 rounded-lg ${getTransactionColor(tx.type)}`}>
+                transactions.slice(0, 8).map((tx, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 transition">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className={`p-1.5 rounded ${getTransactionColor(tx.type)}`}>
                         {getTransactionIcon(tx.type)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -314,9 +452,8 @@ export default function DashboardPage() {
                         <p className="text-xs text-gray-500">{formatDate(tx.created_at)}</p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right ml-2">
                       <p className="text-xs font-bold text-red-600">-₦{Math.abs(tx.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className="text-xs text-gray-500 capitalize">{tx.status}</p>
                     </div>
                   </div>
                 ))
@@ -353,6 +490,46 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Floating Customer Support Button */}
+      <button
+        onClick={() => {
+          window.open('https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance.', '_blank')
+        }}
+        className="fixed bottom-24 right-4 w-14 h-14 bg-green-500 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition flex items-center justify-center z-40"
+        title="Chat with Grace"
+      >
+        <MessageCircle className="w-6 h-6" />
+        <span className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 hover:opacity-100 transition pointer-events-none">
+          Hi I&apos;m Grace
+        </span>
+      </button>
+
+      {/* Floating Telegram Join Button with Animation */}
+      <button
+        onClick={() => {
+          window.open('https://t.me/bluepay2', '_blank')
+        }}
+        className="fixed bottom-32 right-4 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center z-40 animate-bounce"
+        style={{ animation: 'bounce 2s infinite' }}
+        title="Join our Telegram"
+      >
+        <MessageSquare className="w-6 h-6" />
+        <span className="absolute bottom-full mb-2 right-0 bg-gray-900 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap opacity-0 hover:opacity-100 transition pointer-events-none">
+          Join TELEGRAM
+        </span>
+      </button>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+      `}</style>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-w-2xl mx-auto shadow-2xl">

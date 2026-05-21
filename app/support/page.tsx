@@ -9,6 +9,7 @@ export default function SupportPage() {
   const [activeTab, setActiveTab] = useState<'ai-chat' | 'support' | 'review' | 'complaint'>('ai-chat')
   const [message, setMessage] = useState('')
   const [complaintName, setComplaintName] = useState('')
+  const [reviewRating, setReviewRating] = useState(0)
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; text: string }>>([])
   const [isAITyping, setIsAITyping] = useState(false)
 
@@ -140,11 +141,12 @@ export default function SupportPage() {
           <div className="grid grid-cols-2 gap-3">
             {/* Email Support */}
             <button
+              type="button"
               onClick={() => {
                 const email = 'supportbluepaypro.com@gmail.com'
-                const subject = encodeURIComponent('BLUEPAY Support Request')
-                const body = encodeURIComponent('Hello BLUEPAY Support Team,\n\nI need assistance with...\n\nThank you.')
-                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
+                const subject = 'BLUEPAY Support Request'
+                const body = 'Hello BLUEPAY Support Team,%0A%0AI need assistance with...%0A%0AThank you.'
+                window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self')
               }}
               className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
             >
@@ -153,26 +155,30 @@ export default function SupportPage() {
             </button>
 
             {/* WhatsApp Support */}
-            <a
-              href="https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-green-500 hover:shadow-md transition flex flex-col items-center text-center gap-2"
+            <button
+              type="button"
+              onClick={() => {
+                const whatsappUrl = 'https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance.'
+                window.open(whatsappUrl, '_blank')
+              }}
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-green-500 hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
             >
               <MessageCircle className="w-6 h-6 text-green-500" />
               <p className="font-semibold text-gray-900 text-xs">Contact Us via WhatsApp</p>
-            </a>
+            </button>
 
             {/* Telegram Channel */}
-            <a
-              href="https://t.me/bluepay2"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-500 hover:shadow-md transition flex flex-col items-center text-center gap-2"
+            <button
+              type="button"
+              onClick={() => {
+                const telegramUrl = 'https://t.me/bluepay2'
+                window.open(telegramUrl, '_blank')
+              }}
+              className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-500 hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
             >
               <MessageSquareDot className="w-6 h-6 text-blue-500" />
               <p className="font-semibold text-gray-900 text-xs">Join Telegram Channel</p>
-            </a>
+            </button>
 
             {/* Live Chat */}
             <button
@@ -295,7 +301,9 @@ export default function SupportPage() {
                   {[1, 2, 3, 4, 5].map(star => (
                     <button
                       key={star}
-                      className="text-2xl hover:scale-110 transition"
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className={`text-2xl hover:scale-110 transition ${reviewRating >= star ? 'opacity-100' : 'opacity-30'}`}
                     >
                       ⭐
                     </button>
@@ -316,7 +324,23 @@ export default function SupportPage() {
                 />
               </div>
 
-              <button className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  if (reviewRating === 0) {
+                    alert('Please select a rating')
+                    return
+                  }
+                  if (!message.trim()) {
+                    alert('Please enter your feedback')
+                    return
+                  }
+                  alert(`Thank you for your ${reviewRating}-star review!`)
+                  setMessage('')
+                  setReviewRating(0)
+                }}
+                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm"
+              >
                 Submit Review
               </button>
             </div>

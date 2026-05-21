@@ -10,6 +10,8 @@ import {
   Loader,
   Eye,
   EyeOff,
+  Copy,
+  Check,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { deductBalance, getBalance, addTransaction } from '@/lib/balance-store'
@@ -33,6 +35,7 @@ export default function WithdrawPage() {
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
   const [balance, setBalance] = useState(250000) // Will load from store
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   const banks = [
     { name: 'OPAY', code: 'OPAY' },
@@ -139,18 +142,21 @@ export default function WithdrawPage() {
       return false
     }
     if (!accountName) {
-      setError('Please enter the account holder name')
-      return false
-    }
-    if (!bpcCode) {
-      setBpcError('Please enter BPC CODE')
-      return false
-    }
-    if (bpcCode !== CORRECT_BPC_CODE) {
-      setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
+      setError('Please enter account name')
       return false
     }
     return true
+  }
+
+  const handleCopy = (text: string, field: string) => {
+    try {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedField(field)
+        setTimeout(() => setCopiedField(null), 2000)
+      })
+    } catch (err) {
+      console.error('[v0] Copy failed:', err)
+    }
   }
 
   const handleContinue = () => {
@@ -472,19 +478,58 @@ export default function WithdrawPage() {
               </div>
 
               <div className="space-y-3 pt-2">
-                <div>
-                  <p className="text-xs text-gray-600 mb-1">Destination Bank</p>
-                  <p className="font-semibold text-gray-900">{selectedBank}</p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">Destination Bank</p>
+                    <p className="font-semibold text-gray-900">{selectedBank}</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(selectedBank, 'bank')}
+                    className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
+                    title="Copy bank name"
+                  >
+                    {copiedField === 'bank' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-1">Account Number</p>
-                  <p className="font-semibold text-gray-900">
-                    {accountNumber.slice(-4).padStart(accountNumber.length, '*')}
-                  </p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">Account Number</p>
+                    <p className="font-semibold text-gray-900">
+                      {accountNumber.slice(-4).padStart(accountNumber.length, '*')}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(accountNumber, 'account')}
+                    className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
+                    title="Copy account number"
+                  >
+                    {copiedField === 'account' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-1">Account Name</p>
-                  <p className="font-semibold text-gray-900">{accountName}</p>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 mb-1">Account Name</p>
+                    <p className="font-semibold text-gray-900">{accountName}</p>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(accountName, 'name')}
+                    className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
+                    title="Copy account name"
+                  >
+                    {copiedField === 'name' ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
@@ -590,12 +635,11 @@ export default function WithdrawPage() {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  setStep('form')
-                  setAmount('')
-                  setSelectedBank('')
-                  setAccountNumber('')
-                  setAccountName('')
-                  setError('')
+                  // Dispatch event to notify dashboard of updates
+                  window.dispatchEvent(new Event('balanceChange'))
+                  window.dispatchEvent(new Event('transactionsChange'))
+                  // Navigate to dashboard
+                  router.push('/dashboard')
                 }}
                 className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
               >
