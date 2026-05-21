@@ -175,7 +175,26 @@ export default function ElectricityPage() {
             </div>
           </div>
           
-          <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
+          <div className="space-y-3 mt-6">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
+            >
+              Back to Dashboard
+            </button>
+            <button
+              onClick={() => {
+                setSuccess(false)
+                setDisco('')
+                setMeterNumber('')
+                setAmount('')
+                setError('')
+              }}
+              className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
+            >
+              Pay Another Bill
+            </button>
+          </div>
         </div>
       </div>
     )
