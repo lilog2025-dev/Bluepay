@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showBalance, setShowBalance] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState('home')
 
   // Helper functions for transactions
   const getTransactionColor = (type: string): string => {
