@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
@@ -63,6 +63,16 @@ export default function ElectricityPage() {
     
     return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
+
+  // Auto-redirect to dashboard on success
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        router.push('/dashboard')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [success, router])
 
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault()
