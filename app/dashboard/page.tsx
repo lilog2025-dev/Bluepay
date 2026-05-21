@@ -32,18 +32,71 @@ import { getBalance, getTransactions, initializeBalance } from '@/lib/balance-st
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState('home')
-  const [showBalance, setShowBalance] = useState(true)
-  const [fullName, setFullName] = useState('User')
-  const [userEmail, setUserEmail] = useState('')
-  const [mounted, setMounted] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
-  const [balance, setBalance] = useState<number>(250000)
-  const [userId, setUserId] = useState<string>('')
+  const [balance, setBalance] = useState(250000)
   const [loadingBalance, setLoadingBalance] = useState(true)
-  const [transactions, setTransactions] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loadingTransactions, setLoadingTransactions] = useState(true)
+  const [fullName, setFullName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [userId, setUserId] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showBalance, setShowBalance] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Helper functions for transactions
+  const getTransactionColor = (type: string): string => {
+    const colors: Record<string, string> = {
+      withdrawal: 'bg-blue-100',
+      airtime: 'bg-green-100',
+      data: 'bg-cyan-100',
+      betting: 'bg-indigo-100',
+      electricity: 'bg-yellow-100',
+      tv: 'bg-teal-100',
+      reward: 'bg-purple-100',
+    }
+    return colors[type] || 'bg-gray-100'
+  }
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'withdrawal':
+        return <CreditCard className="w-4 h-4 text-blue-600" />
+      case 'airtime':
+        return <Phone className="w-4 h-4 text-green-600" />
+      case 'data':
+        return <Radio className="w-4 h-4 text-cyan-600" />
+      case 'betting':
+        return <Dices className="w-4 h-4 text-indigo-600" />
+      case 'electricity':
+        return <Lightbulb className="w-4 h-4 text-yellow-600" />
+      case 'tv':
+        return <Tv className="w-4 h-4 text-teal-600" />
+      case 'reward':
+        return <DollarSign className="w-4 h-4 text-purple-600" />
+      default:
+        return <CreditCard className="w-4 h-4 text-gray-600" />
+    }
+  }
+
+  const formatDate = (date: string | undefined): string => {
+    if (!date) return 'Today'
+    try {
+      const d = new Date(date)
+      const now = new Date()
+      const diffMs = now.getTime() - d.getTime()
+      const diffMins = Math.floor(diffMs / 60000)
+      const diffHours = Math.floor(diffMs / 3600000)
+      const diffDays = Math.floor(diffMs / 86400000)
+
+      if (diffMins < 1) return 'Just now'
+      if (diffMins < 60) return `${diffMins}m ago`
+      if (diffHours < 24) return `${diffHours}h ago`
+      if (diffDays < 7) return `${diffDays}d ago`
+      return d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
+    } catch {
+      return 'Today'
+    }
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -178,55 +231,6 @@ export default function DashboardPage() {
     { label: 'ELECTRICITY', icon: Lightbulb, color: 'bg-yellow-600', path: '/electricity' },
     { label: 'REFER AND EARN', icon: Share2, color: 'bg-emerald-500', path: '/refer-earn' },
   ]
-
-  // Helper functions for transactions
-  const getTransactionColor = (type: string) => {
-    const colors: Record<string, string> = {
-      withdrawal: 'bg-blue-100',
-      airtime: 'bg-green-100',
-      data: 'bg-cyan-100',
-      betting: 'bg-indigo-100',
-      electricity: 'bg-yellow-100',
-      tv: 'bg-teal-100',
-      reward: 'bg-purple-100',
-      default: 'bg-gray-100',
-    }
-    return colors[type] || colors.default
-  }
-
-  const getTransactionIcon = (type: string) => {
-    const icons: Record<string, React.ReactNode> = {
-      withdrawal: <CreditCard className="w-4 h-4 text-blue-600" />,
-      airtime: <Phone className="w-4 h-4 text-green-600" />,
-      data: <Radio className="w-4 h-4 text-cyan-600" />,
-      betting: <Dices className="w-4 h-4 text-indigo-600" />,
-      electricity: <Lightbulb className="w-4 h-4 text-yellow-600" />,
-      tv: <Tv className="w-4 h-4 text-teal-600" />,
-      reward: <DollarSign className="w-4 h-4 text-purple-600" />,
-    }
-    return icons[type] || <CreditCard className="w-4 h-4 text-gray-600" />
-  }
-
-  const formatDate = (date: string | undefined) => {
-    if (!date) return 'Today'
-    try {
-      const d = new Date(date)
-      const now = new Date()
-      const diffMs = now.getTime() - d.getTime()
-      const diffMins = Math.floor(diffMs / 60000)
-      const diffHours = Math.floor(diffMs / 3600000)
-      const diffDays = Math.floor(diffMs / 86400000)
-
-      if (diffMins < 1) return 'Just now'
-      if (diffMins < 60) return `${diffMins}m ago`
-      if (diffHours < 24) return `${diffHours}h ago`
-      if (diffDays < 7) return `${diffDays}d ago`
-      
-      return d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
-    } catch (e) {
-      return 'Today'
-    }
-  }
 
   if (!mounted) return null
 
