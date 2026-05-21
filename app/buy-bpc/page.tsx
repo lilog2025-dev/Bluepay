@@ -480,7 +480,10 @@ export default function BuyBPCPage() {
                   Dear {fullName},
                 </p>
                 <p className="text-gray-600 text-xs leading-relaxed">
-                  your payment receipt has been successfully received and your Bank Processing Code (BPC CODE) has been sent to your email. Kindly check your email inbox or spam folder to get your activated BPC CODE.
+                  Thank you for choosing BLUEPAY PRO V30! Your payment verification is currently ongoing. Please check your email ({userEmail}) for your order details and confirmation. 
+                </p>
+                <p className="text-gray-600 text-xs leading-relaxed mt-2">
+                  If you don't see the email in your inbox, please check your spam folder. If you still haven't received it or have any questions, please contact our customer service support team for immediate assistance.
                 </p>
               </div>
 

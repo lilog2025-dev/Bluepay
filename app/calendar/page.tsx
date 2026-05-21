@@ -6,11 +6,26 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Bell } from 'lucide-react'
 
 export default function CalendarPage() {
   const router = useRouter()
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 4))
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+
+  const today = new Date()
+  const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
+  const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0)
+  const daysInMonth = lastDay.getDate()
+  const startingDayOfWeek = firstDay.getDay()
+
+  // Generate calendar days
+  const calendarDays: (number | null)[] = []
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    calendarDays.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    calendarDays.push(i)
+  }
 
   const reminders = [
-    { id: 1, title: 'Electricity Bill Due', date: '19th', time: 'Today' },
-    { id: 2, title: 'Monthly Subscription', date: '25th', time: 'In 6 days' },
+    { id: 1, title: 'Electricity Bill Due', date: 'May 19th', time: 'Today' },
+    { id: 2, title: 'Monthly Subscription', date: 'May 25th', time: 'In 4 days' },
     { id: 3, title: 'Investment Review', date: 'Every Sunday', time: 'Recurring' },
   ]
 
@@ -53,16 +68,26 @@ export default function CalendarPage() {
 
           {/* Calendar Grid */}
           <div className="grid grid-cols-7 gap-1">
-            {Array.from({ length: 35 }).map((_, i) => (
-              <div
-                key={i}
-                className={`aspect-square flex items-center justify-center rounded text-xs font-semibold ${
-                  i === 18 ? 'bg-[#0000ff] text-white' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                {i < 6 ? 26 + i : i < 25 ? i - 5 : i - 24}
-              </div>
-            ))}
+            {calendarDays.map((day, i) => {
+              const isToday = day === today.getDate() && 
+                currentMonth.getMonth() === today.getMonth() && 
+                currentMonth.getFullYear() === today.getFullYear()
+              
+              return (
+                <div
+                  key={i}
+                  className={`aspect-square flex items-center justify-center rounded text-xs font-semibold ${
+                    day === null 
+                      ? 'text-gray-300' 
+                      : isToday 
+                        ? 'bg-[#0000ff] text-white' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {day}
+                </div>
+              )
+            })}
           </div>
         </div>
 
