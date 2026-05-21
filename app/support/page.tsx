@@ -9,6 +9,7 @@ export default function SupportPage() {
   const [activeTab, setActiveTab] = useState<'ai-chat' | 'support' | 'review' | 'complaint'>('ai-chat')
   const [message, setMessage] = useState('')
   const [complaintName, setComplaintName] = useState('')
+  const [reviewRating, setReviewRating] = useState(0)
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; text: string }>>([])
   const [isAITyping, setIsAITyping] = useState(false)
 
@@ -140,11 +141,9 @@ export default function SupportPage() {
           <div className="grid grid-cols-2 gap-3">
             {/* Email Support */}
             <button
+              type="button"
               onClick={() => {
-                const email = 'supportbluepaypro.com@gmail.com'
-                const subject = encodeURIComponent('BLUEPAY Support Request')
-                const body = encodeURIComponent('Hello BLUEPAY Support Team,\n\nI need assistance with...\n\nThank you.')
-                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`
+                window.location.href = `mailto:supportbluepaypro.com@gmail.com?subject=${encodeURIComponent('BLUEPAY Support Request')}&body=${encodeURIComponent('Hello BLUEPAY Support Team,\n\nI need assistance with...\n\nThank you.')}`
               }}
               className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
             >
@@ -295,7 +294,9 @@ export default function SupportPage() {
                   {[1, 2, 3, 4, 5].map(star => (
                     <button
                       key={star}
-                      className="text-2xl hover:scale-110 transition"
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className={`text-2xl hover:scale-110 transition ${reviewRating >= star ? 'opacity-100' : 'opacity-30'}`}
                     >
                       ⭐
                     </button>
@@ -316,7 +317,23 @@ export default function SupportPage() {
                 />
               </div>
 
-              <button className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  if (reviewRating === 0) {
+                    alert('Please select a rating')
+                    return
+                  }
+                  if (!message.trim()) {
+                    alert('Please enter your feedback')
+                    return
+                  }
+                  alert(`Thank you for your ${reviewRating}-star review!`)
+                  setMessage('')
+                  setReviewRating(0)
+                }}
+                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm"
+              >
                 Submit Review
               </button>
             </div>

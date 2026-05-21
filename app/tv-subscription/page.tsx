@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { createClient } from '@supabase/supabase-js'
+import { addTransaction, deductBalance } from '@/lib/balance-store'
 
 export default function TVSubscriptionPage() {
   const router = useRouter()
@@ -75,9 +76,27 @@ export default function TVSubscriptionPage() {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
       return () => clearTimeout(timer)
     } else if (step === 'countdown' && countdown === 0 && step === 'countdown') {
+      // Record transaction and update balance
+      try {
+        const provider = providers.find(p => p.id === selectedProvider)
+        const plan = provider?.plans.find(pl => pl.id === selectedPlan)
+        const amount = plan?.price || 0
+        deductBalance(amount)
+        addTransaction({
+          type: 'tv',
+          description: `${provider?.name} ${plan?.name} - NGN${amount.toLocaleString()}`,
+          amount: -amount,
+          status: 'success',
+        })
+        // Dispatch events to notify dashboard
+        window.dispatchEvent(new Event('balanceChange'))
+        window.dispatchEvent(new Event('transactionsChange'))
+      } catch (err) {
+        console.error('[v0] Error recording TV subscription transaction:', err)
+      }
       setStep('success')
     }
-  }, [countdown, step])
+  }, [countdown, step, selectedProvider, selectedPlan])
 
   const currentProvider = providers.find(p => p.id === selectedProvider)
   const currentPlan = currentProvider?.plans.find(pl => pl.id === selectedPlan)
