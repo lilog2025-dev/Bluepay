@@ -5,8 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Building2, Share2 } from 'lucide-react'
 import type { Transaction } from '@/lib/transaction-client'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+
 
 export default function TransactionDetailsPage() {
   const router = useRouter()
