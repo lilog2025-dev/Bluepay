@@ -1,13 +1,11 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Building2, Share2 } from 'lucide-react'
 import type { Transaction } from '@/lib/transaction-client'
 
-
-
-export default function TransactionDetailsPage() {
+function TransactionDetailsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const transactionId = searchParams.get('id')
@@ -255,5 +253,13 @@ export default function TransactionDetailsPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function TransactionDetailsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <TransactionDetailsContent />
+    </Suspense>
   )
 }
