@@ -1,525 +1,265 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, CheckCircle, AlertCircle, Upload, Loader, Copy, Check } from 'lucide-react'
-import { Countdown } from '@/components/Countdown'
-import { createClient } from '@supabase/supabase-js'
-import { sendBPCEmail, formatDateTimeForEmail } from '@/lib/email-service'
-import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
+import React, { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ArrowLeft, Building2, Share2 } from 'lucide-react'
+import type { Transaction } from '@/lib/transaction-client'
 
-export default function BuyBPCPage() {
+function TransactionDetailsContent() {
   const router = useRouter()
-  const [step, setStep] = useState<'amount' | 'payment' | 'warning' | 'receipt' | 'success' | 'countdown' | 'receipt_countdown' | 'verify_countdown'>('amount')
-  const [amount, setAmount] = useState(10650)
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [fullName, setFullName] = useState('')
-  const [userEmail, setUserEmail] = useState('')
-  const [sessionId, setSessionId] = useState('')
-  const [currentDateTime, setCurrentDateTime] = useState('')
-  const [copiedField, setCopiedField] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const transactionId = searchParams.get('id')
+  const [transaction, setTransaction] = useState<Transaction | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [userFullName, setUserFullName] = useState('')
 
-  const BPC_PRICE = 10650
-  const ACCOUNT_NUMBER = '12356789999'
-  const ACCOUNT_NAME = 'MONIEPOINT MFB'
-  const EDGE_FUNCTION_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-bpc-email'
-
-  // Copy handler for account details
-  const handleCopy = (text: string, field: string) => {
-    try {
-      navigator.clipboard.writeText(text).then(() => {
-        setCopiedField(field)
-        setTimeout(() => setCopiedField(null), 2000)
-      })
-    } catch (err) {
-      console.error('[v0] Copy failed:', err)
-    }
-  }
-
-  // Get user data from Supabase session
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        // Create Supabase client dynamically
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
-        
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          setUserEmail(session.user.email || '')
-          // Get user profile for full name
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', session.user.id)
-            .single()
-          
-          if (profile?.full_name) {
-            setFullName(profile.full_name)
-          }
-        }
-        // Generate session ID
-        setSessionId(Date.now().toString() + Math.random().toString(36).substr(2, 9))
-      } catch (err) {
-        console.error('[v0] Error loading user data:', err)
-        // Fallback to sessionStorage
-        const name = sessionStorage.getItem('signupFullName') || 'BLUEPAY User'
-        const email = sessionStorage.getItem('signupEmail') || ''
-        setFullName(name)
-        setUserEmail(email)
-        setSessionId(Date.now().toString() + Math.random().toString(36).substr(2, 9))
-      }
-    }
-    loadUserData()
-  }, [])
+    loadTransactionDetails()
+  }, [transactionId])
 
-  // Update date/time when success step is reached
-  useEffect(() => {
-    if (step === 'success') {
-      const updateDateTime = () => {
-        const now = new Date()
-        const options: Intl.DateTimeFormatOptions = {
-          weekday: 'short',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-        }
-        const formatted = now.toLocaleDateString('en-US', options)
-        setCurrentDateTime(formatted)
-      }
-      
-      updateDateTime()
-      const interval = setInterval(updateDateTime, 1000)
-      return () => clearInterval(interval)
-    }
-  }, [step])
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      setReceiptFile(file)
-      setError('')
-    } else {
-      setError('Please upload a valid image file')
-    }
-  }
-
-  const handleVerifyPayment = async () => {
-    if (!receiptFile) {
-      setError('Please upload receipt image')
-      return
-    }
-
-    setIsVerifying(true)
-    setError('')
+  const loadTransactionDetails = async () => {
+    if (!transactionId) return
 
     try {
-      // Trigger 6-second countdown before showing success
-      setStep('verify_countdown')
-    } catch (err) {
-      console.error('[v0] Payment verification error:', err)
-      setError('Payment submitted. Please check your email for confirmation.')
-    } finally {
-      setIsVerifying(false)
-    }
-  }
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
 
-  const handleVerifyCountdownComplete = async () => {
-    // Send debit alert for BPC purchase
-    const transactionId = generateTransactionId()
-    await sendDebitAlert({
-      email: userEmail,
-      full_name: fullName,
-      transaction_type: 'BPC CODE Purchase',
-      amount: amount,
-      recipient_name: 'BLUEPAY Platform',
-      recipient_account_number: ACCOUNT_NUMBER,
-      recipient_bank_name: ACCOUNT_NAME,
-      transaction_id: transactionId,
-      transaction_date: getCurrentDateTime(),
-    })
-    setStep('success')
-  }
+      // Get transaction details
+      const { data: txData, error: txError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('id', transactionId)
+        .single()
 
-  const handleProceed = () => {
-    if (step === 'amount') {
-      setStep('countdown')
-    } else if (step === 'payment') {
-      setStep('receipt_countdown')
-    } else if (step === 'receipt') {
-      if (!receiptFile) {
-        setError('Please upload receipt image')
+      if (txError || !txData) {
+        console.error('[v0] Error loading transaction:', txError)
         return
       }
-      handleVerifyPayment()
-    } else if (step === 'warning') {
-      setStep('payment')
+
+      setTransaction(txData as Transaction)
+
+      // Get user details
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (sessionData?.session?.user?.id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', sessionData.session.user.id)
+          .single()
+
+        if (profileData?.full_name) {
+          setUserFullName(profileData.full_name)
+        }
+      }
+    } catch (err) {
+      console.error('[v0] Error loading transaction details:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleCountdownComplete = () => {
-    setStep('warning')
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-NG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
   }
 
-  const handleReceiptCountdownComplete = () => {
-    setStep('receipt')
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white pb-20">
+        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
+          <div className="flex items-center justify-between">
+            <button onClick={() => router.back()} className="p-1">
+              <ArrowLeft className="w-5 h-5 text-gray-900" />
+            </button>
+            <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
+            <div className="w-5" />
+          </div>
+        </header>
+        <div className="flex items-center justify-center py-20">
+          <p className="text-gray-600">Loading transaction details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!transaction) {
+    return (
+      <div className="min-h-screen bg-white pb-20">
+        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
+          <div className="flex items-center justify-between">
+            <button onClick={() => router.back()} className="p-1">
+              <ArrowLeft className="w-5 h-5 text-gray-900" />
+            </button>
+            <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
+            <div className="w-5" />
+          </div>
+        </header>
+        <div className="flex items-center justify-center py-20">
+          <p className="text-gray-600">Transaction not found</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-[#0000ff] hover:opacity-80 transition"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-semibold">Back</span>
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
+        <div className="flex items-center justify-between">
+          <button onClick={() => router.back()} className="p-1">
+            <ArrowLeft className="w-5 h-5 text-gray-900" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Buy BPC</h1>
-          <div className="w-12" />
+          <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
+          <button className="p-2">
+            <Building2 className="w-5 h-5 text-teal-500" />
+          </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 py-6">
-        {step === 'amount' && (
-          <div className="space-y-3">
-            <div className="bg-blue-50 rounded-xl p-3 border-2 border-blue-200 mb-3">
-              <h3 className="font-bold text-gray-900 text-sm mb-1">BPC CODE Purchase</h3>
-              <p className="text-gray-600 text-xs">
-                Buy your Bank Processing Code to activate premium features.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-gray-600">BPC CODE Price</p>
-                <p className="font-bold text-[#0000ff] text-base">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <p className="text-xs text-gray-500">One-time payment for premium access</p>
-            </div>
-
-            <button
-              onClick={handleProceed}
-              className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
-            >
-              Proceed to Payment
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 transition text-sm"
-            >
-              Cancel
-            </button>
+      <main className="px-3 py-4 max-w-2xl mx-auto">
+        {/* Transaction Header Section */}
+        <div className="bg-white rounded-2xl p-6 text-center mb-4 shadow-sm">
+          {/* Avatar with Initial */}
+          <div className="w-16 h-16 bg-[#0000ff] rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+            {userFullName.charAt(0).toUpperCase()}
           </div>
-        )}
 
-        {step === 'payment' && (
-          <>
-            <div className="bg-green-50 rounded-xl p-3 border-2 border-green-200 mb-3">
-              <h3 className="font-bold text-gray-900 text-sm mb-1">Payment Details</h3>
-              <p className="text-gray-600 text-xs">
-                Make transfer to the account details below to verify payment.
-              </p>
+          {/* Transaction Type and User */}
+          <h2 className="text-xl font-bold text-gray-900 mb-3">
+            {transaction.type === 'withdrawal' ? 'Withdraw from BLUEPAY PRO V30' : transaction.description}
+          </h2>
+
+          {/* Amount */}
+          <p className="text-4xl font-bold text-gray-900 mb-3">
+            ₦{transaction.amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+
+          {/* Status */}
+          <div className="flex items-center justify-center gap-2">
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${transaction.status === 'completed' ? 'bg-green-100' : 'bg-yellow-100'}`}>
+              {transaction.status === 'completed' && (
+                <svg className="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+              )}
+            </div>
+            <span className={`font-semibold ${transaction.status === 'completed' ? 'text-green-600' : 'text-yellow-600'}`}>
+              {transaction.status === 'completed' ? 'Successful' : 'Pending'}
+            </span>
+          </div>
+        </div>
+
+        {/* Transaction Details */}
+        <div className="bg-white rounded-2xl p-4 mb-4 shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-4">Transaction Details</h3>
+
+          <div className="space-y-4">
+            {/* Credited to / Available Balance */}
+            <div className="flex justify-between pb-3 border-b border-gray-200">
+              <span className="text-gray-600 font-medium">Credited to</span>
+              <span className="font-semibold text-gray-900 text-right">
+                {userFullName}
+              </span>
             </div>
 
-            <div className="bg-white rounded-xl p-2.5 border border-gray-200 shadow-sm mb-3">
-              <div className="space-y-2">
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-0.5">Bank Name</p>
-                    <p className="font-bold text-gray-900 text-sm">MONIEPOINT MFB</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy('MONIEPOINT MFB', 'bank')}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
-                    title="Copy bank name"
-                  >
-                    {copiedField === 'bank' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-0.5">Account Number</p>
-                    <p className="font-mono font-bold text-[#0000ff] text-sm">{ACCOUNT_NUMBER}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(ACCOUNT_NUMBER, 'account')}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
-                    title="Copy account number"
-                  >
-                    {copiedField === 'account' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-0.5">Account Name</p>
-                    <p className="font-bold text-gray-900 text-sm">CHI.. MODE...AGB</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy('CHI.. MODE...AGB', 'name')}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
-                    title="Copy account name"
-                  >
-                    {copiedField === 'name' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-0.5">Amount to Transfer</p>
-                    <p className="font-bold text-gray-900 text-sm">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), 'amount')}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition mt-0.5"
-                    title="Copy amount"
-                  >
-                    {copiedField === 'amount' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
-                  </button>
+            {/* Sender Details */}
+            {transaction.type === 'withdrawal' && (
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600 font-medium">Account Details</span>
+                <div className="text-right">
+                  <p className="font-semibold text-gray-900">{transaction.account_holder}</p>
+                  <p className="text-sm text-gray-600">{transaction.account_number}</p>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <button
-                onClick={handleProceed}
-                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
-              >
-                I Have Made the Payment
-              </button>
-              <button
-                onClick={() => setStep('amount')}
-                className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 transition text-sm"
-              >
-                Back
-              </button>
-            </div>
-          </>
-        )}
-
-        {step === 'receipt' && (
-          <>
-            <div className="bg-blue-50 rounded-xl p-3 border-2 border-blue-200 mb-3">
-              <h3 className="font-bold text-gray-900 text-sm mb-1">Upload Payment Receipt</h3>
-              <p className="text-gray-600 text-xs">
-                Please upload a screenshot of your payment receipt to verify your payment.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {error && (
-                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-2 flex gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-600 text-xs">{error}</p>
-                </div>
-              )}
-
-              {success && (
-                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-2 flex gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-green-600 text-xs">{success}</p>
-                </div>
-              )}
-
-              {/* Receipt Upload */}
-              <div>
-                <label className="block w-full">
-                  <div className="border-2 border-dashed border-[#0000ff] rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition">
-                    <Upload className="w-8 h-8 text-[#0000ff] mb-2" />
-                    <p className="font-bold text-gray-900 text-center text-xs mb-0.5">
-                      {receiptFile ? 'Receipt Uploaded ✓' : 'Tap to Upload Receipt'}
-                    </p>
-                    <p className="text-xs text-gray-600 text-center mb-1">
-                      PNG, JPG or JPEG (Max. 5MB)
-                    </p>
-                    {receiptFile && (
-                      <p className="text-xs text-gray-600 font-semibold truncate max-w-xs">{receiptFile.name}</p>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </label>
+            {/* Bank Name */}
+            {transaction.bank_name && (
+              <div className="flex justify-between pb-3 border-b border-gray-200">
+                <span className="text-gray-600 font-medium">Bank</span>
+                <span className="font-semibold text-gray-900">{transaction.bank_name}</span>
               </div>
+            )}
 
-              <div className="space-y-2">
+            {/* Transaction Type */}
+            <div className="flex justify-between pb-3 border-b border-gray-200">
+              <span className="text-gray-600 font-medium">Transaction Type</span>
+              <span className="font-semibold text-gray-900 capitalize">
+                {transaction.type === 'withdrawal' ? 'Bank Transfer' : transaction.type}
+              </span>
+            </div>
+
+            {/* Transaction Number */}
+            <div className="flex justify-between pb-3 border-b border-gray-200">
+              <span className="text-gray-600 font-medium">Transaction No.</span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-semibold text-gray-900 text-sm">{transaction.transaction_id}</span>
                 <button
-                  onClick={handleProceed}
-                  disabled={isVerifying}
-                  className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm"
+                  onClick={() => navigator.clipboard.writeText(transaction.transaction_id)}
+                  className="p-1 hover:bg-gray-100 rounded text-xs"
                 >
-                  {isVerifying ? (
-                    <>
-                      <Loader className="w-4 h-4 animate-spin" />
-                      VERIFYING...
-                    </>
-                  ) : (
-                    'VERIFY PAYMENT'
-                  )}
-                </button>
-                <button
-                  onClick={() => setStep('payment')}
-                  disabled={isVerifying}
-                  className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 disabled:opacity-50 transition text-sm"
-                >
-                  Back
+                  📋
                 </button>
               </div>
             </div>
-          </>
-        )}
 
-        {step === 'countdown' && (
-          <Countdown
-            seconds={7}
-            onComplete={handleCountdownComplete}
-            message="Preparing payment details..."
-          />
-        )}
-
-        {step === 'warning' && (
-          <div className="space-y-3">
-            <div className="flex justify-center mb-3">
-              <img 
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20%2828%29-7an7GHzEj5Blc8fCV8ly4jLuP6jjQl.jpeg" 
-                alt="OPay - Beyond Banking" 
-                className="w-full max-w-xs rounded-lg shadow-md object-cover"
-              />
+            {/* Transaction Date */}
+            <div className="flex justify-between pb-3 border-b border-gray-200">
+              <span className="text-gray-600 font-medium">Transaction Date</span>
+              <span className="font-semibold text-gray-900 text-sm">{formatDate(transaction.created_at)}</span>
             </div>
-            
-            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3">
-              <div className="flex gap-2 mb-2">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <h2 className="text-base font-bold text-red-900">WARNING</h2>
+
+            {/* Session ID */}
+            {transaction.session_id && (
+              <div className="flex justify-between">
+                <span className="text-gray-600 font-medium">Session ID</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-semibold text-gray-900 text-xs">{transaction.session_id}</span>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(transaction.session_id!)}
+                    className="p-1 hover:bg-gray-100 rounded text-xs"
+                  >
+                    📋
+                  </button>
+                </div>
               </div>
-              <p className="text-red-800 font-semibold mb-2 text-xs">
-                Dear BLUEPAY PRO V30 user,
-              </p>
-              <p className="text-red-800 mb-2 text-xs">
-                Be informed that making payment via OPAY BANK is not available and any payment made via OPAY BANK will be declined due to our terms and service.
-              </p>
-              <p className="text-red-800 font-semibold text-xs">
-                Kindly proceed with other banks.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                onClick={handleProceed}
-                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
-              >
-                PROCEED
-              </button>
-              <button
-                onClick={() => setStep('amount')}
-                className="w-full bg-gray-200 text-gray-900 font-bold py-2.5 rounded-xl hover:bg-gray-300 transition text-sm"
-              >
-                BACK
-              </button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
-        {step === 'receipt_countdown' && (
-          <Countdown
-            seconds={7}
-            onComplete={handleReceiptCountdownComplete}
-            message="Preparing upload page..."
-          />
-        )}
-
-        {step === 'verify_countdown' && (
-          <Countdown
-            seconds={6}
-            onComplete={handleVerifyCountdownComplete}
-            message="Verifying payment and processing BPC CODE..."
-          />
-        )}
-
-        {step === 'success' && (
-          <>
-            <div className="bg-gradient-to-b from-green-50 to-blue-50 rounded-2xl p-4 text-center mb-4">
-              <div className="flex justify-center mb-3">
-                <CheckCircle className="w-16 h-16 text-green-600" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-0.5">BPC CODE ORDER</h2>
-              <h3 className="text-lg font-bold text-green-600 mb-3">SUCCESSFULLY ORDERED</h3>
-              
-              <div className="mb-3">
-                <p className="text-gray-700 text-xs mb-2">
-                  Dear {fullName},
-                </p>
-                <p className="text-gray-600 text-xs leading-relaxed">
-                  Thank you for choosing BLUEPAY PRO V30! Your payment verification is currently ongoing. Please check your email ({userEmail}) for your order details and confirmation. 
-                </p>
-                <p className="text-gray-600 text-xs leading-relaxed mt-2">
-                  If you don't see the email in your inbox, please check your spam folder. If you still haven't received it or have any questions, please contact our customer service support team for immediate assistance.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-lg p-2.5 border-2 border-green-200 text-left mb-4 space-y-2">
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Full Name</p>
-                  <p className="font-bold text-gray-900 text-sm">{fullName}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Email</p>
-                  <p className="font-bold text-gray-900 text-xs break-all">{userEmail}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Amount Used</p>
-                  <p className="font-bold text-[#0000ff] text-sm">NGN {amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Transaction ID</p>
-                  <p className="font-mono font-bold text-gray-900 text-xs break-all">{sessionId}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600 mb-0.5 font-semibold">Date & Time</p>
-                  <p className="font-bold text-gray-900 text-xs">{currentDateTime || 'Loading...'}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-90 transition text-sm"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          </>
-        )}
+        {/* More Actions */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-4">More Actions</h3>
+          <div className="flex justify-between mb-4 pb-4 border-b border-gray-200">
+            <span className="text-gray-600 font-medium">Category</span>
+            <span className="font-semibold text-gray-900 capitalize">
+              {transaction.type === 'withdrawal' ? 'Withdrawal' : transaction.type}
+            </span>
+          </div>
+          <button className="w-full bg-teal-500 text-white font-semibold py-3 rounded-full hover:bg-teal-600 transition flex items-center justify-center gap-2">
+            <Share2 className="w-4 h-4" />
+            Share Receipt
+          </button>
+        </div>
       </main>
     </div>
+  )
+}
+
+export default function TransactionDetailsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <TransactionDetailsContent />
+    </Suspense>
   )
 }
