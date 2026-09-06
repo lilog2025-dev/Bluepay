@@ -80,8 +80,8 @@ export default function AuthForm() {
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="6-digit code"
-            maxLength={6}
+            placeholder="8-digit code"
+            maxLength={8}
             required
           />
           <button type="submit" disabled={loading}>
