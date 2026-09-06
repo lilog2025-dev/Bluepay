@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Play, X, Film, TrendingUp } from 'lucide-react'
+import { ArrowLeft, Play, Pause, X, Film, TrendingUp } from 'lucide-react'
 import { getBalance, updateBalance } from '@/lib/balance-store'
 
 interface VideoItem {
@@ -43,20 +43,6 @@ const VIDEOS: VideoItem[] = [
     duration: '7:18',
     videoUrl: '/bpc-code-guide.mp4.mp4',
   },
-  {
-    id: '5',
-    title: 'Financial News Roundup',
-    category: 'News',
-    duration: '4:50',
-    videoUrl: '/bpc-code-guide.mp4.mp4',
-  },
-  {
-    id: '6',
-    title: 'Investment Basics',
-    category: 'Tutorials',
-    duration: '6:10',
-    videoUrl: '/bpc-code-guide.mp4.mp4',
-  },
 ]
 
 const CATEGORIES = ['All', 'News', 'Tips', 'Tutorials', 'Market Updates']
@@ -65,7 +51,6 @@ export default function WatchAndLearnPage() {
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
-  // State Management
   const [balance, setBalance] = useState<number>(250000)
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
@@ -73,7 +58,7 @@ export default function WatchAndLearnPage() {
   const [secondsWatched, setSecondsWatched] = useState<number>(0)
   const [sessionEarnings, setSessionEarnings] = useState<number>(0)
 
-  // 1. Sync balance on mount & listen to balance store changes
+  // 1. Load balance on mount & listen to balance store changes
   useEffect(() => {
     setBalance(getBalance())
 
@@ -85,32 +70,32 @@ export default function WatchAndLearnPage() {
     return () => window.removeEventListener('balanceChange', handleBalanceChange)
   }, [])
 
-  // 2. Active per-second timer: adds ₦100 every 1 second while video is playing
+  // 2. Guaranteed 1-second interval addition while video modal is active and playing
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null
 
-    if (isPlaying) {
+    if (activeVideo && isPlaying) {
       timer = setInterval(() => {
         setSecondsWatched((prev) => prev + 1)
         setSessionEarnings((prev) => prev + 100)
 
-        // Update central store balance
-        const currentBal = getBalance()
-        updateBalance(currentBal + 100)
+        // Force balance addition of +100 Naira directly to store
+        setBalance((prevBal) => {
+          const nextBal = prevBal + 100
+          updateBalance(nextBal)
+          return nextBal
+        })
       }, 1000)
     }
 
     return () => {
       if (timer) clearInterval(timer)
     }
-  }, [isPlaying])
+  }, [activeVideo, isPlaying])
 
-  const handleVideoPlay = () => {
-    setIsPlaying(true)
-  }
-
-  const handleVideoPause = () => {
-    setIsPlaying(false)
+  const handleOpenVideo = (video: VideoItem) => {
+    setActiveVideo(video)
+    setIsPlaying(true) // Start earnings immediately upon opening video modal
   }
 
   const handleCloseModal = () => {
@@ -128,7 +113,7 @@ export default function WatchAndLearnPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 relative">
-      {/* Header */}
+      {/* Top Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="p-1">
@@ -151,7 +136,6 @@ export default function WatchAndLearnPage() {
             </div>
             {isPlaying && (
               <span className="flex items-center gap-1 bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 +₦100 / sec
               </span>
             )}
@@ -188,7 +172,7 @@ export default function WatchAndLearnPage() {
         {filteredVideos.map((video) => (
           <div
             key={video.id}
-            onClick={() => setActiveVideo(video)}
+            onClick={() => handleOpenVideo(video)}
             className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition active:scale-[0.99]"
           >
             <div className="relative w-28 h-20 bg-gray-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -224,7 +208,7 @@ export default function WatchAndLearnPage() {
         ))}
       </main>
 
-      {/* iOS-Compatible Video Player Modal with Live Tracking */}
+      {/* Video Player Modal with Direct Play Controls */}
       {activeVideo && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl relative">
@@ -240,7 +224,6 @@ export default function WatchAndLearnPage() {
               </button>
             </div>
 
-            {/* Video Player Display */}
             <div className="relative aspect-video bg-black flex items-center justify-center">
               <video
                 ref={videoRef}
@@ -249,15 +232,14 @@ export default function WatchAndLearnPage() {
                 playsInline
                 preload="metadata"
                 className="w-full h-full object-contain"
-                onPlay={handleVideoPlay}
-                onPause={handleVideoPause}
-                onEnded={handleVideoPause}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
               >
                 <source src={activeVideo.videoUrl} type="video/mp4" />
-                Your browser does not support the video tag.
+                Your browser does not support video playback.
               </video>
 
-              {/* Live Status Badge */}
               {isPlaying && (
                 <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1">
                   <TrendingUp className="w-3.5 h-3.5" /> +₦100 / sec
@@ -265,16 +247,40 @@ export default function WatchAndLearnPage() {
               )}
             </div>
 
-            <div className="p-3 bg-gray-50 text-center border-t border-gray-100">
+            {/* Manual Toggle Controls */}
+            <div className="p-3 bg-gray-50 flex items-center justify-between border-t border-gray-100">
               <p className="text-xs text-gray-600 font-medium">
                 {isPlaying ? (
                   <span className="text-emerald-600 font-bold animate-pulse">
-                    Earning in progress: +₦100 added every second!
+                    Session Active (+₦100/sec)
                   </span>
                 ) : (
-                  'Press play on the video to start earning.'
+                  <span className="text-amber-600 font-bold">Session Paused</span>
                 )}
               </p>
+
+              <button
+                onClick={() => {
+                  if (isPlaying) {
+                    if (videoRef.current) videoRef.current.pause()
+                    setIsPlaying(false)
+                  } else {
+                    if (videoRef.current) videoRef.current.play()
+                    setIsPlaying(true)
+                  }
+                }}
+                className="px-3 py-1.5 bg-[#0000ff] text-white font-bold rounded-lg text-xs flex items-center gap-1 hover:bg-blue-700 transition"
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="w-3.5 h-3.5" /> Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3.5 h-3.5 fill-current" /> Resume Earning
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
