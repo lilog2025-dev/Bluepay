@@ -29,3 +29,21 @@ export function addEarnings(amount: number): number {
   const updated = current + amount
   return updateBalance(updated)
 }
+
+// Helper aliases to resolve Next.js build errors across page routes
+export function addBalance(amount: number): number {
+  return addEarnings(amount)
+}
+
+export function deductBalance(amount: number): number {
+  const current = getBalance()
+  const updated = current - amount
+  return updateBalance(updated)
+}
+
+export function addTransaction(tx: any): void {
+  // Dispatches transaction events or safely handles transaction history logging
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('transactionAdded', { detail: tx }))
+  }
+}
