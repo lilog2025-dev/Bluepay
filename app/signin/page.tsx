@@ -90,7 +90,7 @@ export default function SignInPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="6-digit code"
-            maxLength={6}
+            maxLength={10}
             required
             style={{ width: '100%', padding: '10px', marginBottom: '10px', letterSpacing: '4px', textAlign: 'center' }}
           />
