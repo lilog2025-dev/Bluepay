@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Mail,
   Home,
+  RefreshCw,
 } from 'lucide-react'
 
 export default function BuyBPCPage() {
@@ -25,22 +26,67 @@ export default function BuyBPCPage() {
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
+  // Virtual Account state
+  const [bankDetails, setBankDetails] = useState<{
+    bankName: string
+    accountNumber: string
+    accountName: string
+    bpcRate: string
+  } | null>(null)
+  const [loadingAccount, setLoadingAccount] = useState(true)
+
   // Verification state machine
   const [isVerifying, setIsVerifying] = useState(false)
   const [countdown, setCountdown] = useState(10)
   const [showErrorModal, setShowErrorModal] = useState(false)
 
-  // Support links - update these with your actual details
+  // Support links
   const TELEGRAM_LINK = 'https://t.me/available247_1'
   const GMAIL_LINK = 'mailto:lilog2025@gmail.com'
 
-  // Payment bank details
-  const bankDetails = {
-    bankName: 'Moniepoint Microfinance Bank',
-    accountNumber: '6401234567',
-    accountName: 'BLUEPAY PRO SERVICES',
-    bpcRate: '₦5,000 per BPC Code',
+  // Fetch Virtual Account from your route.ts API on load
+  const fetchVirtualAccount = async () => {
+    setLoadingAccount(true)
+    try {
+      const res = await fetch('/api/create-virtual-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: 10500 }),
+      })
+      const result = await res.json()
+
+      if (result.status && result.data) {
+        setBankDetails({
+          bankName: result.data.bank_name || 'Wema Bank',
+          accountNumber: result.data.account_number,
+          accountName: result.data.account_name,
+          bpcRate: '₦10,500 for the BPC Code',
+        })
+      } else {
+        // Fallback default if API response fails
+        setBankDetails({
+          bankName: 'Moniepoint MFB',
+          accountNumber: '6401234567',
+          accountName: 'BLUEPAY PRO SERVICES',
+          bpcRate: '₦10,500 for the BPC Code',
+        })
+      }
+    } catch (err) {
+      console.error('Failed to fetch account', err)
+      setBankDetails({
+        bankName: 'Moniepoint MFB',
+        accountNumber: '6401234567',
+        accountName: 'BLUEPAY PRO SERVICES',
+        bpcRate: '₦10,500 for the BPC Code',
+      })
+    } finally {
+      setLoadingAccount(false)
+    }
   }
+
+  useEffect(() => {
+    fetchVirtualAccount()
+  }, [])
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -169,7 +215,6 @@ export default function BuyBPCPage() {
             </p>
 
             <div className="space-y-2 pt-2">
-              {/* Telegram Button */}
               <a
                 href={TELEGRAM_LINK}
                 target="_blank"
@@ -180,7 +225,6 @@ export default function BuyBPCPage() {
                 Contact Support on Telegram
               </a>
 
-              {/* Email Button */}
               <a
                 href={GMAIL_LINK}
                 className="w-full bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-xl hover:bg-gray-200 transition flex items-center justify-center gap-2"
@@ -189,7 +233,6 @@ export default function BuyBPCPage() {
                 Send Email Support
               </a>
 
-              {/* Go to Homepage Button */}
               <button
                 onClick={() => router.push('/dashboard')}
                 className="w-full bg-gray-900 text-white font-semibold py-3 px-4 rounded-xl hover:bg-black transition flex items-center justify-center gap-2 shadow-sm"
@@ -198,7 +241,6 @@ export default function BuyBPCPage() {
                 Go to Homepage
               </button>
 
-              {/* Retry / Close */}
               <button
                 onClick={() => setShowErrorModal(false)}
                 className="w-full text-xs text-gray-400 font-medium py-2 hover:text-gray-600"
@@ -237,41 +279,53 @@ export default function BuyBPCPage() {
           <h2 className="font-bold text-gray-900 mb-3">Package Details</h2>
           <div className="flex justify-between items-center pb-3 border-b border-gray-100">
             <span className="text-gray-600 font-medium">BPC Rate</span>
-            <span className="font-bold text-gray-900">{bankDetails.bpcRate}</span>
+            <span className="font-bold text-gray-900">{bankDetails?.bpcRate || '₦10,500 for the BPC Code'}</span>
           </div>
         </div>
 
-        {/* Bank Payment Details */}
+        {/* Dynamic Bank Payment Details */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Building2 className="w-5 h-5 text-teal-500" />
-            <h2 className="font-bold text-gray-900">Payment Account</h2>
-          </div>
-
-          <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-            <span className="text-gray-600 text-sm font-medium">Bank Name</span>
-            <span className="font-semibold text-gray-900">{bankDetails.bankName}</span>
-          </div>
-
-          <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-            <span className="text-gray-600 text-sm font-medium">Account Number</span>
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-lg text-gray-900">
-                {bankDetails.accountNumber}
-              </span>
-              <button
-                onClick={() => handleCopy(bankDetails.accountNumber)}
-                className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-700 transition"
-              >
-                {copiedAccount ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-              </button>
+              <Building2 className="w-5 h-5 text-teal-500" />
+              <h2 className="font-bold text-gray-900">Payment Account</h2>
             </div>
+            {loadingAccount && <Loader2 className="w-4 h-4 text-teal-500 animate-spin" />}
           </div>
 
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600 text-sm font-medium">Account Name</span>
-            <span className="font-semibold text-gray-900 text-right">{bankDetails.accountName}</span>
-          </div>
+          {loadingAccount ? (
+            <div className="py-6 text-center space-y-2">
+              <Loader2 className="w-6 h-6 text-teal-500 animate-spin mx-auto" />
+              <p className="text-xs text-gray-500 font-medium">Generating dynamic payment account...</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                <span className="text-gray-600 text-sm font-medium">Bank Name</span>
+                <span className="font-semibold text-gray-900">{bankDetails?.bankName}</span>
+              </div>
+
+              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                <span className="text-gray-600 text-sm font-medium">Account Number</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-lg text-gray-900">
+                    {bankDetails?.accountNumber}
+                  </span>
+                  <button
+                    onClick={() => handleCopy(bankDetails?.accountNumber || '')}
+                    className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-700 transition"
+                  >
+                    {copiedAccount ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600 text-sm font-medium">Account Name</span>
+                <span className="font-semibold text-gray-900 text-right">{bankDetails?.accountName}</span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Receipt Upload Box */}
