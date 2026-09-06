@@ -4,7 +4,7 @@ import { validateEmail } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json()
+    const { email, type } = await request.json()
 
     if (!email || !validateEmail(email)) {
       console.error('[v0] Invalid email:', email)
@@ -14,7 +14,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[v0] Sending OTP to email:', email)
+    // Default to false unless explicitly passed as 'signup'
+    const isSignUp = type === 'signup'
+
+    console.log(`[v0] Sending OTP (${type || 'signin'}) to email:`, email)
 
     // Create server-side Supabase client
     const supabase = await createClient()
@@ -23,14 +26,21 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        shouldCreateUser: true,
+        shouldCreateUser: isSignUp, // Enforces that sign-in requires an existing user account
       },
     })
 
     if (error) {
       console.error('[v0] Supabase signInWithOtp error:', error)
+      
+      // Friendly message when an unregistered email attempts to sign in
+      const errorMessage =
+        !isSignUp && error.message.toLowerCase().includes('sign up')
+          ? 'Account not found. Please sign up first.'
+          : error.message || 'Failed to send verification code'
+
       return NextResponse.json(
-        { error: error.message || 'Failed to send verification code' },
+        { error: errorMessage },
         { status: 400 }
       )
     }
