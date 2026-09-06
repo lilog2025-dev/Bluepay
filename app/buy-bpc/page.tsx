@@ -15,6 +15,7 @@ import {
   XCircle,
   MessageCircle,
   Mail,
+  Home,
 } from 'lucide-react'
 
 export default function BuyBPCPage() {
@@ -187,6 +188,15 @@ export default function BuyBPCPage() {
                 <Mail className="w-5 h-5 text-gray-600" />
                 Send Email Support
               </a>
+
+              {/* Go to Homepage Button */}
+              <button
+                onClick={() => router.push('/')}
+                className="w-full bg-gray-900 text-white font-semibold py-3 px-4 rounded-xl hover:bg-black transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                <Home className="w-5 h-5" />
+                Go to Homepage
+              </button>
 
               {/* Retry / Close */}
               <button
