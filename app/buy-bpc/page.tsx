@@ -36,10 +36,10 @@ export default function BuyBPCPage() {
 
   // Payment bank details
   const bankDetails = {
-    bankName: 'Paga Bank',
-    accountNumber: '1234567890',
-    accountName: 'THE BOSS',
-    bpcRate: '₦10,500 for the BPC Code',
+    bankName: 'Moniepoint Microfinance Bank',
+    accountNumber: '6401234567',
+    accountName: 'BLUEPAY PRO SERVICES',
+    bpcRate: '₦5,000 per BPC Code',
   }
 
   const handleCopy = (text: string) => {
@@ -191,7 +191,7 @@ export default function BuyBPCPage() {
 
               {/* Go to Homepage Button */}
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push('/dashboard')}
                 className="w-full bg-gray-900 text-white font-semibold py-3 px-4 rounded-xl hover:bg-black transition flex items-center justify-center gap-2 shadow-sm"
               >
                 <Home className="w-5 h-5" />
