@@ -65,11 +65,14 @@ export default function SignupPage() {
       sessionStorage.setItem('signupEmail', email)
       sessionStorage.setItem('signupFullName', fullName)
 
-      // Send OTP to email
+      // Send OTP to email with explicit signup flag
       const otpResponse = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          email,
+          type: 'signup', // 👈 Explicitly allows user creation in Supabase
+        }),
       })
 
       const otpData = await otpResponse.json()
