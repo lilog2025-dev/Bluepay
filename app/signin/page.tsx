@@ -91,6 +91,22 @@ export default function SignInPage() {
       setLoading(false)
 
       if (data.success) {
+        // Save user details to localStorage for instant local access across Dashboard & Profile
+        if (typeof window !== 'undefined') {
+          // If server returns a full name, use it; otherwise infer a clean name from email handle
+          const serverName = data.user?.full_name || data.user?.name
+          const emailHandle = email.split('@')[0]
+          const derivedName = emailHandle.charAt(0).toUpperCase() + emailHandle.slice(1)
+
+          const finalName = serverName || derivedName
+
+          localStorage.setItem('userEmail', email)
+          localStorage.setItem('userName', finalName)
+
+          // Dispatch storage event so other open tabs/components react immediately
+          window.dispatchEvent(new Event('storage'))
+        }
+
         router.push('/dashboard')
       } else {
         setMessage(data.error || 'Invalid verification code')
