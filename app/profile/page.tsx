@@ -15,31 +15,46 @@ export default function ProfilePage() {
   const [isSigningOut, setIsSigningOut] = useState(false)
 
   const getSupabaseClient = () => {
-    return createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !supabaseKey) return null
+    return createClient(supabaseUrl, supabaseKey)
   }
 
   useEffect(() => {
     const loadUserData = async () => {
+      // 1. Try pulling from Supabase session
       try {
         const supabase = getSupabaseClient()
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          setEmail(session.user.email || '')
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, profile_image_url')
-            .eq('id', session.user.id)
-            .single()
-          if (profile?.full_name) setFullName(profile.full_name)
-          if (profile?.profile_image_url) setProfileImage(profile.profile_image_url)
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session?.user) {
+            if (session.user.email) setEmail(session.user.email)
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, profile_image_url')
+              .eq('id', session.user.id)
+              .single()
+            if (profile?.full_name) setFullName(profile.full_name)
+            if (profile?.profile_image_url) setProfileImage(profile.profile_image_url)
+          }
         }
       } catch (err) {
-        console.error('[v0] Error loading profile:', err)
+        console.error('[v0] Error loading Supabase profile:', err)
+      }
+
+      // 2. Fallback to localStorage if state is still empty
+      if (typeof window !== 'undefined') {
+        const localEmail = localStorage.getItem('userEmail') || localStorage.getItem('user_email') || localStorage.getItem('email')
+        const localName = localStorage.getItem('userName') || localStorage.getItem('user_name') || localStorage.getItem('fullName')
+        const localImage = localStorage.getItem('profileImage') || localStorage.getItem('user_avatar')
+
+        if (localEmail) setEmail((prev) => prev || localEmail)
+        if (localName) setFullName((prev) => prev || localName)
+        if (localImage) setProfileImage((prev) => prev || localImage)
       }
     }
+
     loadUserData()
   }, [])
 
@@ -51,29 +66,39 @@ export default function ProfilePage() {
     try {
       const supabase = getSupabaseClient()
       
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
+      if (supabase) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          const filename = `profile-${session.user.id}-${Date.now()}.jpg`
+          const { error } = await supabase.storage
+            .from('profile-images')
+            .upload(filename, file)
 
-      // Upload to storage
-      const filename = `profile-${session.user.id}-${Date.now()}.jpg`
-      const { data, error } = await supabase.storage
-        .from('profile-images')
-        .upload(filename, file)
+          if (!error) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('profile-images')
+              .getPublicUrl(filename)
 
-      if (error) throw error
+            setProfileImage(publicUrl)
+            localStorage.setItem('profileImage', publicUrl)
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-images')
-        .getPublicUrl(filename)
+            await supabase
+              .from('profiles')
+              .update({ profile_image_url: publicUrl })
+              .eq('id', session.user.id)
+            return
+          }
+        }
+      }
 
-      setProfileImage(publicUrl)
-
-      // Update profile
-      await supabase
-        .from('profiles')
-        .update({ profile_image_url: publicUrl })
-        .eq('id', session.user.id)
+      // Local preview fallback if Supabase storage upload is unavailable
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64Url = reader.result as string
+        setProfileImage(base64Url)
+        localStorage.setItem('profileImage', base64Url)
+      }
+      reader.readAsDataURL(file)
     } catch (err) {
       console.error('[v0] Error uploading image:', err)
     } finally {
@@ -85,17 +110,15 @@ export default function ProfilePage() {
     setIsSigningOut(true)
     try {
       const supabase = getSupabaseClient()
-      
-      // 1. Terminate session on Supabase
-      await supabase.auth.signOut()
+      if (supabase) {
+        await supabase.auth.signOut().catch(() => {})
+      }
 
-      // 2. Clear local browser session caches
       if (typeof window !== 'undefined') {
         sessionStorage.clear()
         localStorage.clear()
       }
 
-      // 3. Force route back to signin and refresh page state
       router.push('/signin')
       router.refresh()
     } catch (err) {
@@ -127,7 +150,7 @@ export default function ProfilePage() {
         {/* Profile Picture Section */}
         <div className="flex flex-col items-center mb-6">
           <div className="relative w-24 h-24 mb-3">
-            <div className="w-24 h-24 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+            <div className="w-24 h-24 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-3xl font-bold overflow-hidden shadow-inner">
               {profileImage ? (
                 <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -135,7 +158,7 @@ export default function ProfilePage() {
               )}
             </div>
             {isEditing && (
-              <label className="absolute bottom-0 right-0 bg-[#0000ff] rounded-full p-1.5 cursor-pointer hover:opacity-90">
+              <label className="absolute bottom-0 right-0 bg-[#0000ff] rounded-full p-1.5 cursor-pointer hover:opacity-90 shadow-md">
                 <Camera className="w-4 h-4 text-white" />
                 <input
                   type="file"
@@ -148,7 +171,7 @@ export default function ProfilePage() {
             )}
           </div>
           <h2 className="text-lg font-bold text-gray-900">{fullName || 'User'}</h2>
-          <p className="text-xs text-gray-600">{email}</p>
+          <p className="text-xs text-gray-600">{email || 'No email provided'}</p>
         </div>
 
         {/* Account Details */}
@@ -159,7 +182,7 @@ export default function ProfilePage() {
               <Mail className="w-4 h-4 text-[#0000ff]" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-600">Email</p>
-                <p className="font-semibold text-gray-900 text-sm break-all">{email || 'Not provided'}</p>
+                <p className="font-semibold text-gray-900 text-sm break-all">{email || 'No email provided'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
