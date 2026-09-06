@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Camera, Mail, Phone, MapPin, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Camera, Mail, Phone, MapPin, TrendingUp, Users, Loader2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
 export default function ProfilePage() {
@@ -12,14 +12,19 @@ export default function ProfilePage() {
   const [profileImage, setProfileImage] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  const getSupabaseClient = () => {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+  }
 
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
+        const supabase = getSupabaseClient()
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
           setEmail(session.user.email || '')
@@ -44,10 +49,7 @@ export default function ProfilePage() {
 
     setIsUploading(true)
     try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
+      const supabase = getSupabaseClient()
       
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
@@ -79,6 +81,30 @@ export default function ProfilePage() {
     }
   }
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    try {
+      const supabase = getSupabaseClient()
+      
+      // 1. Terminate session on Supabase
+      await supabase.auth.signOut()
+
+      // 2. Clear local browser session caches
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear()
+        localStorage.clear()
+      }
+
+      // 3. Force route back to signin and refresh page state
+      router.push('/signin')
+      router.refresh()
+    } catch (err) {
+      console.error('[v0] Sign out error:', err)
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
@@ -105,7 +131,7 @@ export default function ProfilePage() {
               {profileImage ? (
                 <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                fullName.charAt(0).toUpperCase()
+                fullName ? fullName.charAt(0).toUpperCase() : 'U'
               )}
             </div>
             {isEditing && (
@@ -121,7 +147,7 @@ export default function ProfilePage() {
               </label>
             )}
           </div>
-          <h2 className="text-lg font-bold text-gray-900">{fullName}</h2>
+          <h2 className="text-lg font-bold text-gray-900">{fullName || 'User'}</h2>
           <p className="text-xs text-gray-600">{email}</p>
         </div>
 
@@ -133,7 +159,7 @@ export default function ProfilePage() {
               <Mail className="w-4 h-4 text-[#0000ff]" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-600">Email</p>
-                <p className="font-semibold text-gray-900 text-sm break-all">{email}</p>
+                <p className="font-semibold text-gray-900 text-sm break-all">{email || 'Not provided'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -179,8 +205,19 @@ export default function ProfilePage() {
           <button className="w-full bg-white border border-gray-200 text-gray-900 font-bold py-2.5 rounded-lg hover:bg-gray-50 transition text-sm">
             Notification Preferences
           </button>
-          <button className="w-full bg-red-50 border border-red-200 text-red-600 font-bold py-2.5 rounded-lg hover:bg-red-100 transition text-sm">
-            Sign Out
+          <button
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="w-full bg-red-50 border border-red-200 text-red-600 font-bold py-2.5 rounded-lg hover:bg-red-100 transition text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isSigningOut ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Signing Out...
+              </>
+            ) : (
+              'Sign Out'
+            )}
           </button>
         </div>
       </main>
