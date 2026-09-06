@@ -19,42 +19,42 @@ const VIDEOS: VideoItem[] = [
     title: 'How to Maximize Your BPC CODE',
     category: 'Tutorials',
     duration: '5:32',
-    videoUrl: '/bpc-code-guide.mp4',
+    videoUrl: '/bpc-code-guide.mp4.mp4', // Matches GitHub double extension
   },
   {
     id: '2',
     title: 'Latest Crypto Market Trends',
     category: 'Market Updates',
     duration: '8:15',
-    videoUrl: '/crypto-trends.mp4',
+    videoUrl: '/crypto-trends.mp4.mp4', // Matches GitHub double extension
   },
   {
     id: '3',
     title: 'Money Management Tips',
     category: 'Tips',
     duration: '6:42',
-    videoUrl: '/bpc-code-guide.mp4', // Temporary placeholder
+    videoUrl: '/bpc-code-guide.mp4.mp4',
   },
   {
     id: '4',
     title: 'Digital Banking Guide 2026',
     category: 'Tutorials',
     duration: '7:18',
-    videoUrl: '/bpc-code-guide.mp4', // Temporary placeholder
+    videoUrl: '/bpc-code-guide.mp4.mp4',
   },
   {
     id: '5',
     title: 'Financial News Roundup',
     category: 'News',
     duration: '4:50',
-    videoUrl: '/bpc-code-guide.mp4', // Temporary placeholder
+    videoUrl: '/bpc-code-guide.mp4.mp4',
   },
   {
     id: '6',
     title: 'Investment Basics',
     category: 'Tutorials',
     duration: '6:10',
-    videoUrl: '/bpc-code-guide.mp4', // Temporary placeholder
+    videoUrl: '/bpc-code-guide.mp4.mp4',
   },
 ]
 
@@ -83,7 +83,7 @@ export default function WatchAndLearnPage() {
         </div>
       </header>
 
-      {/* Category Filter Pills */}
+      {/* Category Pills */}
       <div className="bg-white border-b border-gray-200 px-3 py-3 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-2 min-w-max">
           {CATEGORIES.map((cat) => (
@@ -102,7 +102,7 @@ export default function WatchAndLearnPage() {
         </div>
       </div>
 
-      {/* Video Cards List */}
+      {/* Video Cards */}
       <main className="px-3 py-4 max-w-2xl mx-auto space-y-3">
         {filteredVideos.map((video) => (
           <div
@@ -110,7 +110,6 @@ export default function WatchAndLearnPage() {
             onClick={() => setActiveVideo(video)}
             className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition active:scale-[0.99]"
           >
-            {/* Video Thumbnail Box */}
             <div className="relative w-28 h-20 bg-gray-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
               {video.thumbnailUrl ? (
                 <img src={video.thumbnailUrl} alt={video.title} className="w-full h-full object-cover" />
@@ -119,21 +118,16 @@ export default function WatchAndLearnPage() {
                   <Film className="w-8 h-8 text-gray-500" />
                 </div>
               )}
-
-              {/* Play Button Overlay */}
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                 <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-md">
                   <Play className="w-4 h-4 text-gray-900 fill-gray-900 ml-0.5" />
                 </div>
               </div>
-
-              {/* Duration Tag */}
               <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
                 {video.duration}
               </span>
             </div>
 
-            {/* Video Title and Category */}
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
                 {video.title}
@@ -144,7 +138,7 @@ export default function WatchAndLearnPage() {
         ))}
       </main>
 
-      {/* Video Player Modal */}
+      {/* iOS-Compatible Video Player Modal */}
       {activeVideo && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl relative">
@@ -162,11 +156,15 @@ export default function WatchAndLearnPage() {
 
             <div className="relative aspect-video bg-black flex items-center justify-center">
               <video
-                src={activeVideo.videoUrl}
                 controls
                 autoPlay
+                playsInline
+                preload="metadata"
                 className="w-full h-full object-contain"
-              />
+              >
+                <source src={activeVideo.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </div>
