@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState<string[]>(Array(8).fill(''))
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(''))
   const [step, setStep] = useState<'send' | 'verify'>('send')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -30,7 +30,7 @@ export default function SignInPage() {
 
       if (data.success) {
         setStep('verify')
-        setMessage('Check your email for the 8-digit code!')
+        setMessage('Check your email for the 6-digit code!')
       } else {
         setMessage(data.error || 'Failed to send code')
       }
@@ -41,14 +41,15 @@ export default function SignInPage() {
   }
 
   const handleOtpChange = (index: number, value: string) => {
+    // Handle pasting a 6-digit code
     if (value.length > 1) {
-      const pastedData = value.slice(0, 8).split('')
+      const pastedData = value.slice(0, 6).split('')
       const newOtp = [...otp]
       pastedData.forEach((char, i) => {
         newOtp[i] = char
       })
       setOtp(newOtp)
-      const nextFocus = Math.min(pastedData.length, 7)
+      const nextFocus = Math.min(pastedData.length, 5)
       inputRefs.current[nextFocus]?.focus()
       return
     }
@@ -57,7 +58,8 @@ export default function SignInPage() {
     newOtp[index] = value
     setOtp(newOtp)
 
-    if (value && index < 7) {
+    // Auto-advance focus to next input
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus()
     }
   }
@@ -118,7 +120,7 @@ export default function SignInPage() {
           <h2>Enter Verification Code</h2>
           <p>Sent to {email}</p>
           
-          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginBottom: '15px' }}>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '15px' }}>
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -130,9 +132,9 @@ export default function SignInPage() {
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 style={{
-                  width: '36px',
-                  height: '42px',
-                  fontSize: '18px',
+                  width: '42px',
+                  height: '48px',
+                  fontSize: '20px',
                   textAlign: 'center',
                   borderRadius: '6px',
                   border: '1px solid #ccc',
@@ -141,14 +143,14 @@ export default function SignInPage() {
             ))}
           </div>
 
-          <button type="submit" disabled={loading || otp.join('').length < 8} style={{ width: '100%', padding: '10px' }}>
+          <button type="submit" disabled={loading || otp.join('').length < 6} style={{ width: '100%', padding: '10px' }}>
             {loading ? 'Verifying...' : 'Verify Code'}
           </button>
           <button 
             type="button" 
             onClick={() => {
               setStep('send')
-              setOtp(Array(8).fill(''))
+              setOtp(Array(6).fill(''))
             }} 
             style={{ width: '100%', padding: '8px', marginTop: '8px', background: 'transparent', border: 'none', color: '#666' }}
           >
