@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Authentication Fixes Complete
+# PayFlex PRO V30 - Authentication Fixes Complete
 
 ## Fixed Authentication Errors
 

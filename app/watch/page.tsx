@@ -52,7 +52,7 @@ export default function WatchPage() {
 
       {/* Footer Branding */}
       <footer className="text-center py-2">
-        <p className="text-[10px] text-gray-400 font-medium">BLUEPAY DIGITAL • 2026</p>
+        <p className="text-[10px] text-gray-400 font-medium">PayFlex DIGITAL • 2026</p>
       </footer>
     </div>
   )

@@ -1,4 +1,4 @@
-# BLUEPAY V30 Redesign - Quick Reference
+# PayFlex V30 Redesign - Quick Reference
 
 ## What Changed
 

@@ -1,4 +1,4 @@
-# Supabase Environment Variable Fix - BLUEPAY PRO V30
+# Supabase Environment Variable Fix - PayFlex PRO V30
 
 ## Issue Fixed
 **Error:** "Your project's URL and Key are required to create a Supabase client!"

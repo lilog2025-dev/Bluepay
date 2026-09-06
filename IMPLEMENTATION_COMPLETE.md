@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Implementation Summary
+# PayFlex PRO V30 - Implementation Summary
 
 ## All Updates Completed & Production Build Successful
 

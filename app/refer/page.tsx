@@ -7,7 +7,7 @@ import { ArrowLeft, Copy, Check, Share2, Users, TrendingUp } from 'lucide-react'
 export default function ReferAndEarnPage() {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
-  const referralCode = 'BLUEPAY_USER_2026'
+  const referralCode = 'PayFlex_USER_2026'
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralCode)
@@ -121,7 +121,7 @@ export default function ReferAndEarnPage() {
               </div>
               <div>
                 <p className="font-semibold text-gray-900 text-sm">First Transaction</p>
-                <p className="text-gray-600 text-xs">They complete their first transaction on BLUEPAY</p>
+                <p className="text-gray-600 text-xs">They complete their first transaction on PayFlex</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -130,7 +130,7 @@ export default function ReferAndEarnPage() {
               </div>
               <div>
                 <p className="font-semibold text-gray-900 text-sm">Earn ₦5,000</p>
-                <p className="text-gray-600 text-xs">Instant credit to your BLUEPAY wallet</p>
+                <p className="text-gray-600 text-xs">Instant credit to your PayFlex wallet</p>
               </div>
             </div>
           </div>

@@ -17,7 +17,7 @@ export async function POST(req: Request) {
           data: {
             bank_name: 'Wema Bank (Test)',
             account_number: '99' + Math.floor(10000000 + Math.random() * 90000000),
-            account_name: 'BLUEPAY - ' + (email ? email.split('@')[0].toUpperCase() : 'USER'),
+            account_name: 'PayFlex - ' + (email ? email.split('@')[0].toUpperCase() : 'USER'),
             amount: amount || 5000,
           },
         },

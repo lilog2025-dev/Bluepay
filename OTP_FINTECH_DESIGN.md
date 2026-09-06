@@ -328,7 +328,7 @@ className="shadow-lg"      /* Add depth */
 
 ---
 
-**Design System**: BLUEPAY PRO V30 Fintech  
+**Design System**: PayFlex PRO V30 Fintech  
 **Component**: OTP Input (Email Verification)  
 **Status**: ✅ Production Ready  
 **Version**: 1.0

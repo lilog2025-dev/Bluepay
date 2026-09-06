@@ -184,7 +184,7 @@ export default function EarnMorePage() {
         {/* Info Box */}
         <div className="mt-4 bg-blue-50 rounded-lg p-3 border border-blue-200">
           <p className="text-xs text-gray-700">
-            <span className="font-semibold">💡 Tip:</span> Complete tasks to earn rewards that are added directly to your BLUEPAY balance!
+            <span className="font-semibold">💡 Tip:</span> Complete tasks to earn rewards that are added directly to your PayFlex balance!
           </p>
         </div>
       </main>

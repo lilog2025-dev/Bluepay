@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Debit Alert & Referral Integration Complete
+# PayFlex PRO V30 - Debit Alert & Referral Integration Complete
 
 ## Overview
 Successfully integrated Supabase Edge Function "send-debit-alert" across all transaction types and updated the REFER & EARN page with real Supabase profile data.
@@ -72,7 +72,7 @@ https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-debit-alert
 
 **Referral Link Generation:**
 ```
-https://wwwbluepaywebauthdormaindigital-app.vercel.app/signup?ref=REFERRAL_CODE
+https://wwwPayFlexwebauthdormaindigital-app.vercel.app/signup?ref=REFERRAL_CODE
 ```
 
 **Updated UI Components:**
@@ -81,14 +81,14 @@ https://wwwbluepaywebauthdormaindigital-app.vercel.app/signup?ref=REFERRAL_CODE
 - Copy link button with feedback
 - Navigator.share API for mobile sharing
 - Fallback to clipboard copy
-- Modern fintech design matching BLUEPAY PRO V30
+- Modern fintech design matching PayFlex PRO V30
 
 **Share Message:**
 ```
-Join BLUEPAY PRO V30 and earn rewards!
+Join PayFlex PRO V30 and earn rewards!
 
 Use my referral link:
-https://wwwbluepaywebauthdormaindigital-app.vercel.app/signup?ref=REFERRAL_CODE
+https://wwwPayFlexwebauthdormaindigital-app.vercel.app/signup?ref=REFERRAL_CODE
 ```
 
 ### Page Location

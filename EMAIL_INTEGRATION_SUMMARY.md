@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Email Integration Implementation Summary
+# PayFlex PRO V30 - Email Integration Implementation Summary
 
 ## Problem Statement
 - DEBIT ALERT emails were not sending

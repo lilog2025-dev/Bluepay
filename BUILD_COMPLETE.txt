@@ -1,6 +1,6 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║              🎉 BLUEPAY DIGITAL - BUILD COMPLETE! 🎉                        ║
+║              🎉 PayFlex DIGITAL - BUILD COMPLETE! 🎉                        ║
 ║                                                                              ║
 ║                   A Modern Fintech Application                              ║
 ║              Built with Next.js, React & TailwindCSS                        ║
@@ -162,7 +162,7 @@ Spacing Scale:
 
 📁 PROJECT FOLDER STRUCTURE:
 
-bluepay-digital/
+PayFlex-digital/
 ├── app/
 │   ├── api/auth/
 │   │   ├── send-otp/route.ts
@@ -235,7 +235,7 @@ API Reference:  See API.md
 
 🎉 CONGRATULATIONS!
 
-Your BLUEPAY DIGITAL fintech application is ready to deploy!
+Your PayFlex DIGITAL fintech application is ready to deploy!
 
 This is a production-ready application with:
 • Modern UI/UX
@@ -257,6 +257,6 @@ Happy coding! 🚀
 
 Built with ❤️ using modern web technologies
 
-BLUEPAY DIGITAL - Smart Payments for the Digital Age 💙
+PayFlex DIGITAL - Smart Payments for the Digital Age 💙
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

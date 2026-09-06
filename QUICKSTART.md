@@ -1,13 +1,13 @@
-# BLUEPAY DIGITAL - Quick Start Guide
+# PayFlex DIGITAL - Quick Start Guide
 
-Get BLUEPAY DIGITAL up and running in 5 minutes!
+Get PayFlex DIGITAL up and running in 5 minutes!
 
 ## Step 1: Clone & Install
 
 ```bash
 # Clone the repository
 git clone <your-repo-url>
-cd bluepay-digital
+cd PayFlex-digital
 
 # Install dependencies
 pnpm install
@@ -27,7 +27,7 @@ Edit `.env.local` with your values:
 NEXT_PUBLIC_SUPABASE_URL=your_url_here
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key_here
 RESEND_API_KEY=your_resend_key_here
-EMAIL_FROM=noreply@bluepay.com
+EMAIL_FROM=noreply@PayFlex.com
 OTP_SECRET=your_secret_here
 ```
 
@@ -59,7 +59,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Step 5: Test the App
 
-1. **Welcome Screen**: You'll see the BLUEPAY DIGITAL splash screen
+1. **Welcome Screen**: You'll see the PayFlex DIGITAL splash screen
 2. **Click "GET STARTED"**: Navigate to signup page
 3. **Fill Form**: 
    - Full Name: John Doe
@@ -207,7 +207,7 @@ pnpm dev
 - 🎨 [TailwindCSS Documentation](https://tailwindcss.com)
 - 🔐 [Supabase Documentation](https://supabase.com/docs)
 - 📧 [Resend Documentation](https://resend.com/docs)
-- 💙 [BLUEPAY Docs](./README.md)
+- 💙 [PayFlex Docs](./README.md)
 
 ## Get Help
 

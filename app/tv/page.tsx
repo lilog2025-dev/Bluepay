@@ -54,7 +54,7 @@ export default function TVPage() {
           if (profile?.full_name) setFullName(profile.full_name)
         }
       } catch (err) {
-        setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+        setFullName(sessionStorage.getItem('signupFullName') || 'PayFlex User')
         setUserEmail(sessionStorage.getItem('signupEmail') || '')
       }
     }

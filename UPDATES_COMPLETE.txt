@@ -1,6 +1,6 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║         ✅ BLUEPAY DIGITAL - AUTHENTICATION UPDATES COMPLETE ✅              ║
+║         ✅ PayFlex DIGITAL - AUTHENTICATION UPDATES COMPLETE ✅              ║
 ║                                                                              ║
 ║                    Full Redesign & OTP Implementation                       ║
 ║                                                                              ║
@@ -28,7 +28,7 @@
    • Success message on submission
 
 3. ✅ SIGN IN PAGE (/signin)
-   • BLUEPAY PRO V30 header with divider
+   • PayFlex PRO V30 header with divider
    • White card on blue background
    • Email Address input field
    • Continue button (blue background)
@@ -147,7 +147,7 @@ Components:
 
 Required for OTP functionality:
 • RESEND_API_KEY (from https://resend.com)
-• EMAIL_FROM (e.g., noreply@bluepay.com)
+• EMAIL_FROM (e.g., noreply@PayFlex.com)
 • NEXT_PUBLIC_SUPABASE_URL
 • NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -246,5 +246,5 @@ For detailed information, see:
 
 Happy deploying! 🚀
 
-BLUEPAY DIGITAL - Authentication Flow Complete ✅
+PayFlex DIGITAL - Authentication Flow Complete ✅
 

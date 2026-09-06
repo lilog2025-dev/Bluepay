@@ -1,4 +1,4 @@
-# BLUEPAY DIGITAL - Authentication Flow Update
+# PayFlex DIGITAL - Authentication Flow Update
 
 ## Overview
 
@@ -15,11 +15,11 @@ Complete redesign of the authentication user interface and flow to implement OTP
 - Optimized spacing and typography
 
 **New Description:**
-"BLUEPAY PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal BPC CODE instantly."
+"PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal BPC CODE instantly."
 
 **Features:**
 - Animated lion mascot moving left-to-right (8 seconds)
-- Centered "BLUEPAY PRO V30" title
+- Centered "PayFlex PRO V30" title
 - Compact, mobile-optimized layout
 - White "Get Started" button with blue text
 - "Sign In" link at bottom
@@ -60,7 +60,7 @@ Complete redesign of the authentication user interface and flow to implement OTP
 ### 3. SIGN IN PAGE (/signin)
 
 **New Design Features:**
-- "BLUEPAY PRO V30" header with white divider
+- "PayFlex PRO V30" header with white divider
 - White card on blue background
 - "Sign In" heading in blue
 - Single email input field
@@ -94,7 +94,7 @@ Complete redesign of the authentication user interface and flow to implement OTP
 - 6-digit OTP codes (not magic links)
 - 5-minute expiry time
 - Professional HTML email template with:
-  - BLUEPAY DIGITAL branding
+  - PayFlex DIGITAL branding
   - Blue gradient background
   - Large OTP display
   - Expiry warning
@@ -109,7 +109,7 @@ Complete redesign of the authentication user interface and flow to implement OTP
 **Environment Variables Needed:**
 ```
 RESEND_API_KEY=your_resend_api_key
-EMAIL_FROM=noreply@bluepay.com
+EMAIL_FROM=noreply@PayFlex.com
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```

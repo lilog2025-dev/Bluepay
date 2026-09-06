@@ -1,4 +1,4 @@
-# BLUEPAY PRO - Real-Time Balance Deduction Implementation Complete
+# PayFlex PRO - Real-Time Balance Deduction Implementation Complete
 
 ## ✅ Successfully Implemented Features
 

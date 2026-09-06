@@ -105,7 +105,7 @@ export default function SignupPage() {
             Create Account
           </h1>
           <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
-            Create your BLUEPAY PRO V30 account to start earning rewards, purchasing services, withdrawing funds and accessing premium financial solutions instantly.
+            Create your PayFlex PRO V30 account to start earning rewards, purchasing services, withdrawing funds and accessing premium financial solutions instantly.
           </p>
         </div>
 

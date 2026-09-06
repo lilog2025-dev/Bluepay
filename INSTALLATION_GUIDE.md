@@ -1,6 +1,6 @@
-# BLUEPAY DIGITAL - Complete Installation & Setup Guide
+# PayFlex DIGITAL - Complete Installation & Setup Guide
 
-Welcome to BLUEPAY DIGITAL! This guide will walk you through everything you need to deploy and run the application.
+Welcome to PayFlex DIGITAL! This guide will walk you through everything you need to deploy and run the application.
 
 ## 📋 Requirements
 
@@ -17,7 +17,7 @@ Before you start, make sure you have:
 ### Step 1: Clone Repository
 ```bash
 git clone <your-repo-url>
-cd bluepay-digital
+cd PayFlex-digital
 ```
 
 ### Step 2: Install Dependencies
@@ -72,7 +72,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 
 # Resend Email
 RESEND_API_KEY=re_your_resend_key_here
-EMAIL_FROM=noreply@bluepay.com
+EMAIL_FROM=noreply@PayFlex.com
 
 # OTP Secret (for encryption)
 OTP_SECRET=your_secret_key_here
@@ -177,7 +177,7 @@ pnpm format
 ## 📁 Project Structure
 
 ```
-bluepay-digital/
+PayFlex-digital/
 ├── app/                           # Next.js app directory
 │   ├── api/auth/                  # Authentication APIs
 │   ├── signup/                    # Signup page
@@ -220,7 +220,7 @@ Example: Change to green (#00FF00)
 ### Change Application Name
 
 1. Edit `app/layout.tsx` - Update `<title>`
-2. Edit `app/page.tsx` - Change "BLUEPAY DIGITAL" text
+2. Edit `app/page.tsx` - Change "PayFlex DIGITAL" text
 3. Update `package.json` - Change "name" field
 
 ### Modify Dashboard Content
@@ -319,7 +319,7 @@ After successful setup:
 
 ## ✨ You're All Set!
 
-Your BLUEPAY DIGITAL application is ready to use. Start building amazing fintech features!
+Your PayFlex DIGITAL application is ready to use. Start building amazing fintech features!
 
 ```bash
 # Happy coding! 🚀
@@ -329,7 +329,7 @@ pnpm dev
 ---
 
 **Need Help?**
-- 📧 Email: support@bluepay.com (update with your contact)
+- 📧 Email: support@PayFlex.com (update with your contact)
 - 💬 Discord: [Join our community](your-discord-link)
 - 🐛 GitHub Issues: Report bugs
 - 📖 Docs: Check documentation files

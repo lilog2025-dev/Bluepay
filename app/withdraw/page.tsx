@@ -90,12 +90,12 @@ export default function WithdrawPage() {
             .single()
           if (profile?.full_name) setFullName(profile.full_name)
         } else {
-          setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+          setFullName(sessionStorage.getItem('signupFullName') || 'PayFlex User')
           setUserEmail(sessionStorage.getItem('signupEmail') || '')
         }
       } catch (err) {
         console.error('[v0] Error loading user data:', err)
-        setFullName(sessionStorage.getItem('signupFullName') || 'BLUEPAY User')
+        setFullName(sessionStorage.getItem('signupFullName') || 'PayFlex User')
         setUserEmail(sessionStorage.getItem('signupEmail') || '')
       }
     }

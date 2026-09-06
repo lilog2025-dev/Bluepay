@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - BPC Security Implementation Guide
+# PayFlex PRO V30 - BPC Security Implementation Guide
 
 ## Completed Updates
 

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const alertMessage = `
 Dear ${fullName || 'User'},
 
-A transaction has been processed on your BLUEPAY account:
+A transaction has been processed on your PayFlex account:
 
 Transaction Type: ${type}
 Amount: ₦${parseFloat(amount).toLocaleString()}
@@ -26,13 +26,13 @@ Date & Time: ${new Date().toLocaleString()}
 If you did not authorize this transaction, please contact our support team immediately.
 
 Best regards,
-BLUEPAY Team
+PayFlex Team
     `.trim()
 
     // Log the alert locally (in production, this would integrate with email service like SendGrid, Resend, etc.)
     console.log('[DEBIT ALERT]', {
       to: email,
-      subject: `BLUEPAY Transaction Alert - ₦${parseFloat(amount).toLocaleString()}`,
+      subject: `PayFlex Transaction Alert - ₦${parseFloat(amount).toLocaleString()}`,
       message: alertMessage,
       timestamp: new Date().toISOString(),
     })
@@ -40,9 +40,9 @@ BLUEPAY Team
     // In a production app, you would send the email here:
     // Example with Resend:
     // const { data, error } = await resend.emails.send({
-    //   from: 'noreply@bluepay.com',
+    //   from: 'noreply@PayFlex.com',
     //   to: email,
-    //   subject: `BLUEPAY Transaction Alert - ₦${parseFloat(amount).toLocaleString()}`,
+    //   subject: `PayFlex Transaction Alert - ₦${parseFloat(amount).toLocaleString()}`,
     //   html: alertHtmlTemplate(fullName, amount, type, transactionCode),
     // })
 

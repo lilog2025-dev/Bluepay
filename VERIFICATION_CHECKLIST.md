@@ -21,7 +21,7 @@ Use this checklist to verify all improvements are working correctly.
 - [ ] No scrolling needed on 375px viewport
 
 ### Sign In Page (`/signin`)
-- [ ] BLUEPAY PRO V30 header is compact on mobile
+- [ ] PayFlex PRO V30 header is compact on mobile
 - [ ] Email input field is readable
 - [ ] Continue button is large enough to tap
 - [ ] Back button is easily accessible

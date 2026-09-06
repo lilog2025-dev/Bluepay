@@ -1,4 +1,4 @@
-## BLUEPAY PRO V30 - Supabase Integration Implementation Roadmap
+## PayFlex PRO V30 - Supabase Integration Implementation Roadmap
 
 ### COMPLETED TASKS
 

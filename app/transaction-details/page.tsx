@@ -140,7 +140,7 @@ function TransactionDetailsContent() {
 
           {/* Transaction Type and User */}
           <h2 className="text-xl font-bold text-gray-900 mb-3">
-            {transaction.type === 'withdrawal' ? 'Withdraw from BLUEPAY PRO V30' : transaction.description}
+            {transaction.type === 'withdrawal' ? 'Withdraw from PayFlex PRO V30' : transaction.description}
           </h2>
 
           {/* Amount */}

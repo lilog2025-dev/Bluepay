@@ -1,8 +1,8 @@
-# BLUEPAY DIGITAL - Project Summary
+# PayFlex DIGITAL - Project Summary
 
 ## 🎉 Project Complete!
 
-BLUEPAY DIGITAL is a **production-ready fintech application** built with modern web technologies. It features a complete user onboarding flow, secure authentication, and a beautiful premium dashboard.
+PayFlex DIGITAL is a **production-ready fintech application** built with modern web technologies. It features a complete user onboarding flow, secure authentication, and a beautiful premium dashboard.
 
 ## ✨ What's Included
 
@@ -78,7 +78,7 @@ POST   /api/auth/signup          - Create new account
 ## 📁 Project Structure
 
 ```
-bluepay-digital/
+PayFlex-digital/
 ├── app/
 │   ├── api/auth/
 │   │   ├── send-otp/route.ts       ← Send OTP email
@@ -298,7 +298,7 @@ MIT License - Free for commercial use
 
 ## 👨‍💻 Built By
 
-BLUEPAY DIGITAL Development Team
+PayFlex DIGITAL Development Team
 
 Powered by:
 - **Next.js 16** - The React framework for production
@@ -326,7 +326,7 @@ Powered by:
 
 ## 🚀 Ready to Deploy!
 
-Your BLUEPAY DIGITAL application is **production-ready**. Deploy to Vercel, configure your environment variables, and launch to production.
+Your PayFlex DIGITAL application is **production-ready**. Deploy to Vercel, configure your environment variables, and launch to production.
 
 ```bash
 pnpm build  # Build for production

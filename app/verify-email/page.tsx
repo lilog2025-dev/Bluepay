@@ -152,7 +152,7 @@ export default function VerifyEmailPage() {
         {/* Subtitle with email and instructions */}
         <p className="text-white text-center text-xs sm:text-sm mb-5 sm:mb-8 leading-relaxed">
           Please check your email inbox or spam folder for the OTP verification code sent to{' '}
-          <span className="font-bold break-all">{email}</span>. You must enter the correct OTP code before proceeding to secure your BLUEPAY PRO V30 account.
+          <span className="font-bold break-all">{email}</span>. You must enter the correct OTP code before proceeding to secure your PayFlex PRO V30 account.
         </p>
 
         {/* OTP Container Card */}

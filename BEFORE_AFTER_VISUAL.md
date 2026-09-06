@@ -151,7 +151,7 @@ Mobile (375px)
 Mobile (375px)
 ┌─────────────────────────┐
 │                         │
-│ BLUEPAY                 │  ← Very large (text-5xl)
+│ PayFlex                 │  ← Very large (text-5xl)
 │ PRO V30                 │  ← Large (text-4xl)
 │                         │
 │ ─────────────────────── │  ← Divider
@@ -162,7 +162,7 @@ Mobile (375px)
 │ │                       ││
 │ └───────────────────────┘│
 │                         │
-│ BLUEPAY PRO V30 allows  │  ← Long description
+│ PayFlex PRO V30 allows  │  ← Long description
 │ users to earn extra     │
 │ income, withdraw money, │
 │ purchase airtime...     │
@@ -186,7 +186,7 @@ Mobile (375px)
 ```
 Mobile (375px)
 ┌─────────────────────────┐
-│ BLUEPAY                 │  ← Smaller (text-3xl)
+│ PayFlex                 │  ← Smaller (text-3xl)
 │ PRO V30                 │
 │ ─────────────────────── │  ← Smaller divider
 │                         │

@@ -100,7 +100,7 @@ export default function AirtimePage() {
         }
       } catch (err) {
         console.error('[v0] Error loading user data:', err)
-        const name = sessionStorage.getItem('signupFullName') || 'BLUEPAY User'
+        const name = sessionStorage.getItem('signupFullName') || 'PayFlex User'
         const email = sessionStorage.getItem('signupEmail') || ''
         setFullName(name)
         setUserEmail(email)

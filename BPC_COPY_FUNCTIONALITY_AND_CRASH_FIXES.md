@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - BPC Copy Functionality & Dashboard Crash Fixes
+# PayFlex PRO V30 - BPC Copy Functionality & Dashboard Crash Fixes
 
 ## Summary of Changes
 

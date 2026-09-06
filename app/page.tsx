@@ -26,7 +26,7 @@ export default function WelcomePage() {
         {/* Logo and Brand - Shifted upward */}
         <div className="mb-4 sm:mb-6">
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-1 drop-shadow-lg tracking-tight">
-            BLUEPAY
+            PayFlex
           </h1>
           <p className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg tracking-wide">
             PRO V30
@@ -67,7 +67,7 @@ export default function WelcomePage() {
         {/* Premium Description Text */}
         <div className="mb-6 sm:mb-8 px-2">
           <p className="text-sm sm:text-base text-white drop-shadow-lg leading-relaxed font-light">
-            BLUEPAY PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal BPC CODE instantly.
+            PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal BPC CODE instantly.
           </p>
         </div>
 

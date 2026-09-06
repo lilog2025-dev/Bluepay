@@ -37,7 +37,7 @@ export default function ReferAndEarnPage() {
 
           if (profile) {
             setFullName(profile.full_name || 'User')
-            setReferralCode(profile.referral_code || `BLUEPAY${Math.random().toString(36).substring(7).toUpperCase()}`)
+            setReferralCode(profile.referral_code || `PayFlex${Math.random().toString(36).substring(7).toUpperCase()}`)
             setTotalReferrals(profile.total_referrals || 0)
             setActiveReferrals(profile.active_referrals || 0)
             setTotalEarned(profile.total_earned || 0)
@@ -61,7 +61,7 @@ export default function ReferAndEarnPage() {
         // Fallback to sessionStorage
         const storedName = sessionStorage.getItem('signupFullName')
         setFullName(storedName || 'User')
-        setReferralCode(`BLUEPAY${Math.random().toString(36).substring(7).toUpperCase()}`)
+        setReferralCode(`PayFlex${Math.random().toString(36).substring(7).toUpperCase()}`)
       } finally {
         setLoading(false)
       }
@@ -73,7 +73,7 @@ export default function ReferAndEarnPage() {
   // Generate referral link and setup realtime updates
   useEffect(() => {
     if (referralCode) {
-      setReferralLink(`https://wwwbluepaywebauthdormaindigital-app.vercel.app/?ref=${referralCode}`)
+      setReferralLink(`https://wwwPayFlexwebauthdormaindigital-app.vercel.app/?ref=${referralCode}`)
 
       // Setup realtime subscription for profile updates
       const supabase = createClient(
@@ -113,12 +113,12 @@ export default function ReferAndEarnPage() {
   const handleShareLink = async () => {
     if (!referralLink) return
 
-    const message = `Join BLUEPAY PRO V30 and earn rewards!\n\nUse my referral link:\n${referralLink}`
+    const message = `Join PayFlex PRO V30 and earn rewards!\n\nUse my referral link:\n${referralLink}`
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'BLUEPAY PRO V30 - Referral',
+          title: 'PayFlex PRO V30 - Referral',
           text: message,
         })
       } catch (err) {

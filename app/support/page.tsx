@@ -25,7 +25,7 @@ export default function SupportPage() {
     'electricity': 'Pay electricity bills: 1. Go to Electricity 2. Enter meter number 3. Choose amount 4. Confirm payment. Receipt will be sent to your email.',
     'transaction': 'View all your transactions on the Transactions page. Each transaction shows: Type, Amount, Status, Date & Time, and Transaction ID.',
     'account': 'Account issues can be resolved through: 1. Security settings to reset PIN 2. Profile page to update details 3. Contact support for technical issues.',
-    'default': 'Hello! I\'m BLUEPAY AI Assistant. I can help you with: BPC CODE, Withdrawals, Referrals, Airtime, Data, Betting, TV Subscriptions, Electricity, Transactions, and Account issues. What would you like help with?'
+    'default': 'Hello! I\'m PayFlex AI Assistant. I can help you with: BPC CODE, Withdrawals, Referrals, Airtime, Data, Betting, TV Subscriptions, Electricity, Transactions, and Account issues. What would you like help with?'
   }
 
   const findAIResponse = (userInput: string): string => {
@@ -64,7 +64,7 @@ export default function SupportPage() {
     }
 
     const now = new Date().toLocaleString()
-    const complaintText = `COMPLAINT from BLUEPAY:\n\nName: ${complaintName}\nDate/Time: ${now}\nComplaint: ${message}`
+    const complaintText = `COMPLAINT from PayFlex:\n\nName: ${complaintName}\nDate/Time: ${now}\nComplaint: ${message}`
     const whatsappUrl = `https://wa.me/2347078434086?text=${encodeURIComponent(complaintText)}`
     
     window.open(whatsappUrl, '_blank')
@@ -143,9 +143,9 @@ export default function SupportPage() {
             <button
               type="button"
               onClick={() => {
-                const email = 'supportbluepaypro.com@gmail.com'
-                const subject = 'BLUEPAY Support Request'
-                const body = 'Hello BLUEPAY Support Team,%0A%0AI need assistance with...%0A%0AThank you.'
+                const email = 'supportPayFlexpro.com@gmail.com'
+                const subject = 'PayFlex Support Request'
+                const body = 'Hello PayFlex Support Team,%0A%0AI need assistance with...%0A%0AThank you.'
                 window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self')
               }}
               className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
@@ -158,7 +158,7 @@ export default function SupportPage() {
             <button
               type="button"
               onClick={() => {
-                const whatsappUrl = 'https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance.'
+                const whatsappUrl = 'https://wa.me/2347078434086?text=Hello%20PayFlex%20Support%2C%20I%20need%20assistance.'
                 window.open(whatsappUrl, '_blank')
               }}
               className="bg-white rounded-lg p-3 border border-gray-200 hover:border-green-500 hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
@@ -171,7 +171,7 @@ export default function SupportPage() {
             <button
               type="button"
               onClick={() => {
-                const telegramUrl = 'https://t.me/bluepay2'
+                const telegramUrl = 'https://t.me/PayFlex2'
                 window.open(telegramUrl, '_blank')
               }}
               className="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-500 hover:shadow-md transition flex flex-col items-center text-center gap-2 cursor-pointer w-full"
@@ -295,7 +295,7 @@ export default function SupportPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-900 mb-1.5">
-                  How would you rate BLUEPAY?
+                  How would you rate PayFlex?
                 </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map(star => (

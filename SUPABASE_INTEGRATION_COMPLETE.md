@@ -1,8 +1,8 @@
-# BLUEPAY PRO V30 - Supabase Integration Complete
+# PayFlex PRO V30 - Supabase Integration Complete
 
 ## Summary of Fixes and Integrations
 
-All BLUEPAY PRO V30 services are now fully integrated with Supabase wallets and transactions tables.
+All PayFlex PRO V30 services are now fully integrated with Supabase wallets and transactions tables.
 
 ### 1. Balance System ✅
 - Dashboard loads balance from `wallets.balance` (Supabase source of truth)

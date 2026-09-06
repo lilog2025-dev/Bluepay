@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Supabase Edge Function Integration Fixes
+# PayFlex PRO V30 - Supabase Edge Function Integration Fixes
 
 ## Overview
 Fixed Supabase Edge Function integrations for DEBIT ALERT and BPC CODE VERIFICATION emails to ensure proper authentication, error handling, and email delivery across all fintech transactions.

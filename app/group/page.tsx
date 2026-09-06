@@ -23,7 +23,7 @@ export default function GroupPage() {
         {/* Intro Section */}
         <div className="bg-gradient-to-r from-blue-50 to-[#0000ff]/5 rounded-2xl p-4 border border-[#0000ff]/20 mb-6">
           <h2 className="font-bold text-gray-900 text-lg mb-2">Join Our Community</h2>
-          <p className="text-gray-600 text-sm">Connect with other BLUEPAY users, share tips, and get support from our team.</p>
+          <p className="text-gray-600 text-sm">Connect with other PayFlex users, share tips, and get support from our team.</p>
         </div>
 
         {/* Community Buttons */}
@@ -32,7 +32,7 @@ export default function GroupPage() {
           <button
             type="button"
             onClick={() => {
-              window.open('https://t.me/bluepay2', '_blank')
+              window.open('https://t.me/PayFlex2', '_blank')
             }}
             className="w-full block bg-white rounded-xl p-4 border border-gray-200 hover:border-blue-500 hover:shadow-md transition cursor-pointer text-left"
           >
@@ -52,7 +52,7 @@ export default function GroupPage() {
           <button
             type="button"
             onClick={() => {
-              window.open('https://wa.me/2347078434086?text=Hello%20BLUEPAY%20Support%2C%20I%20need%20assistance.', '_blank')
+              window.open('https://wa.me/2347078434086?text=Hello%20PayFlex%20Support%2C%20I%20need%20assistance.', '_blank')
             }}
             className="w-full block bg-white rounded-xl p-4 border border-gray-200 hover:border-green-500 hover:shadow-md transition cursor-pointer text-left"
           >
@@ -84,7 +84,7 @@ export default function GroupPage() {
               <div className="text-[#0000ff] font-bold text-lg mt-0.5">✓</div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">Share Tips & Strategies</p>
-                <p className="text-xs text-gray-600">Learn from other BLUEPAY users</p>
+                <p className="text-xs text-gray-600">Learn from other PayFlex users</p>
               </div>
             </div>
             <div className="flex gap-2">

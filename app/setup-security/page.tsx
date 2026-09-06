@@ -122,7 +122,7 @@ export default function SetupSecurityPage() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                   Protect Your Account
                 </h1>
-                <p className="text-white/70 text-sm">Choose a security method to secure your BLUEPAY PRO V30 account</p>
+                <p className="text-white/70 text-sm">Choose a security method to secure your PayFlex PRO V30 account</p>
               </div>
 
               <div className="space-y-4">

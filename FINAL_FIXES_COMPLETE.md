@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Final Fixes Complete
+# PayFlex PRO V30 - Final Fixes Complete
 
 ## Dashboard Error Fixes
 

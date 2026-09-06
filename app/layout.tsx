@@ -7,7 +7,7 @@ const geist = Geist({ subsets: ["latin"] });
 const geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'BLUEPAY DIGITAL - Smart Digital Payments',
+  title: 'PayFlex DIGITAL - Smart Digital Payments',
   description: 'Secure transfers, airtime, data, bills & digital financial services',
   generator: 'v0.app',
   icons: {

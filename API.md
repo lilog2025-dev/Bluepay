@@ -1,6 +1,6 @@
-# BLUEPAY DIGITAL - API Documentation
+# PayFlex DIGITAL - API Documentation
 
-Complete API reference for BLUEPAY DIGITAL backend endpoints.
+Complete API reference for PayFlex DIGITAL backend endpoints.
 
 ## Base URL
 

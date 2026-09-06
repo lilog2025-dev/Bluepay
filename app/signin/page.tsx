@@ -121,7 +121,7 @@ export default function SignInPage() {
     <div style={{ maxWidth: '380px', margin: '40px auto', padding: '20px' }}>
       {step === 'send' ? (
         <form onSubmit={handleSendOtp}>
-          <h2>Sign in to Bluepay</h2>
+          <h2>Sign in to PayFlex</h2>
           <input
             type="email"
             value={email}

@@ -1,4 +1,4 @@
-# BLUEPAY Balance Display Fix - Implementation Summary
+# PayFlex Balance Display Fix - Implementation Summary
 
 ## Problem Fixed
 Dashboard was displaying NGN 0.00 after implementing real-time balance deduction because:

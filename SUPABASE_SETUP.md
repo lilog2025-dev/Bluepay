@@ -1,6 +1,6 @@
-# Supabase Setup Guide for BLUEPAY
+# Supabase Setup Guide for PayFlex
 
-This guide helps you set up Supabase for transaction logging and debit alerts in the BLUEPAY application.
+This guide helps you set up Supabase for transaction logging and debit alerts in the PayFlex application.
 
 ## Prerequisites
 
@@ -108,9 +108,9 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 // In your POST handler:
 const { data, error } = await resend.emails.send({
-  from: 'noreply@bluepay.com',
+  from: 'noreply@PayFlex.com',
   to: email,
-  subject: `BLUEPAY Transaction Alert - ₦${parseFloat(amount).toLocaleString()}`,
+  subject: `PayFlex Transaction Alert - ₦${parseFloat(amount).toLocaleString()}`,
   html: `<h2>Transaction Alert</h2><p>Amount: ₦${amount}</p>`,
 })
 ```
@@ -162,4 +162,4 @@ Returns array of transactions for the user.
 
 For issues or questions:
 - Supabase Docs: https://supabase.com/docs
-- BLUEPAY GitHub Issues: [your-repo-url]
+- PayFlex GitHub Issues: [your-repo-url]

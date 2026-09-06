@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Complete Navigation & Authentication Crash Fixes
+# PayFlex PRO V30 - Complete Navigation & Authentication Crash Fixes
 
 ## Issues Fixed
 

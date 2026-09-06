@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Stability Fixes Complete
+# PayFlex PRO V30 - Stability Fixes Complete
 
 ## Summary
 All runtime errors and app crashes have been fixed. The application now uses demo/mock wallet balance logic instead of complex Supabase wallet deductions, ensuring stability and reliability.

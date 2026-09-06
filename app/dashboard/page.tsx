@@ -99,7 +99,7 @@ export default function DashboardPage() {
             <div className="w-5 h-0.5 bg-white mb-1"></div>
             <div className="w-5 h-0.5 bg-white"></div>
           </button>
-          <h1 className="text-xl font-bold tracking-wide">BLUEPAY</h1>
+          <h1 className="text-xl font-bold tracking-wide">PayFlex</h1>
         </div>
         <button className="relative p-1">
           <Bell className="w-6 h-6 text-white" />

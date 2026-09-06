@@ -1,6 +1,6 @@
-# BLUEPAY DIGITAL - Modern Fintech Application
+# PayFlex DIGITAL - Modern Fintech Application
 
-A premium, production-ready fintech application built with Next.js, React, TailwindCSS, and Supabase. BLUEPAY DIGITAL provides secure digital payments, airtime purchases, data subscriptions, bill payments, and transfers.
+A premium, production-ready fintech application built with Next.js, React, TailwindCSS, and Supabase. PayFlex DIGITAL provides secure digital payments, airtime purchases, data subscriptions, bill payments, and transfers.
 
 ## 🎨 Features
 
@@ -84,7 +84,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 
 # Email OTP (Resend)
 RESEND_API_KEY=your_resend_api_key
-EMAIL_FROM=noreply@bluepay.com
+EMAIL_FROM=noreply@PayFlex.com
 OTP_SECRET=your_otp_secret
 
 # Optional: OTP Token Secret (for encryption)
@@ -230,7 +230,7 @@ Dashboard (Wallet, Transactions, Actions)
 1. **Push to GitHub**:
    ```bash
    git add .
-   git commit -m "Initial BLUEPAY DIGITAL deployment"
+   git commit -m "Initial PayFlex DIGITAL deployment"
    git push origin main
    ```
 
@@ -394,4 +394,4 @@ Built with:
 
 ---
 
-**BLUEPAY DIGITAL** - Smart Payments for the Digital Age 💙
+**PayFlex DIGITAL** - Smart Payments for the Digital Age 💙

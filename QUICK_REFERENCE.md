@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Quick Reference Guide
+# PayFlex PRO V30 - Quick Reference Guide
 
 ## What's Done ✅
 

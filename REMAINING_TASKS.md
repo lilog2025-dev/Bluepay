@@ -1,4 +1,4 @@
-# BLUEPAY PRO V30 - Remaining Implementation Tasks
+# PayFlex PRO V30 - Remaining Implementation Tasks
 
 ## Completed Tasks
 1. ✅ Update Data & Airtime Pages - Country Dropdowns (15 African countries added)
