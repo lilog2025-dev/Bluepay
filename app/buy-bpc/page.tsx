@@ -1,114 +1,52 @@
 'use client'
 
-import React, { useEffect, useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Building2, Share2 } from 'lucide-react'
-import type { Transaction } from '@/lib/transaction-client'
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Copy, CheckCircle2, Building2, UploadCloud, FileCheck } from 'lucide-react'
 
-function TransactionDetailsContent() {
+export default function BuyBPCPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const transactionId = searchParams.get('id')
-  const [transaction, setTransaction] = useState<Transaction | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [userFullName, setUserFullName] = useState('')
+  const [copiedAccount, setCopiedAccount] = useState(false)
+  const [receiptImage, setReceiptImage] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => {
-    loadTransactionDetails()
-  }, [transactionId])
+  // Payment bank details
+  const bankDetails = {
+    bankName: 'Moniepoint Microfinance Bank',
+    accountNumber: '6401234567', // Replace with actual account number
+    accountName: 'BLUEPAY PRO SERVICES', // Replace with actual account name
+    bpcRate: '₦5,000 per BPC Code',
+  }
 
-  const loadTransactionDetails = async () => {
-    if (!transactionId) return
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedAccount(true)
+    setTimeout(() => setCopiedAccount(false), 2000)
+  }
 
-    try {
-      const { createClient } = await import('@supabase/supabase-js')
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-
-      // Get transaction details
-      const { data: txData, error: txError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('id', transactionId)
-        .single()
-
-      if (txError || !txData) {
-        console.error('[v0] Error loading transaction:', txError)
-        return
-      }
-
-      setTransaction(txData as Transaction)
-
-      // Get user details
-      const { data: sessionData } = await supabase.auth.getSession()
-      if (sessionData?.session?.user?.id) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', sessionData.session.user.id)
-          .single()
-
-        if (profileData?.full_name) {
-          setUserFullName(profileData.full_name)
-        }
-      }
-    } catch (err) {
-      console.error('[v0] Error loading transaction details:', err)
-    } finally {
-      setLoading(false)
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setReceiptImage(file)
+      setPreviewUrl(URL.createObjectURL(file))
     }
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-NG', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })
-  }
+  const handleSubmit = async () => {
+    if (!receiptImage) {
+      alert('Please upload your payment receipt before submitting.')
+      return
+    }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white pb-20">
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
-          <div className="flex items-center justify-between">
-            <button onClick={() => router.back()} className="p-1">
-              <ArrowLeft className="w-5 h-5 text-gray-900" />
-            </button>
-            <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
-            <div className="w-5" />
-          </div>
-        </header>
-        <div className="flex items-center justify-center py-20">
-          <p className="text-gray-600">Loading transaction details...</p>
-        </div>
-      </div>
-    )
-  }
+    setIsSubmitting(true)
 
-  if (!transaction) {
-    return (
-      <div className="min-h-screen bg-white pb-20">
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
-          <div className="flex items-center justify-between">
-            <button onClick={() => router.back()} className="p-1">
-              <ArrowLeft className="w-5 h-5 text-gray-900" />
-            </button>
-            <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
-            <div className="w-5" />
-          </div>
-        </header>
-        <div className="flex items-center justify-center py-20">
-          <p className="text-gray-600">Transaction not found</p>
-        </div>
-      </div>
-    )
+    // Simulate submission delay or upload logic to Supabase storage
+    setTimeout(() => {
+      setIsSubmitting(false)
+      alert('Receipt submitted successfully! Your payment is under review.')
+      router.push('/dashboard')
+    }, 1500)
   }
 
   return (
@@ -119,147 +57,107 @@ function TransactionDetailsContent() {
           <button onClick={() => router.back()} className="p-1">
             <ArrowLeft className="w-5 h-5 text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Transaction Details</h1>
-          <button className="p-2">
-            <Building2 className="w-5 h-5 text-teal-500" />
-          </button>
+          <h1 className="text-lg font-bold text-gray-900">Buy BPC Code</h1>
+          <div className="w-5" />
         </div>
       </header>
 
-      <main className="px-3 py-4 max-w-2xl mx-auto">
-        {/* Transaction Header Section */}
-        <div className="bg-white rounded-2xl p-6 text-center mb-4 shadow-sm">
-          {/* Avatar with Initial */}
-          <div className="w-16 h-16 bg-[#0000ff] rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
-            {userFullName.charAt(0).toUpperCase()}
-          </div>
-
-          {/* Transaction Type and User */}
-          <h2 className="text-xl font-bold text-gray-900 mb-3">
-            {transaction.type === 'withdrawal' ? 'Withdraw from BLUEPAY PRO V30' : transaction.description}
-          </h2>
-
-          {/* Amount */}
-          <p className="text-4xl font-bold text-gray-900 mb-3">
-            ₦{transaction.amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      <main className="px-3 py-4 max-w-2xl mx-auto space-y-4">
+        {/* Instruction Card */}
+        <div className="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-sm text-teal-900">
+          <p className="font-semibold mb-1">How to purchase:</p>
+          <p>
+            1. Transfer payment to the account below.<br />
+            2. Upload a screenshot or photo of your payment receipt.<br />
+            3. Click <strong>Submit Receipt</strong> to confirm.
           </p>
-
-          {/* Status */}
-          <div className="flex items-center justify-center gap-2">
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${transaction.status === 'completed' ? 'bg-green-100' : 'bg-yellow-100'}`}>
-              {transaction.status === 'completed' && (
-                <svg className="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-              )}
-            </div>
-            <span className={`font-semibold ${transaction.status === 'completed' ? 'text-green-600' : 'text-yellow-600'}`}>
-              {transaction.status === 'completed' ? 'Successful' : 'Pending'}
-            </span>
-          </div>
         </div>
 
-        {/* Transaction Details */}
-        <div className="bg-white rounded-2xl p-4 mb-4 shadow-sm">
-          <h3 className="font-bold text-gray-900 mb-4">Transaction Details</h3>
-
-          <div className="space-y-4">
-            {/* Credited to / Available Balance */}
-            <div className="flex justify-between pb-3 border-b border-gray-200">
-              <span className="text-gray-600 font-medium">Credited to</span>
-              <span className="font-semibold text-gray-900 text-right">
-                {userFullName}
-              </span>
-            </div>
-
-            {/* Sender Details */}
-            {transaction.type === 'withdrawal' && (
-              <div className="flex justify-between pb-3 border-b border-gray-200">
-                <span className="text-gray-600 font-medium">Account Details</span>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">{transaction.account_holder}</p>
-                  <p className="text-sm text-gray-600">{transaction.account_number}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Bank Name */}
-            {transaction.bank_name && (
-              <div className="flex justify-between pb-3 border-b border-gray-200">
-                <span className="text-gray-600 font-medium">Bank</span>
-                <span className="font-semibold text-gray-900">{transaction.bank_name}</span>
-              </div>
-            )}
-
-            {/* Transaction Type */}
-            <div className="flex justify-between pb-3 border-b border-gray-200">
-              <span className="text-gray-600 font-medium">Transaction Type</span>
-              <span className="font-semibold text-gray-900 capitalize">
-                {transaction.type === 'withdrawal' ? 'Bank Transfer' : transaction.type}
-              </span>
-            </div>
-
-            {/* Transaction Number */}
-            <div className="flex justify-between pb-3 border-b border-gray-200">
-              <span className="text-gray-600 font-medium">Transaction No.</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono font-semibold text-gray-900 text-sm">{transaction.transaction_id}</span>
-                <button
-                  onClick={() => navigator.clipboard.writeText(transaction.transaction_id)}
-                  className="p-1 hover:bg-gray-100 rounded text-xs"
-                >
-                  📋
-                </button>
-              </div>
-            </div>
-
-            {/* Transaction Date */}
-            <div className="flex justify-between pb-3 border-b border-gray-200">
-              <span className="text-gray-600 font-medium">Transaction Date</span>
-              <span className="font-semibold text-gray-900 text-sm">{formatDate(transaction.created_at)}</span>
-            </div>
-
-            {/* Session ID */}
-            {transaction.session_id && (
-              <div className="flex justify-between">
-                <span className="text-gray-600 font-medium">Session ID</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-semibold text-gray-900 text-xs">{transaction.session_id}</span>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(transaction.session_id!)}
-                    className="p-1 hover:bg-gray-100 rounded text-xs"
-                  >
-                    📋
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* More Actions */}
+        {/* Pricing Details */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h3 className="font-bold text-gray-900 mb-4">More Actions</h3>
-          <div className="flex justify-between mb-4 pb-4 border-b border-gray-200">
-            <span className="text-gray-600 font-medium">Category</span>
-            <span className="font-semibold text-gray-900 capitalize">
-              {transaction.type === 'withdrawal' ? 'Withdrawal' : transaction.type}
-            </span>
+          <h2 className="font-bold text-gray-900 mb-3">Package Details</h2>
+          <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+            <span className="text-gray-600 font-medium">BPC Rate</span>
+            <span className="font-bold text-gray-900">{bankDetails.bpcRate}</span>
           </div>
-          <button className="w-full bg-teal-500 text-white font-semibold py-3 rounded-full hover:bg-teal-600 transition flex items-center justify-center gap-2">
-            <Share2 className="w-4 h-4" />
-            Share Receipt
-          </button>
         </div>
+
+        {/* Bank Payment Details */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Building2 className="w-5 h-5 text-teal-500" />
+            <h2 className="font-bold text-gray-900">Payment Account</h2>
+          </div>
+
+          <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+            <span className="text-gray-600 text-sm font-medium">Bank Name</span>
+            <span className="font-semibold text-gray-900">{bankDetails.bankName}</span>
+          </div>
+
+          <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+            <span className="text-gray-600 text-sm font-medium">Account Number</span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono font-bold text-lg text-gray-900">
+                {bankDetails.accountNumber}
+              </span>
+              <button
+                onClick={() => handleCopy(bankDetails.accountNumber)}
+                className="p-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-700 transition"
+              >
+                {copiedAccount ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 text-sm font-medium">Account Name</span>
+            <span className="font-semibold text-gray-900 text-right">{bankDetails.accountName}</span>
+          </div>
+        </div>
+
+        {/* Receipt Upload Box */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <h2 className="font-bold text-gray-900">Upload Payment Receipt</h2>
+          
+          <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 transition bg-gray-50 relative overflow-hidden">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange} 
+              className="hidden" 
+            />
+
+            {previewUrl ? (
+              <div className="flex flex-col items-center gap-2">
+                <img 
+                  src={previewUrl} 
+                  alt="Receipt Preview" 
+                  className="max-h-48 rounded-lg object-contain border border-gray-200" 
+                />
+                <div className="flex items-center gap-1 text-sm font-medium text-teal-600 mt-2">
+                  <FileCheck className="w-4 h-4" />
+                  <span>{receiptImage?.name}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-center">
+                <UploadCloud className="w-10 h-10 text-teal-500" />
+                <span className="text-sm font-semibold text-gray-700">Click to upload receipt screenshot</span>
+                <span className="text-xs text-gray-400">PNG, JPG, or JPEG</span>
+              </div>
+            )}
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full bg-teal-500 text-white font-bold py-3.5 rounded-full hover:bg-teal-600 transition shadow-md disabled:opacity-50"
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Receipt'}
+        </button>
       </main>
     </div>
-  )
-}
-
-export default function TransactionDetailsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <TransactionDetailsContent />
-    </Suspense>
   )
 }
