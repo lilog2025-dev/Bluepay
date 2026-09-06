@@ -1,93 +1,95 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+'use client'
 
-export async function POST(request: NextRequest) {
-  try {
-    const { email, code } = await request.json()
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-    if (!email || !code) {
-      console.error('[v0] Missing email or code')
-      return NextResponse.json(
-        { error: 'Email and verification code are required' },
-        { status: 400 }
-      )
-    }
+export default function AuthForm() {
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
+  const [step, setStep] = useState<'send' | 'verify'>('send')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const router = useRouter()
 
-    console.log('[v0] Verifying OTP for email:', email)
+  // Handler for sending OTP
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
 
-    // Create server-side Supabase client
-    const supabase = await createClient()
-
-    // Use Supabase's native verifyOtp method
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: 'email',
+    const res = await fetch('/api/auth/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
     })
 
-    if (error) {
-      console.error('[v0] Supabase verifyOtp error:', error)
-      // Provide specific error messages based on Supabase response
-      let userMessage = error.message
-      if (error.message?.includes('expired')) {
-        userMessage = 'Verification code has expired. Please request a new one.'
-      } else if (error.message?.includes('invalid')) {
-        userMessage = 'Invalid verification code. Please check and try again.'
-      }
-      return NextResponse.json(
-        { error: userMessage },
-        { status: 400 }
-      )
+    const data = await res.json()
+    setLoading(false)
+
+    if (data.success) {
+      setStep('verify') // Show the code input field!
+      setMessage('Code sent to your email!')
+    } else {
+      setMessage(data.error || 'Failed to send code')
     }
-
-    console.log('[v0] OTP verified successfully for:', email)
-
-    // Create user profile in public.users table
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({
-          id: data.user.id,
-          email: data.user.email || '',
-          full_name: data.user.user_metadata?.full_name || 'User',
-        })
-        .select()
-        .single()
-
-      if (profileError && !profileError.message?.includes('duplicate')) {
-        console.error('[v0] Profile creation error:', profileError)
-      }
-
-      // Initialize wallet with default balance of 250,000 NGN
-      const { error: walletError } = await supabase
-        .from('wallets')
-        .insert({
-          user_id: data.user.id,
-          balance: 250000,
-        })
-        .select()
-        .single()
-
-      if (walletError && !walletError.message?.includes('duplicate')) {
-        console.error('[v0] Wallet initialization error:', walletError)
-        // Continue even if wallet initialization fails - user can still access the app
-      } else {
-        console.log('[v0] Wallet initialized for user:', data.user.id, 'with balance: 250000')
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Email verified successfully',
-      email: email,
-      user: data.user,
-    })
-  } catch (error) {
-    console.error('[v0] Verify OTP error:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    )
   }
+
+  // Handler for verifying OTP
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
+
+    const res = await fetch('/api/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code }),
+    })
+
+    const data = await res.json()
+    setLoading(false)
+
+    if (data.success) {
+      router.push('/dashboard') // Redirect user after successful verification
+    } else {
+      setMessage(data.error || 'Invalid code')
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
+      {step === 'send' ? (
+        <form onSubmit={handleSendOtp}>
+          <h2>Sign In to Bluepay</h2>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? 'Sending...' : 'Send Code'}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyOtp}>
+          <h2>Enter Verification Code</h2>
+          <p>Sent to {email}</p>
+          <input
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="6-digit code"
+            maxLength={6}
+            required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? 'Verifying...' : 'Verify Code'}
+          </button>
+        </form>
+      )}
+      {message && <p>{message}</p>}
+    </div>
+  )
 }
