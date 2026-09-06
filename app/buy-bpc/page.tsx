@@ -1,8 +1,21 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Copy, CheckCircle2, Building2, UploadCloud, FileCheck, AlertTriangle, Volume2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Copy,
+  CheckCircle2,
+  Building2,
+  UploadCloud,
+  FileCheck,
+  AlertTriangle,
+  Volume2,
+  Loader2,
+  XCircle,
+  MessageCircle,
+  Mail,
+} from 'lucide-react'
 
 export default function BuyBPCPage() {
   const router = useRouter()
@@ -10,14 +23,22 @@ export default function BuyBPCPage() {
   const [copiedAccount, setCopiedAccount] = useState(false)
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Verification state machine
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [countdown, setCountdown] = useState(10)
+  const [showErrorModal, setShowErrorModal] = useState(false)
+
+  // Support links - update these with your actual details
+  const TELEGRAM_LINK = 'https://t.me/available247_1'
+  const GMAIL_LINK = 'mailto:lilog2025@gmail.com'
 
   // Payment bank details
   const bankDetails = {
-    bankName: 'Moniepoint Microfinance Bank',
-    accountNumber: '6401234567', // Replace with actual account number
-    accountName: 'BLUEPAY PRO SERVICES', // Replace with actual account name
-    bpcRate: '₦5,000 per BPC Code',
+    bankName: 'Paga Bank',
+    accountNumber: '1234567890',
+    accountName: 'THE BOSS',
+    bpcRate: '₦10,500 for the BPC Code',
   }
 
   const handleCopy = (text: string) => {
@@ -46,42 +67,48 @@ export default function BuyBPCPage() {
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!receiptImage) {
       alert('Please upload your payment receipt before submitting.')
       return
     }
 
-    setIsSubmitting(true)
-
-    setTimeout(() => {
-      setIsSubmitting(false)
-      alert('Receipt submitted successfully! Your payment is under review.')
-      router.push('/dashboard')
-    }, 1500)
+    setIsVerifying(true)
+    setCountdown(10)
   }
+
+  // 10-second timer logic
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (isVerifying && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1)
+      }, 1000)
+    } else if (isVerifying && countdown === 0) {
+      setIsVerifying(false)
+      setShowErrorModal(true)
+    }
+
+    return () => clearTimeout(timer)
+  }, [isVerifying, countdown])
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 relative">
-      {/* Warning Modal Overlay */}
-      {showWarningModal && (
+      {/* 1. Initial Opay Warning Modal */}
+      {showWarningModal && !isVerifying && !showErrorModal && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-200">
-            {/* Warning Icon Header */}
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
             <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto">
               <AlertTriangle className="w-10 h-10 text-amber-500" />
             </div>
 
-            {/* Title */}
             <h2 className="text-xl font-bold text-red-600">Important Notice</h2>
 
-            {/* Body text */}
             <p className="text-sm text-gray-700 font-medium leading-relaxed">
               Please <strong className="text-gray-900">DO NOT use Opay</strong> to make payments.
               Opay transactions may not be processed correctly. Use other banks for successful transfers.
             </p>
 
-            {/* Action Buttons */}
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={handlePlayWarning}
@@ -102,7 +129,78 @@ export default function BuyBPCPage() {
         </div>
       )}
 
-      {/* Main App Bar */}
+      {/* 2. Fullscreen 10-Second Loading Overlay */}
+      {isVerifying && (
+        <div className="fixed inset-0 z-[110] bg-white flex flex-col items-center justify-center p-6 text-center space-y-6">
+          <div className="relative flex items-center justify-center">
+            <Loader2 className="w-20 h-20 text-teal-500 animate-spin" />
+            <span className="absolute font-bold text-lg text-teal-700">{countdown}s</span>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">Confirming Payment...</h2>
+            <p className="text-sm text-gray-600 max-w-xs mx-auto">
+              Please wait while our system verifies your payment receipt details.
+            </p>
+          </div>
+
+          <div className="w-48 bg-gray-200 h-2 rounded-full overflow-hidden">
+            <div
+              className="bg-teal-500 h-full transition-all duration-1000 ease-linear"
+              style={{ width: `${((10 - countdown) / 10) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 3. Payment Not Confirmed Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
+            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto">
+              <XCircle className="w-10 h-10 text-red-500" />
+            </div>
+
+            <h2 className="text-xl font-bold text-red-600">Payment Not Confirmed</h2>
+
+            <p className="text-sm text-gray-600 font-medium leading-relaxed">
+              We couldn’t automatically confirm your payment receipt. Please contact customer support for immediate manual verification.
+            </p>
+
+            <div className="space-y-2 pt-2">
+              {/* Telegram Button */}
+              <a
+                href={TELEGRAM_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Contact Support on Telegram
+              </a>
+
+              {/* Email Button */}
+              <a
+                href={GMAIL_LINK}
+                className="w-full bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-xl hover:bg-gray-200 transition flex items-center justify-center gap-2"
+              >
+                <Mail className="w-5 h-5 text-gray-600" />
+                Send Email Support
+              </a>
+
+              {/* Retry / Close */}
+              <button
+                onClick={() => setShowErrorModal(false)}
+                className="w-full text-xs text-gray-400 font-medium py-2 hover:text-gray-600"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="p-1">
@@ -203,10 +301,9 @@ export default function BuyBPCPage() {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full bg-teal-500 text-white font-bold py-3.5 rounded-full hover:bg-teal-600 transition shadow-md disabled:opacity-50"
+          className="w-full bg-teal-500 text-white font-bold py-3.5 rounded-full hover:bg-teal-600 transition shadow-md"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Receipt'}
+          Submit Receipt
         </button>
       </main>
     </div>
