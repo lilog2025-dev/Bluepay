@@ -1,7 +1,7 @@
 # PayFlex PRO V30 - Supabase Edge Function Integration Fixes
 
 ## Overview
-Fixed Supabase Edge Function integrations for DEBIT ALERT and BPC CODE VERIFICATION emails to ensure proper authentication, error handling, and email delivery across all fintech transactions.
+Fixed Supabase Edge Function integrations for DEBIT ALERT and PayFlex Code CODE VERIFICATION emails to ensure proper authentication, error handling, and email delivery across all fintech transactions.
 
 ## Changes Made
 
@@ -14,7 +14,7 @@ Fixed Supabase Edge Function integrations for DEBIT ALERT and BPC CODE VERIFICAT
   - Support for all transaction types (Withdraw, Airtime, Data, TV, Betting, Electricity)
   - Optional bank details (bankName, accountNumber, accountHolder)
 
-- **sendBPCEmail()** - Sends BPC verification emails with:
+- **sendPayFlex CodeEmail()** - Sends PayFlex Code verification emails with:
   - Authenticated Supabase session tokens
   - Automatic retry mechanism (1 retry on failure)
   - Full transaction details (amount, date, time)
@@ -67,8 +67,8 @@ Integrated email service across all transaction types:
 - Sends debit alert on successful withdrawal
 - Includes bank, account number, and account holder details
 
-#### BPC Purchase (`app/buy-bpc/page.tsx`)
-- Uses sendBPCEmail() for verification emails
+#### PayFlex Code Purchase (`app/buy-PayFlex Code/page.tsx`)
+- Uses sendPayFlex CodeEmail() for verification emails
 - Includes receipt confirmation details
 - Handles email delivery independently of UI flow
 
@@ -80,7 +80,7 @@ Integrated email service across all transaction types:
 
 ### 5. Edge Function URLs
 - **Debit Alert**: `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-debit-alert`
-- **BPC Email**: `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-bpc-email`
+- **PayFlex Code Email**: `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-PayFlex Code-email`
 
 ### 6. Data Sent to Edge Functions
 
@@ -100,7 +100,7 @@ Integrated email service across all transaction types:
 }
 ```
 
-#### send-bpc-email
+#### send-PayFlex Code-email
 ```json
 {
   "full_name": "User Full Name",
@@ -131,7 +131,7 @@ Integrated email service across all transaction types:
 4. **Betting** - Sends debit alert after successful bet placement
 5. **Electricity Payment** - Sends debit alert after successful bill payment
 6. **Withdrawal** - Sends debit alert with bank details after successful withdrawal
-7. **BPC Payment** - Sends verification email after BPC purchase confirmation
+7. **PayFlex Code Payment** - Sends verification email after PayFlex Code purchase confirmation
 
 ## Testing Checklist
 
@@ -141,7 +141,7 @@ Integrated email service across all transaction types:
 - [ ] Betting transaction sends debit alert email
 - [ ] Electricity payment sends debit alert email
 - [ ] Withdrawal sends debit alert email with bank details
-- [ ] BPC payment sends verification email
+- [ ] PayFlex Code payment sends verification email
 - [ ] Toast notifications display on success
 - [ ] Error messages display on failure
 - [ ] Retry logic works (simulate network failure)
@@ -167,7 +167,7 @@ Integrated email service across all transaction types:
 - `/app/betting/page.tsx` - Added email service integration
 - `/app/electricity/page.tsx` - Added email service integration
 - `/app/withdraw/page.tsx` - Added email service integration
-- `/app/buy-bpc/page.tsx` - Updated BPC email implementation
+- `/app/buy-PayFlex Code/page.tsx` - Updated PayFlex Code email implementation
 
 ## Deployment Notes
 

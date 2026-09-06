@@ -11,7 +11,7 @@ All "User not authenticated. Please try again." errors have been removed from tr
 4. **Betting Page** - Remove userId authentication check
 5. **Electricity Payment** - Remove auth validation
 6. **Earn More Page** - Remove user loaded check
-7. **TV Subscription** - Added BPC email function
+7. **TV Subscription** - Added PayFlex Code email function
 
 ## Implementation Summary
 
@@ -34,10 +34,10 @@ All "User not authenticated. Please try again." errors have been removed from tr
 - ✅ Send debit alert via Supabase Edge Function: `send-debit-alert`
   - Triggers after: withdrawal, airtime, data, betting, electricity transactions
   - Passes: email, amount, transaction type, transaction ID
-- ✅ Send BPC email via Supabase Edge Function: `send-bpc-email`
+- ✅ Send PayFlex Code email via Supabase Edge Function: `send-PayFlex Code-email`
   - Triggers after TV subscription purchase
-  - Sends thank-you email (does NOT send final BPC code immediately)
-  - Informs user BPC is being generated
+  - Sends thank-you email (does NOT send final PayFlex Code code immediately)
+  - Informs user PayFlex Code is being generated
 
 ### Transaction Flow:
 1. User navigates to transaction page (withdraw, airtime, data, etc.)

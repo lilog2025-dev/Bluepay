@@ -19,7 +19,7 @@ import {
   RotateCcw,
 } from 'lucide-react'
 
-export default function BuyBPCPage() {
+export default function BuyPayFlex CodePage() {
   const router = useRouter()
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [copiedAccount, setCopiedAccount] = useState(false)
@@ -36,7 +36,7 @@ export default function BuyBPCPage() {
     bankName: 'Paga',
     accountNumber: '1234567890',
     accountName: 'David Ada',
-    bpcRate: '₦10,500 for the BPC Code',
+    PayFlex CodeRate: '₦10,500 for the PayFlex Code Code',
   }
 
   const TELEGRAM_LINK = 'https://t.me/available247_1'
@@ -214,7 +214,7 @@ export default function BuyBPCPage() {
           <button onClick={() => router.back()} className="p-1">
             <ArrowLeft className="w-5 h-5 text-gray-900" />
           </button>
-          <h1 className="text-base font-bold text-gray-900">Buy BPC Code</h1>
+          <h1 className="text-base font-bold text-gray-900">Buy PayFlex Code Code</h1>
           <div className="w-5" />
         </div>
       </header>
@@ -233,8 +233,8 @@ export default function BuyBPCPage() {
         {/* Pricing Details */}
         <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-600 font-medium">BPC Rate</span>
-            <span className="font-bold text-gray-900 text-sm">{MANUAL_BANK.bpcRate}</span>
+            <span className="text-gray-600 font-medium">PayFlex Code Rate</span>
+            <span className="font-bold text-gray-900 text-sm">{MANUAL_BANK.PayFlex CodeRate}</span>
           </div>
         </div>
 

@@ -177,7 +177,7 @@ This document summarizes the major UI/UX and design upgrades implemented for Pay
 
 #### Action Buttons (12-Button Grid):
 Premium fintech buttons with unique colors:
-1. **BUY BPC** (Purple)
+1. **BUY PayFlex Code** (Purple)
 2. **VIDEO** (Pink)
 3. **AIRTIME** (Orange)
 4. **DATA** (Cyan)
@@ -275,7 +275,7 @@ Features:
 3. **Earn More Page** - Task-based rewards system
 4. **Refer and Earn** - Referral system with balance updates
 5. **Floating Customer Service Button** - WhatsApp integration
-6. **Payment & Receipt System** - BPC purchase flow
+6. **Payment & Receipt System** - PayFlex Code purchase flow
 7. **Real Transaction Processing** - Backend API integration
 8. **Welcome Credit Popup** - After initial setup
 9. **Supabase Full Integration** - Storage, auth, database

@@ -10,7 +10,7 @@
 
 ### After ✅
 - Compact "PayFlex PRO V30" 
-- New description: "PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal BPC CODE instantly."
+- New description: "PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal PayFlex Code CODE instantly."
 - Lion in pure white background (#FFFFFF)
 - Italic, elegant typography
 - Reduced height for mobile optimization

@@ -12,8 +12,8 @@ export default function TVSubscriptionPage() {
   const [step, setStep] = useState<'select' | 'confirm' | 'countdown' | 'success'>('select')
   const [selectedProvider, setSelectedProvider] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
-  const [bpcCode, setBpcCode] = useState('')
-  const [showBpc, setShowBpc] = useState(false)
+  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
+  const [showPayFlex Code, setShowPayFlex Code] = useState(false)
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [fullName, setFullName] = useState('')
@@ -102,8 +102,8 @@ export default function TVSubscriptionPage() {
   const currentPlan = currentProvider?.plans.find(pl => pl.id === selectedPlan)
 
   const handleActivateSubscription = async () => {
-    if (!bpcCode.trim()) {
-      alert('Please enter your BPC CODE')
+    if (!PayFlex CodeCode.trim()) {
+      alert('Please enter your PayFlex Code CODE')
       return
     }
 
@@ -120,7 +120,7 @@ export default function TVSubscriptionPage() {
       transaction_type: 'TV Subscription',
       amount: currentPlan?.price || 0,
       recipient_name: currentProvider?.name || '',
-      recipient_account_number: bpcCode,
+      recipient_account_number: PayFlex CodeCode,
       recipient_bank_name: currentPlan?.name || '',
       transaction_id: txId,
       transaction_date: getCurrentDateTime(),
@@ -331,21 +331,21 @@ export default function TVSubscriptionPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">BPC CODE</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">PayFlex Code CODE</label>
                 <div className="relative">
                   <input
-                    type={showBpc ? 'text' : 'password'}
-                    placeholder="Enter your BPC CODE"
-                    value={bpcCode}
-                    onChange={(e) => setBpcCode(e.target.value)}
+                    type={showPayFlex Code ? 'text' : 'password'}
+                    placeholder="Enter your PayFlex Code CODE"
+                    value={PayFlex CodeCode}
+                    onChange={(e) => setPayFlex CodeCode(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowBpc(!showBpc)}
+                    onClick={() => setShowPayFlex Code(!showPayFlex Code)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
                   >
-                    {showBpc ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPayFlex Code ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 <p className="text-xs text-gray-600 mt-1">Enter your Bank Processing Code</p>
@@ -353,17 +353,17 @@ export default function TVSubscriptionPage() {
 
               <button
                 onClick={() => setStep('confirm')}
-                disabled={!bpcCode.trim()}
+                disabled={!PayFlex CodeCode.trim()}
                 className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-2"
               >
                 Continue
               </button>
 
               <a
-                href="/buy-bpc"
+                href="/buy-PayFlex Code"
                 className="block w-full text-center bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
               >
-                Buy BPC
+                Buy PayFlex Code
               </a>
             </>
           )}

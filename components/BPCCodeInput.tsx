@@ -3,30 +3,30 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
-const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
+const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
 
-interface BPCCodeInputProps {
+interface PayFlex CodeCodeInputProps {
   onValidation: (isValid: boolean) => void
   onCodeChange?: (code: string) => void
 }
 
-export function BPCCodeInput({ onValidation, onCodeChange }: BPCCodeInputProps) {
-  const [bpcCode, setBpcCode] = useState('')
+export function PayFlex CodeCodeInput({ onValidation, onCodeChange }: PayFlex CodeCodeInputProps) {
+  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
   const [showCode, setShowCode] = useState(false)
   const [error, setError] = useState('')
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setBpcCode(value)
+    setPayFlex CodeCode(value)
     setError('')
     onCodeChange?.(value)
 
     // Validate on change
-    if (value.length === CORRECT_BPC_CODE.length) {
-      if (value === CORRECT_BPC_CODE) {
+    if (value.length === CORRECT_PayFlex Code_CODE.length) {
+      if (value === CORRECT_PayFlex Code_CODE) {
         onValidation(true)
       } else {
-        setError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
+        setError('Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction.')
         onValidation(false)
       }
     } else {
@@ -36,15 +36,15 @@ export function BPCCodeInput({ onValidation, onCodeChange }: BPCCodeInputProps) 
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-900">INPUT BPC CODE</label>
+      <label className="block text-sm font-semibold text-gray-900">INPUT PayFlex Code CODE</label>
       <div className="relative">
         <input
           type={showCode ? 'text' : 'password'}
-          value={bpcCode}
+          value={PayFlex CodeCode}
           onChange={handleCodeChange}
-          placeholder="Enter BPC Code"
+          placeholder="Enter PayFlex Code Code"
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-          maxLength={CORRECT_BPC_CODE.length}
+          maxLength={CORRECT_PayFlex Code_CODE.length}
         />
         <button
           type="button"
@@ -62,10 +62,10 @@ export function BPCCodeInput({ onValidation, onCodeChange }: BPCCodeInputProps) 
       )}
 
       <button
-        onClick={() => window.location.href = '/buy-bpc'}
+        onClick={() => window.location.href = '/buy-PayFlex Code'}
         className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
       >
-        Buy BPC
+        Buy PayFlex Code
       </button>
     </div>
   )

@@ -12,7 +12,7 @@ export default function QuickActionsPage() {
     { icon: Zap, label: 'Data', route: '/data', color: 'bg-purple-50 text-purple-600' },
     { icon: DollarSign, label: 'Bill Payment', route: '/electricity', color: 'bg-orange-50 text-orange-600' },
     { icon: TrendingUp, label: 'Betting', route: '/betting', color: 'bg-red-50 text-red-600' },
-    { icon: ShoppingCart, label: 'Buy BPC', route: '/buy-bpc', color: 'bg-indigo-50 text-indigo-600' },
+    { icon: ShoppingCart, label: 'Buy PayFlex Code', route: '/buy-PayFlex Code', color: 'bg-indigo-50 text-indigo-600' },
   ]
 
   return (

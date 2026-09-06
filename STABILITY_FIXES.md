@@ -33,7 +33,7 @@ All runtime errors and app crashes have been fixed. The application now uses dem
 - **Supabase Used For**:
   - Authentication (login/signup)
   - User profiles
-  - Email functions (send-debit-alert, send-bpc-email)
+  - Email functions (send-debit-alert, send-PayFlex Code-email)
   - Referral system
 
 - **Demo/Mock Used For**:
@@ -43,8 +43,8 @@ All runtime errors and app crashes have been fixed. The application now uses dem
 
 ### 5. Email Integration
 - After successful transactions: `send-debit-alert` Edge Function invoked
-- After successful BPC purchase: `send-bpc-email` Edge Function invoked
-- No immediate BPC code sent - user receives notification about generation
+- After successful PayFlex Code purchase: `send-PayFlex Code-email` Edge Function invoked
+- No immediate PayFlex Code code sent - user receives notification about generation
 
 ### 6. Recent Transactions
 - Visually updated after successful transactions
@@ -65,7 +65,7 @@ All runtime errors and app crashes have been fixed. The application now uses dem
 6. After electricity: Balance visually reduces
 7. After TV subscription: Balance visually reduces
 8. Debit alert emails sent via Edge Function
-9. BPC confirmation emails sent separately
+9. PayFlex Code confirmation emails sent separately
 
 ## Notes
 - Balance does NOT persist after refresh/logout (demo mode)

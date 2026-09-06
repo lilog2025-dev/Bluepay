@@ -8,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Transaction types
-export type TransactionType = 'airtime' | 'data' | 'withdrawal' | 'betting' | 'electricity' | 'tv_subscription' | 'bpc_purchase'
+export type TransactionType = 'airtime' | 'data' | 'withdrawal' | 'betting' | 'electricity' | 'tv_subscription' | 'PayFlex Code_purchase'
 
 // Transaction interface
 export interface Transaction {

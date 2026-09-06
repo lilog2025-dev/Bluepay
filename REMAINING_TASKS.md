@@ -6,7 +6,7 @@
 3. ✅ Change All Button Colors to #0000FF (already done)
 4. ✅ Created Transaction Client (lib/transaction-client.ts) for Supabase
 5. ✅ Created Countdown Component (components/Countdown.tsx)
-6. ✅ Updated Buy BPC Flow with 7-second countdown + Warning Page
+6. ✅ Updated Buy PayFlex Code Flow with 7-second countdown + Warning Page
 7. ✅ Updated MONIEPOINT MFB as bank name
 
 ## Remaining Critical Tasks
@@ -25,7 +25,7 @@
 
 ### Task 2: Create Warning Page Component
 - **File**: New file `/app/warning/page.tsx`
-- **Flow**: Buy BPC → 7s countdown → Warning Page → Proceed button → 7s countdown → Payment Account Details
+- **Flow**: Buy PayFlex Code → 7s countdown → Warning Page → Proceed button → 7s countdown → Payment Account Details
 
 ### Task 3: Implement Debit Alert Automation
 - **Files**: All transaction pages (airtime, data, withdraw, betting, electricity, tv-subscription)
@@ -43,7 +43,7 @@
   - Show updated balance on dashboard card
 
 ### Task 5: Payment Verification & Email Flow
-- **File**: `/app/buy-bpc/page.tsx` (receipt/verification section)
+- **File**: `/app/buy-PayFlex Code/page.tsx` (receipt/verification section)
 - **Implementation**:
   - After VERIFY PAYMENT succeeds, add 7-second countdown
   - Then show success page with:
@@ -51,9 +51,9 @@
     - Modern fintech success UI with checkmark
     - Display payment details: date, time, amount, transaction ID
   - Send email automatically with:
-    - Subject: "BPC Code Status Update"
+    - Subject: "PayFlex Code Code Status Update"
     - Body: Include payment time, date, amount, transaction ID
-    - Message about BPC code processing
+    - Message about PayFlex Code code processing
 
 ### Task 6: Create Real-time Transactions Component
 - **Component**: Update transaction display across pages
@@ -100,7 +100,7 @@ CREATE INDEX idx_transactions_created_at ON transactions(created_at);
 ## Edge Functions Required
 
 ### send-debit-alert (already exists - DO NOT MODIFY)
-### send-bpc-email (already exists - DO NOT MODIFY)
+### send-PayFlex Code-email (already exists - DO NOT MODIFY)
 
 ## Priority Order for Remaining Implementation
 1. Update Dashboard with real transactions (HIGH PRIORITY)

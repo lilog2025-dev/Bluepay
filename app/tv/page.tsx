@@ -13,12 +13,12 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
-import { sendBpcEmail } from '@/lib/bpc-email'
+import { sendPayFlex CodeEmail } from '@/lib/PayFlex Code-email'
 import { generateTransactionId } from '@/lib/debit-alert'
 import { getBalance, deductBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
-const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
+const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
 
 export default function TVPage() {
   const router = useRouter()
@@ -26,11 +26,11 @@ export default function TVPage() {
   const [selectedProvider, setSelectedProvider] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
   const [iucNumber, setIucNumber] = useState('')
-  const [bpcCode, setBpcCode] = useState('')
-  const [showBpcCode, setShowBpcCode] = useState(false)
+  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
+  const [showPayFlex CodeCode, setShowPayFlex CodeCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [bpcError, setBpcError] = useState('')
+  const [PayFlex CodeError, setPayFlex CodeError] = useState('')
   const [copied, setCopied] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [fullName, setFullName] = useState('')
@@ -144,9 +144,9 @@ export default function TVPage() {
       const planPrice = selectedPlanObj?.price || 0
       const newBalance = deductBalance(planPrice)
 
-      // Send BPC email to user
+      // Send PayFlex Code email to user
       const transactionId = generateTransactionId()
-      await sendBpcEmail({
+      await sendPayFlex CodeEmail({
         email: userEmail,
         account_name: fullName,
         transaction_id: transactionId,

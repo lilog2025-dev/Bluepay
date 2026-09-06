@@ -22,7 +22,7 @@ export default function SocialPage() {
       author: 'Zainab Ibrahim',
       avatar: 'Z',
       time: '4 hours ago',
-      content: 'Tip: Always check your email for BPC CODE updates. Stay secure!',
+      content: 'Tip: Always check your email for PayFlex Code CODE updates. Stay secure!',
       likes: 567,
       comments: 89,
       liked: false,

@@ -32,7 +32,7 @@
    - Add useEffect to load userId and balance
    - Update handleConfirm to use Supabase wallet system
    - Update balance display to use formatBalance
-   - Verify BPC validation and transaction recording
+   - Verify PayFlex Code validation and transaction recording
 
 2. **Fix Airtime Purchase System**
    - `/app/airtime/page.tsx`:
@@ -63,8 +63,8 @@
 
 6. **Fix TV Subscription**
    - `/app/tv/page.tsx`:
-     - Verify BPC CODE is hidden (already done)
-     - Add "BUY BPC" button linking to `/buy-bpc`
+     - Verify PayFlex Code CODE is hidden (already done)
+     - Add "BUY PayFlex Code" button linking to `/buy-PayFlex Code`
      - Deduct balance on subscription
      - Record transaction
 
@@ -100,7 +100,7 @@
 /app/data/page.tsx              - TODO
 /app/betting/page.tsx           - TODO
 /app/electricity/page.tsx       - TODO
-/app/tv/page.tsx                - TODO (only add BPC button)
+/app/tv/page.tsx                - TODO (only add PayFlex Code button)
 /app/earn/page.tsx              - TODO
 /app/transactions/page.tsx      - TODO
 /app/dashboard/page.tsx         - ✅ DONE

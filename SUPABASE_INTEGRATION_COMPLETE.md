@@ -25,7 +25,7 @@ All PayFlex PRO V30 services are now fully integrated with Supabase wallets and 
 - Proper error handling for payment failures
 
 ### 4. TV Subscription Page ✅
-- BPC CODE removed from subscription summary (kept in form for validation)
+- PayFlex Code CODE removed from subscription summary (kept in form for validation)
 - Transaction recording added with type: 'tv'
 - Balance integration complete
 - Real-time sync with dashboard

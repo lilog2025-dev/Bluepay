@@ -1,10 +1,10 @@
-# PayFlex PRO V30 - BPC Copy Functionality & Dashboard Crash Fixes
+# PayFlex PRO V30 - PayFlex Code Copy Functionality & Dashboard Crash Fixes
 
 ## Summary of Changes
 
-### 1. **BUY BPC Payment Account Copy Functionality Added** ✅
+### 1. **BUY PayFlex Code Payment Account Copy Functionality Added** ✅
 
-**Location**: `/app/buy-bpc/page.tsx`
+**Location**: `/app/buy-PayFlex Code/page.tsx`
 
 **Changes**:
 - Added `Copy` and `Check` icons from lucide-react imports
@@ -73,13 +73,13 @@ const formatDate = (date: string | undefined): string => {
 
 ✅ All 30+ pages compile successfully with ZERO errors
 ✅ No console errors during rendering
-✅ Copy functionality working on BPC page only
+✅ Copy functionality working on PayFlex Code page only
 ✅ Dashboard renders without crashes
 ✅ Recent Transactions display with correct colors and icons
 
 ## Testing Checklist
 
-- [ ] Navigate to /buy-bpc
+- [ ] Navigate to /buy-PayFlex Code
 - [ ] Click copy icons next to bank name, account number, account name, amount
 - [ ] Verify icon changes to green checkmark for 2 seconds
 - [ ] Navigate to /dashboard

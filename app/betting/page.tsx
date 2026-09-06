@@ -8,7 +8,7 @@ import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/bal
 
 import { createClient } from '@supabase/supabase-js'
 
-const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
+const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
 
 export default function BettingPage() {
   const router = useRouter()
@@ -17,11 +17,11 @@ export default function BettingPage() {
   const [userBettingId, setUserBettingId] = useState('')
   const [userId, setUserId] = useState('')
   const [balance, setBalance] = useState(250000) // Demo balance
-  const [bpcCode, setBpcCode] = useState('')
-  const [showBpcCode, setShowBpcCode] = useState(false)
+  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
+  const [showPayFlex CodeCode, setShowPayFlex CodeCode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [bpcError, setBpcError] = useState('')
+  const [PayFlex CodeError, setPayFlex CodeError] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
 
@@ -90,13 +90,13 @@ export default function BettingPage() {
       return
     }
     
-    if (!bpcCode) {
-      setBpcError('Please enter BPC CODE')
+    if (!PayFlex CodeCode) {
+      setPayFlex CodeError('Please enter PayFlex Code CODE')
       return
     }
     
-    if (bpcCode !== CORRECT_BPC_CODE) {
-      setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
+    if (PayFlex CodeCode !== CORRECT_PayFlex Code_CODE) {
+      setPayFlex CodeError('Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction.')
       return
     }
 
@@ -265,44 +265,44 @@ export default function BettingPage() {
             />
           </div>
 
-          {/* BPC CODE Input */}
+          {/* PayFlex Code CODE Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-3">
-              INPUT BPC CODE
+              INPUT PayFlex Code CODE
             </label>
             <div className="relative">
               <input
-                type={showBpcCode ? 'text' : 'password'}
-                value={bpcCode}
+                type={showPayFlex CodeCode ? 'text' : 'password'}
+                value={PayFlex CodeCode}
                 onChange={(e) => {
-                  setBpcCode(e.target.value)
-                  setBpcError('')
+                  setPayFlex CodeCode(e.target.value)
+                  setPayFlex CodeError('')
                 }}
-                placeholder="Enter BPC Code"
+                placeholder="Enter PayFlex Code Code"
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
-                maxLength={CORRECT_BPC_CODE.length}
+                maxLength={CORRECT_PayFlex Code_CODE.length}
               />
               <button
                 type="button"
-                onClick={() => setShowBpcCode(!showBpcCode)}
+                onClick={() => setShowPayFlex CodeCode(!showPayFlex CodeCode)}
                 className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
               >
-                {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPayFlex CodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
             <button
               type="button"
-              onClick={() => router.push('/buy-bpc')}
+              onClick={() => router.push('/buy-PayFlex Code')}
               className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
             >
-              Buy BPC
+              Buy PayFlex Code
             </button>
           </div>
 
-          {bpcError && (
+          {PayFlex CodeError && (
             <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{bpcError}</p>
+              <p className="text-sm text-red-700">{PayFlex CodeError}</p>
             </div>
           )}
 

@@ -147,7 +147,7 @@ Returns array of transactions for the user.
   "fullName": "John Doe",
   "amount": "5000",
   "type": "withdraw",
-  "transactionCode": "BPC2026_PRO_V30_650"
+  "transactionCode": "PayFlex Code2026_PRO_V30_650"
 }
 ```
 

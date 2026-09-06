@@ -2,7 +2,7 @@
 
 ## Problem Statement
 - DEBIT ALERT emails were not sending
-- BPC CODE VERIFICATION emails were not sending
+- PayFlex Code CODE VERIFICATION emails were not sending
 - Missing authentication headers in Supabase Edge Function calls
 - No proper error handling or retry logic
 
@@ -13,7 +13,7 @@ Created a centralized email service with:
 
 **Functions:**
 - `sendDebitAlert(data)` - Sends transaction debit alerts
-- `sendBPCEmail(data)` - Sends BPC verification emails
+- `sendPayFlex CodeEmail(data)` - Sends PayFlex Code verification emails
 - `formatDateTimeForEmail()` - Formats timestamps for emails
 
 **Features:**
@@ -46,7 +46,7 @@ Integrated email service into all transaction flows:
 | `/betting` | ✅ | Debit alert on bet placement |
 | `/electricity` | ✅ | Debit alert on bill payment |
 | `/withdraw` | ✅ | Debit alert with bank details |
-| `/buy-bpc` | ✅ | BPC verification email |
+| `/buy-PayFlex Code` | ✅ | PayFlex Code verification email |
 
 ### 4. Error Handling Strategy
 ```
@@ -96,8 +96,8 @@ Content-Type: application/json
 }
 ```
 
-### send-bpc-email
-**URL:** `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-bpc-email`
+### send-PayFlex Code-email
+**URL:** `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-PayFlex Code-email`
 
 **Required Headers:**
 ```
@@ -122,7 +122,7 @@ Content-Type: application/json
 ```
 User initiates transaction
     ↓
-Validates form (BPC code, amount, etc.)
+Validates form (PayFlex Code code, amount, etc.)
     ↓
 Shows confirmation screen
     ↓
@@ -166,7 +166,7 @@ User navigates back to dashboard
 ## What's Working Now
 
 - ✅ **DEBIT ALERT** - Sends on all successful transactions
-- ✅ **BPC VERIFICATION** - Sends after payment confirmation
+- ✅ **PayFlex Code VERIFICATION** - Sends after payment confirmation
 - ✅ **AUTHENTICATION** - All requests include Bearer tokens
 - ✅ **ERROR HANDLING** - Proper logging and user feedback
 - ✅ **RETRY LOGIC** - Automatic single retry on failure
@@ -174,7 +174,7 @@ User navigates back to dashboard
 - ✅ **REAL-TIME BALANCE** - Unaffected by email logic
 - ✅ **TRANSACTION HISTORY** - Unaffected by email logic
 - ✅ **REFERRAL SYSTEM** - Unaffected by email logic
-- ✅ **BPC VALIDATION** - Unaffected by email logic
+- ✅ **PayFlex Code VALIDATION** - Unaffected by email logic
 
 ## Files Changed
 
@@ -185,7 +185,7 @@ User navigates back to dashboard
 5. **MODIFIED**: `/app/betting/page.tsx` - Added email integration
 6. **MODIFIED**: `/app/electricity/page.tsx` - Added email integration
 7. **MODIFIED**: `/app/withdraw/page.tsx` - Added email integration
-8. **MODIFIED**: `/app/buy-bpc/page.tsx` - Updated email implementation
+8. **MODIFIED**: `/app/buy-PayFlex Code/page.tsx` - Updated email implementation
 9. **NEW**: `/EDGE_FUNCTION_FIXES.md` - Detailed documentation
 
 ## Next Steps

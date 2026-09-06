@@ -43,12 +43,12 @@ export default function EarnMorePage() {
   }
 
   const tasks = [
-    { id: 1, title: 'Share BPC to Friends', reward: 500, difficulty: 'Easy', icon: Gift },
+    { id: 1, title: 'Share PayFlex Code to Friends', reward: 500, difficulty: 'Easy', icon: Gift },
     { id: 2, title: 'Complete Your Profile', reward: 1000, difficulty: 'Easy', icon: CheckCircle },
     { id: 3, title: 'Verify Your Identity', reward: 800, difficulty: 'Medium', icon: Zap },
     { id: 4, title: 'Make 5 Transactions', reward: 1000, difficulty: 'Medium', icon: Trophy },
     { id: 5, title: 'Invite a Friend', reward: 1000, difficulty: 'Easy', icon: Gift },
-    { id: 6, title: 'Buy BPC Code', reward: 500, difficulty: 'Medium', icon: Gift },
+    { id: 6, title: 'Buy PayFlex Code Code', reward: 500, difficulty: 'Medium', icon: Gift },
     { id: 7, title: 'Set Up 2FA', reward: 600, difficulty: 'Easy', icon: Zap },
     { id: 9, title: 'Rate the App', reward: 400, difficulty: 'Easy', icon: Star },
     { id: 10, title: 'Daily Login Streak (7 days)', reward: 1000, difficulty: 'Medium', icon: Zap },

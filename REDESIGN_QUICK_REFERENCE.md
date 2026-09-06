@@ -8,7 +8,7 @@
 3. **Responsiveness** - Font sizes, icons, and spacing optimized for Android
 
 ### Payment Flow Enhancements
-1. **6-Second Countdown** - Added before BPC payment verification success
+1. **6-Second Countdown** - Added before PayFlex Code payment verification success
 2. **Better Success Page** - Displays user details, email, amount, transaction ID
 3. **Dynamic Content** - Uses actual user data instead of static values
 
