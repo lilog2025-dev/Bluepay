@@ -50,7 +50,6 @@ export default function EarnMorePage() {
     { id: 5, title: 'Invite a Friend', reward: 1000, difficulty: 'Easy', icon: Gift },
     { id: 6, title: 'Buy BPC Code', reward: 500, difficulty: 'Medium', icon: Gift },
     { id: 7, title: 'Set Up 2FA', reward: 600, difficulty: 'Easy', icon: Zap },
-    { id: 8, title: 'Watch Tutorial Video', reward: 300, difficulty: 'Easy', icon: Star },
     { id: 9, title: 'Rate the App', reward: 400, difficulty: 'Easy', icon: Star },
     { id: 10, title: 'Daily Login Streak (7 days)', reward: 1000, difficulty: 'Medium', icon: Zap },
   ]
