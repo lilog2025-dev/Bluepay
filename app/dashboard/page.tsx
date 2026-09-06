@@ -119,11 +119,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Action Grid */}
+        {/* Quick Action Grid (Cleaned 3-Column Layout without WATCH) */}
         <div className="grid grid-cols-3 gap-3">
           <button
             onClick={() => router.push('/buy-bpc')}
-            className="bg-amber-400 text-amber-950 p-3 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm hover:brightness-95 transition"
+            className="bg-[#f2b830] text-amber-950 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm active:scale-95 transition"
           >
             <CreditCard className="w-5 h-5" />
             <span>BUY BPC</span>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/airtime')}
-            className="bg-emerald-500 text-white p-3 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm hover:brightness-95 transition"
+            className="bg-[#52c463] text-white p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm active:scale-95 transition"
           >
             <Phone className="w-5 h-5" />
             <span>AIRTIME</span>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/data')}
-            className="bg-slate-600 text-white p-3 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm hover:brightness-95 transition"
+            className="bg-[#606a7b] text-white p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm active:scale-95 transition"
           >
             <Wifi className="w-5 h-5" />
             <span>DATA</span>
@@ -150,45 +150,53 @@ export default function DashboardPage() {
         <div>
           <h4 className="text-xs font-bold text-gray-700 mb-2.5">More Services</h4>
           <div className="grid grid-cols-4 gap-2.5">
-            <button className="bg-sky-400 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#4fc3f7] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <Headphones className="w-4 h-4" />
               <span>SUPPORT</span>
             </button>
 
-            <button className="bg-purple-500 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#ab47bc] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <Users className="w-4 h-4" />
               <span>GROUP</span>
             </button>
 
-            <button className="bg-amber-400 text-amber-950 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#f2b830] text-amber-950 p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <DollarSign className="w-4 h-4" />
               <span>EARN</span>
             </button>
 
-            <button className="bg-pink-500 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#ec407a] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <BarChart2 className="w-4 h-4" />
               <span>DATA REVIEW</span>
             </button>
 
-            <button className="bg-indigo-600 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#5c6bc0] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <Dices className="w-4 h-4" />
               <span>BETTING</span>
             </button>
 
-            <button className="bg-red-500 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#ef5350] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <Tv className="w-4 h-4" />
               <span className="text-[9px] text-center leading-tight">TV SUBSCRIPTION</span>
             </button>
 
-            <button className="bg-amber-600 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#8d6e63] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <Zap className="w-4 h-4" />
               <span>ELECTRICITY</span>
             </button>
 
-            <button className="bg-emerald-400 text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
+            <button className="bg-[#26a69a] text-white p-2.5 rounded-xl flex flex-col items-center justify-center gap-1 font-semibold text-[10px] shadow-sm">
               <Share2 className="w-4 h-4" />
               <span className="text-[9px] text-center leading-tight">REFER AND EARN</span>
             </button>
+          </div>
+        </div>
+
+        {/* Carousel / Banner Box */}
+        <div className="relative rounded-2xl bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 h-32 p-4 text-white flex flex-col justify-end overflow-hidden shadow-sm">
+          <div className="relative z-10">
+            <h5 className="font-bold text-sm">HILO Plus</h5>
+            <p className="text-[11px] text-gray-200">New Premium Device Launch</p>
           </div>
         </div>
       </main>
