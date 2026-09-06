@@ -1,32 +1,72 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Play, Zap } from 'lucide-react'
+import { ArrowLeft, Play, X, Film } from 'lucide-react'
 
-export default function WatchPage() {
+interface VideoItem {
+  id: string
+  title: string
+  category: string
+  duration: string
+  youtubeId: string
+  thumbnailUrl?: string
+}
+
+const VIDEOS: VideoItem[] = [
+  {
+    id: '1',
+    title: 'How to Maximize Your BPC CODE',
+    category: 'Tutorials',
+    duration: '5:32',
+    youtubeId: 'dQw4w9WgXcQ', // Replace with your YouTube Video ID
+  },
+  {
+    id: '2',
+    title: 'Latest Crypto Market Trends',
+    category: 'Market Updates',
+    duration: '8:15',
+    youtubeId: 'dQw4w9WgXcQ', // Replace with your YouTube Video ID
+  },
+  {
+    id: '3',
+    title: 'Money Management Tips',
+    category: 'Tips',
+    duration: '6:42',
+    youtubeId: 'dQw4w9WgXcQ', // Replace with your YouTube Video ID
+  },
+  {
+    id: '4',
+    title: 'Digital Banking Guide 2026',
+    category: 'Tutorials',
+    duration: '7:18',
+    youtubeId: 'dQw4w9WgXcQ', // Replace with your YouTube Video ID
+  },
+  {
+    id: '5',
+    title: 'Financial News Roundup',
+    category: 'News',
+    duration: '4:50',
+    youtubeId: 'dQw4w9WgXcQ', // Replace with your YouTube Video ID
+  },
+]
+
+const CATEGORIES = ['All', 'News', 'Tips', 'Tutorials', 'Market Updates']
+
+export default function WatchAndLearnPage() {
   const router = useRouter()
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
 
-  const categories = ['All', 'News', 'Tips', 'Tutorials', 'Market Updates']
-  
-  const videos = [
-    { id: 1, title: 'How to Maximize Your BPC CODE', category: 'Tutorials', thumbnail: '🎥', duration: '5:32' },
-    { id: 2, title: 'Latest Crypto Market Trends', category: 'Market Updates', thumbnail: '📈', duration: '8:15' },
-    { id: 3, title: 'Money Management Tips', category: 'Tips', thumbnail: '💰', duration: '6:42' },
-    { id: 4, title: 'Digital Banking Guide 2026', category: 'Tutorials', thumbnail: '🏦', duration: '7:18' },
-    { id: 5, title: 'Financial News Roundup', category: 'News', thumbnail: '📰', duration: '9:05' },
-    { id: 6, title: 'Investment Basics', category: 'Tips', thumbnail: '📊', duration: '6:50' },
-  ]
-
-  const filteredVideos = selectedCategory === 'all' 
-    ? videos 
-    : videos.filter(v => v.category.toLowerCase() === selectedCategory.toLowerCase())
+  const filteredVideos =
+    selectedCategory === 'All'
+      ? VIDEOS
+      : VIDEOS.filter((v) => v.category.toLowerCase() === selectedCategory.toLowerCase())
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20 relative">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-2 px-3">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="p-1">
             <ArrowLeft className="w-5 h-5 text-gray-900" />
@@ -36,47 +76,104 @@ export default function WatchPage() {
         </div>
       </header>
 
-      <main className="px-3 py-3 max-w-2xl mx-auto">
-        {/* Category Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 -mx-3 px-3">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category.toLowerCase())}
-              className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm font-semibold transition ${
-                selectedCategory === category.toLowerCase()
-                  ? 'bg-[#0000ff] text-white'
-                  : 'bg-gray-200 text-gray-900'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+      {/* Category Pills Header */}
+      <div className="bg-white border-b border-gray-200 px-3 py-3 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 min-w-max">
+          {CATEGORIES.map((cat) => {
+            const isActive = selectedCategory === cat
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {cat}
+              </button>
+            )
+          })}
         </div>
+      </div>
 
-        {/* Videos Grid */}
-        <div className="space-y-3">
-          {filteredVideos.map(video => (
-            <div key={video.id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition">
-              <div className="flex gap-3 p-2.5">
-                <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center text-4xl flex-shrink-0 relative">
-                  {video.thumbnail}
-                  <button className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition">
-                    <Play className="w-8 h-8 text-white fill-white" />
-                  </button>
+      {/* Video Cards List */}
+      <main className="px-3 py-4 max-w-2xl mx-auto space-y-3">
+        {filteredVideos.map((video) => (
+          <div
+            key={video.id}
+            onClick={() => setActiveVideo(video)}
+            className="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 flex items-center gap-3 cursor-pointer hover:shadow-md transition active:scale-[0.99]"
+          >
+            {/* Thumbnail Box */}
+            <div className="relative w-28 h-20 bg-gray-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+              {video.thumbnailUrl ? (
+                <img
+                  src={video.thumbnailUrl}
+                  alt={video.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                  <Film className="w-8 h-8 text-gray-500" />
                 </div>
-                <div className="flex-1 flex flex-col justify-between min-w-0">
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm line-clamp-2">{video.title}</p>
-                    <p className="text-xs text-gray-600 mt-0.5">{video.category}</p>
-                  </div>
-                  <p className="text-xs text-gray-500">{video.duration}</p>
+              )}
+
+              {/* Overlay Play Icon */}
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-md">
+                  <Play className="w-4 h-4 text-gray-900 fill-gray-900 ml-0.5" />
                 </div>
               </div>
+
+              {/* Duration Badge */}
+              <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                {video.duration}
+              </span>
             </div>
-          ))}
-        </div>
+
+            {/* Video Details */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug mb-1">
+                {video.title}
+              </h3>
+              <p className="text-xs text-gray-500 font-medium">{video.category}</p>
+            </div>
+          </div>
+        ))}
       </main>
+
+      {/* Video Player Modal */}
+      {activeVideo && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-white">
+              <h3 className="font-bold text-gray-900 text-sm truncate pr-2">
+                {activeVideo.title}
+              </h3>
+              <button
+                onClick={() => setActiveVideo(null)}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Embedded Responsive Player */}
+            <div className="relative aspect-video bg-black">
+              <iframe
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1`}
+                title={activeVideo.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
