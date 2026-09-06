@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Play, Pause, X, Film, TrendingUp } from 'lucide-react'
-import { getBalance, updateBalance } from '@/lib/balance-store'
+import { getBalance, addEarnings } from '@/lib/balance-store'
 
 interface VideoItem {
   id: string
@@ -51,14 +51,15 @@ export default function WatchAndLearnPage() {
   const router = useRouter()
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
+  // Balance & Session State
   const [balance, setBalance] = useState<number>(250000)
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null)
-  const [isPlaying, setIsPlaying] = useState<boolean>(false)
+  const [isEarning, setIsEarning] = useState<boolean>(false)
   const [secondsWatched, setSecondsWatched] = useState<number>(0)
   const [sessionEarnings, setSessionEarnings] = useState<number>(0)
 
-  // 1. Load balance on mount & listen to balance store changes
+  // 1. Sync live balance from store on mount & listen to store updates
   useEffect(() => {
     setBalance(getBalance())
 
@@ -67,42 +68,46 @@ export default function WatchAndLearnPage() {
     }
 
     window.addEventListener('balanceChange', handleBalanceChange)
-    return () => window.removeEventListener('balanceChange', handleBalanceChange)
+    window.addEventListener('storage', handleBalanceChange)
+
+    return () => {
+      window.removeEventListener('balanceChange', handleBalanceChange)
+      window.removeEventListener('storage', handleBalanceChange)
+    }
   }, [])
 
-  // 2. Guaranteed 1-second interval addition while video modal is active and playing
+  // 2. Guaranteed Live Earning Timer (+₦100/sec)
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null
+    let interval: NodeJS.Timeout | null = null
 
-    if (activeVideo && isPlaying) {
-      timer = setInterval(() => {
+    if (activeVideo && isEarning) {
+      interval = setInterval(() => {
         setSecondsWatched((prev) => prev + 1)
         setSessionEarnings((prev) => prev + 100)
 
-        // Force balance addition of +100 Naira directly to store
-        setBalance((prevBal) => {
-          const nextBal = prevBal + 100
-          updateBalance(nextBal)
-          return nextBal
-        })
+        // Increment store balance and refresh local UI
+        const newBal = addEarnings(100)
+        setBalance(newBal)
       }, 1000)
     }
 
     return () => {
-      if (timer) clearInterval(timer)
+      if (interval) clearInterval(interval)
     }
-  }, [activeVideo, isPlaying])
+  }, [activeVideo, isEarning])
 
+  // Open modal and immediately start earning
   const handleOpenVideo = (video: VideoItem) => {
     setActiveVideo(video)
-    setIsPlaying(true) // Start earnings immediately upon opening video modal
+    setIsEarning(true)
   }
 
+  // Close modal & stop earning
   const handleCloseModal = () => {
     if (videoRef.current) {
       videoRef.current.pause()
     }
-    setIsPlaying(false)
+    setIsEarning(false)
     setActiveVideo(null)
   }
 
@@ -113,7 +118,7 @@ export default function WatchAndLearnPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 relative">
-      {/* Top Navigation */}
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="p-1">
@@ -124,7 +129,7 @@ export default function WatchAndLearnPage() {
         </div>
       </header>
 
-      {/* Live Balance Summary */}
+      {/* Available Balance Summary */}
       <div className="px-3 pt-3 max-w-2xl mx-auto">
         <div className="bg-[#0000ff] rounded-2xl p-4 text-white shadow-md">
           <div className="flex justify-between items-start">
@@ -134,7 +139,7 @@ export default function WatchAndLearnPage() {
                 NGN {balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </h2>
             </div>
-            {isPlaying && (
+            {isEarning && (
               <span className="flex items-center gap-1 bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">
                 +₦100 / sec
               </span>
@@ -143,12 +148,12 @@ export default function WatchAndLearnPage() {
 
           <div className="mt-3 pt-2 border-t border-blue-400/30 flex justify-between text-xs text-blue-100">
             <span>Watch Time: {secondsWatched}s</span>
-            <span>Earned: +₦{sessionEarnings.toLocaleString()}</span>
+            <span className="font-bold text-emerald-300">Earned: +₦{sessionEarnings.toLocaleString()}</span>
           </div>
         </div>
       </div>
 
-      {/* Category Pills */}
+      {/* Category Tabs */}
       <div className="bg-white border-b border-gray-200 px-3 py-3 my-3 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-2 min-w-max">
           {CATEGORIES.map((cat) => (
@@ -167,7 +172,7 @@ export default function WatchAndLearnPage() {
         </div>
       </div>
 
-      {/* Video Cards */}
+      {/* Video Cards List */}
       <main className="px-3 py-1 max-w-2xl mx-auto space-y-3">
         {filteredVideos.map((video) => (
           <div
@@ -208,7 +213,7 @@ export default function WatchAndLearnPage() {
         ))}
       </main>
 
-      {/* Video Player Modal with Direct Play Controls */}
+      {/* Video Player Modal */}
       {activeVideo && (
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl overflow-hidden max-w-lg w-full shadow-2xl relative">
@@ -224,6 +229,7 @@ export default function WatchAndLearnPage() {
               </button>
             </div>
 
+            {/* Video Player Box */}
             <div className="relative aspect-video bg-black flex items-center justify-center">
               <video
                 ref={videoRef}
@@ -232,25 +238,25 @@ export default function WatchAndLearnPage() {
                 playsInline
                 preload="metadata"
                 className="w-full h-full object-contain"
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
+                onPlay={() => setIsEarning(true)}
+                onPause={() => setIsEarning(false)}
+                onEnded={() => setIsEarning(false)}
               >
                 <source src={activeVideo.videoUrl} type="video/mp4" />
                 Your browser does not support video playback.
               </video>
 
-              {isPlaying && (
+              {isEarning && (
                 <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1">
                   <TrendingUp className="w-3.5 h-3.5" /> +₦100 / sec
                 </div>
               )}
             </div>
 
-            {/* Manual Toggle Controls */}
+            {/* Manual Earning Session Controls */}
             <div className="p-3 bg-gray-50 flex items-center justify-between border-t border-gray-100">
               <p className="text-xs text-gray-600 font-medium">
-                {isPlaying ? (
+                {isEarning ? (
                   <span className="text-emerald-600 font-bold animate-pulse">
                     Session Active (+₦100/sec)
                   </span>
@@ -261,23 +267,23 @@ export default function WatchAndLearnPage() {
 
               <button
                 onClick={() => {
-                  if (isPlaying) {
+                  if (isEarning) {
                     if (videoRef.current) videoRef.current.pause()
-                    setIsPlaying(false)
+                    setIsEarning(false)
                   } else {
-                    if (videoRef.current) videoRef.current.play()
-                    setIsPlaying(true)
+                    if (videoRef.current) videoRef.current.play().catch(() => {})
+                    setIsEarning(true)
                   }
                 }}
-                className="px-3 py-1.5 bg-[#0000ff] text-white font-bold rounded-lg text-xs flex items-center gap-1 hover:bg-blue-700 transition"
+                className="px-3.5 py-1.5 bg-[#0000ff] text-white font-bold rounded-lg text-xs flex items-center gap-1.5 hover:bg-blue-700 transition"
               >
-                {isPlaying ? (
+                {isEarning ? (
                   <>
-                    <Pause className="w-3.5 h-3.5" /> Pause
+                    <Pause className="w-3.5 h-3.5" /> Pause Session
                   </>
                 ) : (
                   <>
-                    <Play className="w-3.5 h-3.5 fill-current" /> Resume Earning
+                    <Play className="w-3.5 h-3.5 fill-current" /> Resume Session
                   </>
                 )}
               </button>
