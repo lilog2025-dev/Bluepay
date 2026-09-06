@@ -18,7 +18,11 @@ function TransactionDetailsContent() {
   }, [transactionId])
 
   const loadTransactionDetails = async () => {
-    if (!transactionId) return
+    // If no transactionId parameter in URL, stop loading state immediately
+    if (!transactionId) {
+      setLoading(false)
+      return
+    }
 
     try {
       const { createClient } = await import('@supabase/supabase-js')
@@ -131,7 +135,7 @@ function TransactionDetailsContent() {
         <div className="bg-white rounded-2xl p-6 text-center mb-4 shadow-sm">
           {/* Avatar with Initial */}
           <div className="w-16 h-16 bg-[#0000ff] rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
-            {userFullName.charAt(0).toUpperCase()}
+            {userFullName ? userFullName.charAt(0).toUpperCase() : 'U'}
           </div>
 
           {/* Transaction Type and User */}
@@ -141,7 +145,7 @@ function TransactionDetailsContent() {
 
           {/* Amount */}
           <p className="text-4xl font-bold text-gray-900 mb-3">
-            ₦{transaction.amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ₦{transaction.amount?.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
 
           {/* Status */}
@@ -164,11 +168,11 @@ function TransactionDetailsContent() {
           <h3 className="font-bold text-gray-900 mb-4">Transaction Details</h3>
 
           <div className="space-y-4">
-            {/* Credited to / Available Balance */}
+            {/* Credited to */}
             <div className="flex justify-between pb-3 border-b border-gray-200">
               <span className="text-gray-600 font-medium">Credited to</span>
               <span className="font-semibold text-gray-900 text-right">
-                {userFullName}
+                {userFullName || 'N/A'}
               </span>
             </div>
 
@@ -205,7 +209,7 @@ function TransactionDetailsContent() {
               <div className="flex items-center gap-2">
                 <span className="font-mono font-semibold text-gray-900 text-sm">{transaction.transaction_id}</span>
                 <button
-                  onClick={() => navigator.clipboard.writeText(transaction.transaction_id)}
+                  onClick={() => transaction.transaction_id && navigator.clipboard.writeText(transaction.transaction_id)}
                   className="p-1 hover:bg-gray-100 rounded text-xs"
                 >
                   📋
@@ -216,7 +220,9 @@ function TransactionDetailsContent() {
             {/* Transaction Date */}
             <div className="flex justify-between pb-3 border-b border-gray-200">
               <span className="text-gray-600 font-medium">Transaction Date</span>
-              <span className="font-semibold text-gray-900 text-sm">{formatDate(transaction.created_at)}</span>
+              <span className="font-semibold text-gray-900 text-sm">
+                {transaction.created_at ? formatDate(transaction.created_at) : 'N/A'}
+              </span>
             </div>
 
             {/* Session ID */}
