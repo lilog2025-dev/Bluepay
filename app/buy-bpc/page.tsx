@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Copy, CheckCircle2, Building2, UploadCloud, FileCheck } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle2, Building2, UploadCloud, FileCheck, AlertTriangle, Volume2 } from 'lucide-react'
 
 export default function BuyBPCPage() {
   const router = useRouter()
+  const [showWarningModal, setShowWarningModal] = useState(true)
   const [copiedAccount, setCopiedAccount] = useState(false)
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -33,6 +34,18 @@ export default function BuyBPCPage() {
     }
   }
 
+  const handlePlayWarning = () => {
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance(
+        'Please DO NOT use Opay to make payments. Opay transactions may not be processed correctly. Use other banks for successful transfers.'
+      )
+      speech.rate = 0.9
+      window.speechSynthesis.speak(speech)
+    } else {
+      alert('Audio warning is not supported on this device.')
+    }
+  }
+
   const handleSubmit = async () => {
     if (!receiptImage) {
       alert('Please upload your payment receipt before submitting.')
@@ -41,7 +54,6 @@ export default function BuyBPCPage() {
 
     setIsSubmitting(true)
 
-    // Simulate submission delay or upload logic to Supabase storage
     setTimeout(() => {
       setIsSubmitting(false)
       alert('Receipt submitted successfully! Your payment is under review.')
@@ -50,8 +62,47 @@ export default function BuyBPCPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-50 pb-20 relative">
+      {/* Warning Modal Overlay */}
+      {showWarningModal && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 animate-in fade-in zoom-in duration-200">
+            {/* Warning Icon Header */}
+            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-10 h-10 text-amber-500" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-xl font-bold text-red-600">Important Notice</h2>
+
+            {/* Body text */}
+            <p className="text-sm text-gray-700 font-medium leading-relaxed">
+              Please <strong className="text-gray-900">DO NOT use Opay</strong> to make payments.
+              Opay transactions may not be processed correctly. Use other banks for successful transfers.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={handlePlayWarning}
+                className="flex-1 bg-blue-600 text-white text-xs font-semibold py-3 px-2 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <Volume2 className="w-4 h-4" />
+                Play Warning
+              </button>
+
+              <button
+                onClick={() => setShowWarningModal(false)}
+                className="flex-1 bg-emerald-500 text-white text-xs font-semibold py-3 px-2 rounded-xl hover:bg-emerald-600 transition shadow-sm"
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main App Bar */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-3">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="p-1">
@@ -63,7 +114,7 @@ export default function BuyBPCPage() {
       </header>
 
       <main className="px-3 py-4 max-w-2xl mx-auto space-y-4">
-        {/* Instruction Card */}
+        {/* Instruction Banner */}
         <div className="bg-teal-50 border border-teal-200 rounded-2xl p-4 text-sm text-teal-900">
           <p className="font-semibold mb-1">How to purchase:</p>
           <p>
@@ -118,7 +169,7 @@ export default function BuyBPCPage() {
         {/* Receipt Upload Box */}
         <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
           <h2 className="font-bold text-gray-900">Upload Payment Receipt</h2>
-          
+
           <label className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 transition bg-gray-50 relative overflow-hidden">
             <input 
               type="file" 
