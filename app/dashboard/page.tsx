@@ -23,14 +23,24 @@ import {
   User, 
   HelpCircle 
 } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
 import { getBalance } from '@/lib/balance-store'
 
 export default function DashboardPage() {
   const router = useRouter()
   const [balance, setBalance] = useState<number>(250000)
   const [showBalance, setShowBalance] = useState<boolean>(true)
+  const [userName, setUserName] = useState<string>('User')
+
+  const getSupabaseClient = () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !supabaseKey) return null
+    return createClient(supabaseUrl, supabaseKey)
+  }
 
   useEffect(() => {
+    // 1. Fetch balance
     setBalance(getBalance())
 
     const handleBalanceChange = () => {
@@ -40,11 +50,44 @@ export default function DashboardPage() {
     window.addEventListener('balanceChange', handleBalanceChange)
     window.addEventListener('storage', handleBalanceChange)
 
+    // 2. Load dynamic user name
+    const loadUserData = async () => {
+      try {
+        const supabase = getSupabaseClient()
+        if (supabase) {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session?.user?.id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', session.user.id)
+              .single()
+            if (profile?.full_name) {
+              setUserName(profile.full_name)
+              return
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching name from Supabase:', err)
+      }
+
+      // Fallback to local storage if Supabase session is unavailable
+      if (typeof window !== 'undefined') {
+        const localName = localStorage.getItem('userName') || localStorage.getItem('user_name') || localStorage.getItem('fullName')
+        if (localName) setUserName(localName)
+      }
+    }
+
+    loadUserData()
+
     return () => {
       window.removeEventListener('balanceChange', handleBalanceChange)
       window.removeEventListener('storage', handleBalanceChange)
     }
   }, [])
+
+  const initial = userName ? userName.charAt(0).toUpperCase() : 'U'
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -70,12 +113,12 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-900 text-white rounded-full flex items-center justify-center font-bold text-lg relative">
-              U
+              {initial}
               <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
             <div>
               <p className="text-xs text-gray-500 font-medium">Good Day</p>
-              <h2 className="text-base font-bold text-gray-900">User</h2>
+              <h2 className="text-base font-bold text-gray-900">{userName}</h2>
             </div>
           </div>
           <button className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md">
@@ -222,7 +265,7 @@ export default function DashboardPage() {
           <span>Support</span>
         </button>
 
-        <button className="flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[10px]">
+        <button onClick={() => router.push('/profile')} className="flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[10px]">
           <User className="w-5 h-5" />
           <span>Profile</span>
         </button>
