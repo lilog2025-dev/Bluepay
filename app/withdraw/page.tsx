@@ -16,6 +16,8 @@ import {
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
 import { deductBalance, getBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
+import { BankSelector } from '@/components/bank-selector'
+import { Bank } from '@/lib/nigerian-banks'
 
 const CORRECT_BPC_CODE = 'BPC2026_PRO_V30_650'
 
@@ -23,7 +25,7 @@ export default function WithdrawPage() {
   const router = useRouter()
   const [step, setStep] = useState<'form' | 'confirm' | 'success'>('form')
   const [amount, setAmount] = useState('')
-  const [selectedBank, setSelectedBank] = useState('')
+  const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
   const [accountNumber, setAccountNumber] = useState('')
   const [accountName, setAccountName] = useState('')
   const [bpcCode, setBpcCode] = useState('')
@@ -36,37 +38,6 @@ export default function WithdrawPage() {
   const [userId, setUserId] = useState('')
   const [balance, setBalance] = useState(250000) // Will load from store
   const [copiedField, setCopiedField] = useState<string | null>(null)
-
-  const banks = [
-    { name: 'OPAY', code: 'OPAY' },
-    { name: 'PALMPAY', code: 'PALMPAY' },
-    { name: 'MONIEPOINT', code: 'MONIEPOINT' },
-    { name: 'SMART CASH', code: 'SMARTCASH' },
-    { name: '9JA BANK', code: '9JA' },
-    { name: 'MOMO MFB', code: 'MOMO' },
-    { name: 'PAYSTACK TITAN', code: 'PAYSTACK' },
-    { name: 'MOREMONEE', code: 'MOREMONEE' },
-    { name: 'STANBIC IBTC', code: '221' },
-    { name: 'FAIRMONEY', code: 'FAIRMONEY' },
-    { name: 'CITI BANK', code: '023' },
-    { name: 'LAPO MICROFINANCE BANK', code: 'LAPO' },
-    { name: 'ACCESS BANK', code: '044' },
-    { name: 'GTBANK', code: '007' },
-    { name: 'FIRST BANK', code: '011' },
-    { name: 'UBA', code: '033' },
-    { name: 'ZENITH', code: '050' },
-    { name: 'FIDELITY BANK', code: '070' },
-    { name: 'FCMB', code: '214' },
-    { name: 'STANDARD CHARTERED', code: '068' },
-    { name: 'KUDA', code: 'KUDA' },
-    { name: 'UNION BANK', code: '032' },
-    { name: 'ECOBANK', code: '050' },
-    { name: 'WEMA BANK', code: '035' },
-    { name: 'POLARIS BANK', code: '076' },
-    { name: 'JAIZ BANK', code: '301' },
-    { name: 'KEYSTONE BANK', code: '082' },
-    { name: 'PROVIDUS BANK', code: '101' },
-  ]
 
   React.useEffect(() => {
     // Only run on client side
@@ -184,7 +155,7 @@ export default function WithdrawPage() {
         amount: withdrawAmount,
         recipient_name: accountName,
         recipient_account_number: accountNumber,
-        recipient_bank_name: selectedBank,
+        recipient_bank_name: selectedBank?.name || '',
         transaction_id: transactionId,
         transaction_date: getCurrentDateTime(),
       })
@@ -197,7 +168,7 @@ export default function WithdrawPage() {
         type: 'withdrawal',
         amount: withdrawAmount,
         status: 'success',
-        description: `Withdrawal to ${selectedBank} - ${accountNumber}`,
+        description: `Withdrawal to ${selectedBank?.name} - ${accountNumber}`,
       })
       
       setStep('success')
@@ -217,10 +188,10 @@ export default function WithdrawPage() {
         setStep('form')
         setError('')
       } else if (step === 'success') {
-        // Don't use router.push, just reset state and go back to form
+        // Reset state and return to form
         setStep('form')
         setAmount('')
-        setSelectedBank('')
+        setSelectedBank(null)
         setAccountNumber('')
         setAccountName('')
         setError('')
@@ -229,8 +200,6 @@ export default function WithdrawPage() {
       console.error('[v0] Navigation error:', err)
     }
   }
-
-  const selectedBankObj = banks.find((b) => b.name === selectedBank)
 
   return (
     <div className="min-h-screen bg-white pb-6">
@@ -289,7 +258,7 @@ export default function WithdrawPage() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="Enter amount"
-                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent"
+                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent text-gray-900"
                 />
               </div>
               <p className="text-xs text-gray-600 mt-2">
@@ -317,23 +286,15 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Bank Selection */}
+            {/* Bank Selection Modal Trigger */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Select Bank
               </label>
-              <select
-                value={selectedBank}
-                onChange={(e) => setSelectedBank(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent"
-              >
-                <option value="">Choose your bank</option>
-                {banks.map((bank) => (
-                  <option key={bank.code} value={bank.name}>
-                    {bank.name}
-                  </option>
-                ))}
-              </select>
+              <BankSelector
+                selectedBank={selectedBank}
+                onSelectBank={(bank) => setSelectedBank(bank)}
+              />
             </div>
 
             {/* Account Number */}
@@ -346,7 +307,7 @@ export default function WithdrawPage() {
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
                 placeholder="10 digit account number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent text-gray-900"
               />
             </div>
 
@@ -360,7 +321,7 @@ export default function WithdrawPage() {
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
                 placeholder="Full name as shown on bank account"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent text-gray-900"
               />
             </div>
 
@@ -378,7 +339,7 @@ export default function WithdrawPage() {
                     setBpcError('')
                   }}
                   placeholder="Enter BPC Code"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10 text-gray-900"
                   maxLength={CORRECT_BPC_CODE.length}
                 />
                 <button
@@ -481,10 +442,10 @@ export default function WithdrawPage() {
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1">
                     <p className="text-xs text-gray-600 mb-1">Destination Bank</p>
-                    <p className="font-semibold text-gray-900">{selectedBank}</p>
+                    <p className="font-semibold text-gray-900">{selectedBank?.name}</p>
                   </div>
                   <button
-                    onClick={() => handleCopy(selectedBank, 'bank')}
+                    onClick={() => handleCopy(selectedBank?.name || '', 'bank')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
                     title="Copy bank name"
                   >
@@ -580,7 +541,7 @@ export default function WithdrawPage() {
         {/* Success Step */}
         {step === 'success' && (
           <div className="space-y-3 text-center py-4">
-            {/* Success Icon - Bank Building */}
+            {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center">
                 <svg className="w-12 h-12 text-green-600" viewBox="0 0 24 24" fill="currentColor">
@@ -646,7 +607,7 @@ export default function WithdrawPage() {
               <div className="flex justify-between">
                 <span className="text-gray-600">Destination Bank</span>
                 <span className="font-semibold text-gray-900">
-                  {selectedBank}
+                  {selectedBank?.name}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -673,10 +634,8 @@ export default function WithdrawPage() {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  // Dispatch event to notify dashboard of updates
                   window.dispatchEvent(new Event('balanceChange'))
                   window.dispatchEvent(new Event('transactionsChange'))
-                  // Navigate to dashboard
                   router.push('/dashboard')
                 }}
                 className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
@@ -687,7 +646,7 @@ export default function WithdrawPage() {
                 onClick={() => {
                   setStep('form')
                   setAmount('')
-                  setSelectedBank('')
+                  setSelectedBank(null)
                   setAccountNumber('')
                   setAccountName('')
                   setError('')
