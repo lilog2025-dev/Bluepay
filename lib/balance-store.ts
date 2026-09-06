@@ -2,6 +2,16 @@
 
 export const INITIAL_BALANCE = 250000
 
+export interface Transaction {
+  id?: string
+  title?: string
+  amount: number
+  type?: 'credit' | 'debit' | 'earning' | string
+  date?: string
+  status?: string
+  [key: string]: unknown
+}
+
 export function getBalance(): number {
   if (typeof window === 'undefined') return INITIAL_BALANCE
   const saved = localStorage.getItem('user_balance')
@@ -41,8 +51,7 @@ export function deductBalance(amount: number): number {
   return updateBalance(updated)
 }
 
-export function addTransaction(tx: any): void {
-  // Dispatches transaction events or safely handles transaction history logging
+export function addTransaction(tx: Transaction | unknown): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('transactionAdded', { detail: tx }))
   }
