@@ -13,8 +13,8 @@
 - Optimized balance card
 - Inline Daily Allocation
 
-### Security (PayFlex Code CODE)
-**Constant:** `PayFlex Code2026_PRO_V30_650`
+### Security (PayFlexCode CODE)
+**Constant:** `PayFlexCode2026_PRO_V30_650`
 
 **Implemented On:**
 - ✅ Withdraw Page
@@ -28,7 +28,7 @@
 - Eye toggle to show/hide
 - Real-time validation
 - Error message display
-- "Buy PayFlex Code" redirect button
+- "Buy PayFlexCode" redirect button
 
 ### Pages Optimized
 - Max width: `max-w-sm`
@@ -40,17 +40,17 @@
 ## What's Needed ✅ Remaining
 
 ### TV Subscription Page (`/tv-subscription`)
-1. Add PayFlex Code imports: `Eye, EyeOff, AlertCircle`
-2. Add constant: `const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'`
-3. Add state: `PayFlex CodeCode, showPayFlex CodeCode, PayFlex CodeError`
+1. Add PayFlexCode imports: `Eye, EyeOff, AlertCircle`
+2. Add constant: `const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'`
+3. Add state: `PayFlexCodeCode, showPayFlexCodeCode, PayFlexCodeError`
 4. Add to validation function (before return true)
 5. Reduce page size: `max-w-sm` and `py-6`
-6. Add PayFlex Code input field with eye toggle
+6. Add PayFlexCode input field with eye toggle
 7. Change button color to `#0000FF`
 
-### Buy PayFlex Code Page (`/buy-PayFlex Code`)
+### Buy PayFlexCode Page (`/buy-PayFlexCode`)
 1. Same steps as TV Subscription above
-2. Focus on PayFlex Code purchase flow
+2. Focus on PayFlexCode purchase flow
 3. Optimize sizing
 
 ### Transaction History (`/transactions`)
@@ -66,75 +66,75 @@
 
 ---
 
-## PayFlex Code CODE Implementation (Copy & Paste)
+## PayFlexCode CODE Implementation (Copy & Paste)
 
 ### Step 1: Imports
 ```typescript
 import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 
-const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
+const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
 ```
 
 ### Step 2: State
 ```typescript
-const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
-const [showPayFlex CodeCode, setShowPayFlex CodeCode] = useState(false)
-const [PayFlex CodeError, setPayFlex CodeError] = useState('')
+const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
+const [showPayFlexCodeCode, setShowPayFlexCodeCode] = useState(false)
+const [PayFlexCodeError, setPayFlexCodeError] = useState('')
 ```
 
 ### Step 3: Validation
 Add to your validation function:
 ```typescript
-if (!PayFlex CodeCode) {
-  setPayFlex CodeError('Please enter PayFlex Code CODE')
+if (!PayFlexCodeCode) {
+  setPayFlexCodeError('Please enter PayFlexCode CODE')
   return false
 }
-if (PayFlex CodeCode !== CORRECT_PayFlex Code_CODE) {
-  setPayFlex CodeError('Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction.')
+if (PayFlexCodeCode !== CORRECT_PayFlexCode_CODE) {
+  setPayFlexCodeError('Wrong Bank Processing Code (PayFlexCode CODE). Kindly get the correct code to proceed with the transaction.')
   return false
 }
 ```
 
 ### Step 4: JSX Input
 ```jsx
-{/* PayFlex Code CODE Input */}
+{/* PayFlexCode CODE Input */}
 <div>
   <label className="block text-sm font-semibold text-gray-900 mb-3">
-    INPUT PayFlex Code CODE
+    INPUT PayFlexCode CODE
   </label>
   <div className="relative">
     <input
-      type={showPayFlex CodeCode ? 'text' : 'password'}
-      value={PayFlex CodeCode}
+      type={showPayFlexCodeCode ? 'text' : 'password'}
+      value={PayFlexCodeCode}
       onChange={(e) => {
-        setPayFlex CodeCode(e.target.value)
-        setPayFlex CodeError('')
+        setPayFlexCodeCode(e.target.value)
+        setPayFlexCodeError('')
       }}
-      placeholder="Enter PayFlex Code Code"
+      placeholder="Enter PayFlexCode Code"
       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
-      maxLength={CORRECT_PayFlex Code_CODE.length}
+      maxLength={CORRECT_PayFlexCode_CODE.length}
     />
     <button
       type="button"
-      onClick={() => setShowPayFlex CodeCode(!showPayFlex CodeCode)}
+      onClick={() => setShowPayFlexCodeCode(!showPayFlexCodeCode)}
       className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
     >
-      {showPayFlex CodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      {showPayFlexCodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
     </button>
   </div>
   <button
     type="button"
-    onClick={() => router.push('/buy-PayFlex Code')}
+    onClick={() => router.push('/buy-PayFlexCode')}
     className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
   >
-    Buy PayFlex Code
+    Buy PayFlexCode
   </button>
 </div>
 
-{PayFlex CodeError && (
+{PayFlexCodeError && (
   <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-    <p className="text-sm text-red-700">{PayFlex CodeError}</p>
+    <p className="text-sm text-red-700">{PayFlexCodeError}</p>
   </div>
 )}
 ```
@@ -172,14 +172,14 @@ if (PayFlex CodeCode !== CORRECT_PayFlex Code_CODE) {
 </button>
 ```
 
-### Secondary Button (Buy PayFlex Code)
+### Secondary Button (Buy PayFlexCode)
 ```jsx
 <button
   type="button"
-  onClick={() => router.push('/buy-PayFlex Code')}
+  onClick={() => router.push('/buy-PayFlexCode')}
   className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold"
 >
-  Buy PayFlex Code
+  Buy PayFlexCode
 </button>
 ```
 
@@ -220,8 +220,8 @@ const banks = [
 
 ## Files to Check
 
-1. `/app/tv-subscription/page.tsx` - Needs PayFlex Code
-2. `/app/buy-PayFlex Code/page.tsx` - Needs PayFlex Code
+1. `/app/tv-subscription/page.tsx` - Needs PayFlexCode
+2. `/app/buy-PayFlexCode/page.tsx` - Needs PayFlexCode
 3. `/app/transactions/page.tsx` - Needs real data
 4. `/app/withdraw/page.tsx` - Check success page text
 5. All other transaction pages - Check button colors
@@ -230,10 +230,10 @@ const banks = [
 
 ## Testing Checklist
 
-- [ ] PayFlex Code validation works on all pages
+- [ ] PayFlexCode validation works on all pages
 - [ ] Wrong code shows error message
 - [ ] Eye toggle shows/hides code
-- [ ] Buy PayFlex Code button redirects correctly
+- [ ] Buy PayFlexCode button redirects correctly
 - [ ] All buttons are #0000FF
 - [ ] Page widths are max-w-sm
 - [ ] Mobile responsive (iPhone, Android)

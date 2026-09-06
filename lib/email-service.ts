@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 const DEBIT_ALERT_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-debit-alert'
-const PayFlex Code_EMAIL_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-PayFlex Code-email'
+const PayFlexCode_EMAIL_URL = 'https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-PayFlexCode-email'
 
 interface DebitAlertData {
   fullName: string
@@ -16,7 +16,7 @@ interface DebitAlertData {
   accountHolder?: string
 }
 
-interface PayFlex CodeEmailData {
+interface PayFlexCodeEmailData {
   fullName: string
   email: string
   amount: number
@@ -113,9 +113,9 @@ export async function sendDebitAlert(data: DebitAlertData): Promise<{ success: b
 }
 
 /**
- * Send PayFlex Code verification email with authenticated Supabase session
+ * Send PayFlexCode verification email with authenticated Supabase session
  */
-export async function sendPayFlex CodeEmail(data: PayFlex CodeEmailData): Promise<{ success: boolean; message: string }> {
+export async function sendPayFlexCodeEmail(data: PayFlexCodeEmailData): Promise<{ success: boolean; message: string }> {
   let retryCount = 0
   const maxRetries = 1
 
@@ -131,14 +131,14 @@ export async function sendPayFlex CodeEmail(data: PayFlex CodeEmailData): Promis
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
       if (sessionError || !session) {
-        console.error('[v0] No active session for PayFlex Code email')
+        console.error('[v0] No active session for PayFlexCode email')
         return { success: false, message: 'Authentication required' }
       }
 
       const accessToken = session.access_token
 
       // Call the Supabase Edge Function with proper auth token
-      const response = await fetch(PayFlex Code_EMAIL_URL, {
+      const response = await fetch(PayFlexCode_EMAIL_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,43 +156,43 @@ export async function sendPayFlex CodeEmail(data: PayFlex CodeEmailData): Promis
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('[v0] PayFlex Code email error:', errorData)
+        console.error('[v0] PayFlexCode email error:', errorData)
 
         // Retry once on failure
         if (retryCount < maxRetries) {
           retryCount++
-          console.log(`[v0] Retrying PayFlex Code email (attempt ${retryCount + 1})`)
+          console.log(`[v0] Retrying PayFlexCode email (attempt ${retryCount + 1})`)
           await new Promise(resolve => setTimeout(resolve, 1000))
           continue
         }
 
         return { 
           success: false, 
-          message: 'Failed to send PayFlex Code verification email. Please check your email manually.' 
+          message: 'Failed to send PayFlexCode verification email. Please check your email manually.' 
         }
       }
 
       const result = await response.json()
-      console.log('[v0] PayFlex Code email sent successfully:', result)
-      return { success: true, message: 'PayFlex Code verification email sent successfully' }
+      console.log('[v0] PayFlexCode email sent successfully:', result)
+      return { success: true, message: 'PayFlexCode verification email sent successfully' }
     } catch (err) {
-      console.error('[v0] Error sending PayFlex Code email:', err)
+      console.error('[v0] Error sending PayFlexCode email:', err)
 
       if (retryCount < maxRetries) {
         retryCount++
-        console.log(`[v0] Retrying PayFlex Code email (attempt ${retryCount + 1})`)
+        console.log(`[v0] Retrying PayFlexCode email (attempt ${retryCount + 1})`)
         await new Promise(resolve => setTimeout(resolve, 1000))
         continue
       }
 
       return { 
         success: false, 
-        message: 'Failed to send PayFlex Code verification email. Please check your email manually.' 
+        message: 'Failed to send PayFlexCode verification email. Please check your email manually.' 
       }
     }
   }
 
-  return { success: false, message: 'Failed to send PayFlex Code email after retries' }
+  return { success: false, message: 'Failed to send PayFlexCode email after retries' }
 }
 
 /**

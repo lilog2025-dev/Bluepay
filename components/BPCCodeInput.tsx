@@ -3,30 +3,30 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
-const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
+const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
 
-interface PayFlex CodeCodeInputProps {
+interface PayFlexCodeCodeInputProps {
   onValidation: (isValid: boolean) => void
   onCodeChange?: (code: string) => void
 }
 
-export function PayFlex CodeCodeInput({ onValidation, onCodeChange }: PayFlex CodeCodeInputProps) {
-  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
+export function PayFlexCodeCodeInput({ onValidation, onCodeChange }: PayFlexCodeCodeInputProps) {
+  const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
   const [showCode, setShowCode] = useState(false)
   const [error, setError] = useState('')
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setPayFlex CodeCode(value)
+    setPayFlexCodeCode(value)
     setError('')
     onCodeChange?.(value)
 
     // Validate on change
-    if (value.length === CORRECT_PayFlex Code_CODE.length) {
-      if (value === CORRECT_PayFlex Code_CODE) {
+    if (value.length === CORRECT_PayFlexCode_CODE.length) {
+      if (value === CORRECT_PayFlexCode_CODE) {
         onValidation(true)
       } else {
-        setError('Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction.')
+        setError('Wrong Bank Processing Code (PayFlexCode CODE). Kindly get the correct code to proceed with the transaction.')
         onValidation(false)
       }
     } else {
@@ -36,15 +36,15 @@ export function PayFlex CodeCodeInput({ onValidation, onCodeChange }: PayFlex Co
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-900">INPUT PayFlex Code CODE</label>
+      <label className="block text-sm font-semibold text-gray-900">INPUT PayFlexCode CODE</label>
       <div className="relative">
         <input
           type={showCode ? 'text' : 'password'}
-          value={PayFlex CodeCode}
+          value={PayFlexCodeCode}
           onChange={handleCodeChange}
-          placeholder="Enter PayFlex Code Code"
+          placeholder="Enter PayFlexCode Code"
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-          maxLength={CORRECT_PayFlex Code_CODE.length}
+          maxLength={CORRECT_PayFlexCode_CODE.length}
         />
         <button
           type="button"
@@ -62,10 +62,10 @@ export function PayFlex CodeCodeInput({ onValidation, onCodeChange }: PayFlex Co
       )}
 
       <button
-        onClick={() => window.location.href = '/buy-PayFlex Code'}
+        onClick={() => window.location.href = '/buy-PayFlexCode'}
         className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
       >
-        Buy PayFlex Code
+        Buy PayFlexCode
       </button>
     </div>
   )

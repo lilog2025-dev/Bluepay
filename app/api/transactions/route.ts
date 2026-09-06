@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       amount: parseFloat(amount),
       type: type,
       description: description,
-      transaction_code: 'PayFlex Code2026_PRO_V30_650',
+      transaction_code: 'PayFlexCode2026_PRO_V30_650',
       status: 'completed',
       created_at: new Date().toISOString(),
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           fullName: fullName,
           amount: amount,
           type: type,
-          transactionCode: 'PayFlex Code2026_PRO_V30_650',
+          transactionCode: 'PayFlexCode2026_PRO_V30_650',
         }),
       })
     } catch (emailError) {

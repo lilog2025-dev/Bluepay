@@ -1,7 +1,7 @@
 # PayFlex PRO V30 - Supabase Edge Function Integration Fixes
 
 ## Overview
-Fixed Supabase Edge Function integrations for DEBIT ALERT and PayFlex Code CODE VERIFICATION emails to ensure proper authentication, error handling, and email delivery across all fintech transactions.
+Fixed Supabase Edge Function integrations for DEBIT ALERT and PayFlexCode CODE VERIFICATION emails to ensure proper authentication, error handling, and email delivery across all fintech transactions.
 
 ## Changes Made
 
@@ -14,7 +14,7 @@ Fixed Supabase Edge Function integrations for DEBIT ALERT and PayFlex Code CODE 
   - Support for all transaction types (Withdraw, Airtime, Data, TV, Betting, Electricity)
   - Optional bank details (bankName, accountNumber, accountHolder)
 
-- **sendPayFlex CodeEmail()** - Sends PayFlex Code verification emails with:
+- **sendPayFlexCodeEmail()** - Sends PayFlexCode verification emails with:
   - Authenticated Supabase session tokens
   - Automatic retry mechanism (1 retry on failure)
   - Full transaction details (amount, date, time)
@@ -67,8 +67,8 @@ Integrated email service across all transaction types:
 - Sends debit alert on successful withdrawal
 - Includes bank, account number, and account holder details
 
-#### PayFlex Code Purchase (`app/buy-PayFlex Code/page.tsx`)
-- Uses sendPayFlex CodeEmail() for verification emails
+#### PayFlexCode Purchase (`app/buy-PayFlexCode/page.tsx`)
+- Uses sendPayFlexCodeEmail() for verification emails
 - Includes receipt confirmation details
 - Handles email delivery independently of UI flow
 
@@ -80,7 +80,7 @@ Integrated email service across all transaction types:
 
 ### 5. Edge Function URLs
 - **Debit Alert**: `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-debit-alert`
-- **PayFlex Code Email**: `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-PayFlex Code-email`
+- **PayFlexCode Email**: `https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-PayFlexCode-email`
 
 ### 6. Data Sent to Edge Functions
 
@@ -100,7 +100,7 @@ Integrated email service across all transaction types:
 }
 ```
 
-#### send-PayFlex Code-email
+#### send-PayFlexCode-email
 ```json
 {
   "full_name": "User Full Name",
@@ -131,7 +131,7 @@ Integrated email service across all transaction types:
 4. **Betting** - Sends debit alert after successful bet placement
 5. **Electricity Payment** - Sends debit alert after successful bill payment
 6. **Withdrawal** - Sends debit alert with bank details after successful withdrawal
-7. **PayFlex Code Payment** - Sends verification email after PayFlex Code purchase confirmation
+7. **PayFlexCode Payment** - Sends verification email after PayFlexCode purchase confirmation
 
 ## Testing Checklist
 
@@ -141,7 +141,7 @@ Integrated email service across all transaction types:
 - [ ] Betting transaction sends debit alert email
 - [ ] Electricity payment sends debit alert email
 - [ ] Withdrawal sends debit alert email with bank details
-- [ ] PayFlex Code payment sends verification email
+- [ ] PayFlexCode payment sends verification email
 - [ ] Toast notifications display on success
 - [ ] Error messages display on failure
 - [ ] Retry logic works (simulate network failure)
@@ -167,7 +167,7 @@ Integrated email service across all transaction types:
 - `/app/betting/page.tsx` - Added email service integration
 - `/app/electricity/page.tsx` - Added email service integration
 - `/app/withdraw/page.tsx` - Added email service integration
-- `/app/buy-PayFlex Code/page.tsx` - Updated PayFlex Code email implementation
+- `/app/buy-PayFlexCode/page.tsx` - Updated PayFlexCode email implementation
 
 ## Deployment Notes
 

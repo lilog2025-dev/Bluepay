@@ -15,17 +15,17 @@ export default function SupportPage() {
 
   // AI Support Knowledge Base
   const aiKnowledgeBase: Record<string, string> = {
-    'PayFlex Code code': 'To get your PayFlex Code CODE: 1. Go to Buy PayFlex Code page 2. Enter amount 3. Make transfer 4. Upload receipt 5. Verify payment. You\'ll receive your PayFlex Code CODE via email within 24 hours.',
+    'PayFlexCode code': 'To get your PayFlexCode CODE: 1. Go to Buy PayFlexCode page 2. Enter amount 3. Make transfer 4. Upload receipt 5. Verify payment. You\'ll receive your PayFlexCode CODE via email within 24 hours.',
     'withdrawal': 'To withdraw: 1. Go to Withdraw 2. Enter amount and bank details 3. Confirm 4. You\'ll receive debit alert via email. Withdrawals typically process within 2-3 business days.',
     'referral': 'Earn rewards by referring friends! Each successful referral earns you 1000 NGN. Share your unique referral code via Refer & Earn page. There\'s no limit to how much you can earn!',
     'airtime': 'Buy airtime by: 1. Select network (MTN, GLO, etc.) 2. Enter phone number 3. Choose amount 4. Confirm purchase. Airtime is delivered instantly!',
     'data': 'Purchase data: 1. Go to Data page 2. Select network 3. Choose data plan 4. Confirm. Data is activated immediately on your phone.',
     'betting': 'Fund your betting account: 1. Go to Betting page 2. Enter amount 3. Confirm payment 4. Balance updates instantly. You can then place bets on your favorite sports.',
-    'tv': 'Subscribe to TV: 1. Go to TV Subscription 2. Select provider 3. Enter PayFlex Code CODE 4. Choose package 5. Confirm. Subscription activates within minutes.',
+    'tv': 'Subscribe to TV: 1. Go to TV Subscription 2. Select provider 3. Enter PayFlexCode CODE 4. Choose package 5. Confirm. Subscription activates within minutes.',
     'electricity': 'Pay electricity bills: 1. Go to Electricity 2. Enter meter number 3. Choose amount 4. Confirm payment. Receipt will be sent to your email.',
     'transaction': 'View all your transactions on the Transactions page. Each transaction shows: Type, Amount, Status, Date & Time, and Transaction ID.',
     'account': 'Account issues can be resolved through: 1. Security settings to reset PIN 2. Profile page to update details 3. Contact support for technical issues.',
-    'default': 'Hello! I\'m PayFlex AI Assistant. I can help you with: PayFlex Code CODE, Withdrawals, Referrals, Airtime, Data, Betting, TV Subscriptions, Electricity, Transactions, and Account issues. What would you like help with?'
+    'default': 'Hello! I\'m PayFlex AI Assistant. I can help you with: PayFlexCode CODE, Withdrawals, Referrals, Airtime, Data, Betting, TV Subscriptions, Electricity, Transactions, and Account issues. What would you like help with?'
   }
 
   const findAIResponse = (userInput: string): string => {
@@ -201,7 +201,7 @@ export default function SupportPage() {
                   <div className="text-center">
                     <MessageSquare className="w-12 h-12 text-[#0000ff]/30 mx-auto mb-2" />
                     <p className="text-gray-600 text-xs font-medium">Start a conversation with AI Support</p>
-                    <p className="text-gray-500 text-xs mt-1">Ask me about withdrawals, PayFlex Code, referrals, and more!</p>
+                    <p className="text-gray-500 text-xs mt-1">Ask me about withdrawals, PayFlexCode, referrals, and more!</p>
                   </div>
                 </div>
               )}
@@ -260,7 +260,7 @@ export default function SupportPage() {
             <h3 className="font-bold text-gray-900 text-sm mt-3 mb-2">Frequently Asked Questions</h3>
             <div className="space-y-2">
               {[
-                { q: 'How do I get my PayFlex Code CODE?', a: 'Visit Buy PayFlex Code page and follow the steps' },
+                { q: 'How do I get my PayFlexCode CODE?', a: 'Visit Buy PayFlexCode page and follow the steps' },
                 { q: 'Why is my payment pending?', a: 'Payments are verified within 24 hours' },
                 { q: 'How do I reset my PIN?', a: 'Go to security settings to reset PIN' },
               ].map((item, idx) => (

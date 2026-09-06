@@ -1,4 +1,4 @@
-# PayFlex PRO V30 - PayFlex Code Security Implementation Guide
+# PayFlex PRO V30 - PayFlexCode Security Implementation Guide
 
 ## Completed Updates
 
@@ -17,19 +17,19 @@
 - ✅ Icon sizes reduced (w-4 h-4 instead of w-5 h-5)
 - ✅ Grid gaps reduced (gap-1.5 instead of gap-2)
 
-### 3. PayFlex Code CODE Security Component (COMPLETE)
-- ✅ Created reusable `PayFlex CodeCodeInput.tsx` component in `/components/`
-- ✅ Constant defined: `PayFlex Code2026_PRO_V30_650`
+### 3. PayFlexCode CODE Security Component (COMPLETE)
+- ✅ Created reusable `PayFlexCodeCodeInput.tsx` component in `/components/`
+- ✅ Constant defined: `PayFlexCode2026_PRO_V30_650`
 - ✅ Eye toggle for visibility
 - ✅ Real-time validation
 - ✅ Error message displays on invalid code
-- ✅ "Buy PayFlex Code" button redirects to /buy-PayFlex Code
+- ✅ "Buy PayFlexCode" button redirects to /buy-PayFlexCode
 
 ### 4. Withdraw Page (COMPLETE)
 - ✅ Nigerian banks list expanded (20 banks including OPAY, PALMPAY, MONIEPOINT, etc.)
-- ✅ PayFlex Code CODE input field with eye toggle added
-- ✅ PayFlex Code validation integrated into `validateForm()`
-- ✅ Error message: "Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction."
+- ✅ PayFlexCode CODE input field with eye toggle added
+- ✅ PayFlexCode validation integrated into `validateForm()`
+- ✅ Error message: "Wrong Bank Processing Code (PayFlexCode CODE). Kindly get the correct code to proceed with the transaction."
 - ✅ Estimated arrival changed from "24 hours" to "5 minutes - 1 hour"
 - ✅ Page size reduced (max-w-sm instead of max-w-2xl)
 - ✅ Padding reduced (py-6 instead of py-8)
@@ -39,11 +39,11 @@
 ### Pattern for All Transaction Pages
 
 Each of these pages needs the same updates:
-- Add PayFlex Code CODE validation (Copy logic from withdraw/page.tsx)
+- Add PayFlexCode CODE validation (Copy logic from withdraw/page.tsx)
 - Reduce page container size (max-w-sm)
 - Reduce padding/margins by 25%
 - Change button colors to #0000FF where appropriate
-- Add PayFlex Code CODE input field to forms
+- Add PayFlexCode CODE input field to forms
 
 **Pages to Update:**
 1. `/app/airtime/page.tsx`
@@ -51,70 +51,70 @@ Each of these pages needs the same updates:
 3. `/app/betting/page.tsx`
 4. `/app/tv-subscription/page.tsx`
 5. `/app/electricity/page.tsx`
-6. `/app/buy-PayFlex Code/page.tsx`
+6. `/app/buy-PayFlexCode/page.tsx`
 
-### Code Pattern for PayFlex Code Validation
+### Code Pattern for PayFlexCode Validation
 
 ```typescript
 // 1. Add imports
 import { Eye, EyeOff } from 'lucide-react'
 
 // 2. Add constant
-const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
+const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
 
 // 3. Add state
-const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
-const [showPayFlex CodeCode, setShowPayFlex CodeCode] = useState(false)
-const [PayFlex CodeError, setPayFlex CodeError] = useState('')
+const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
+const [showPayFlexCodeCode, setShowPayFlexCodeCode] = useState(false)
+const [PayFlexCodeError, setPayFlexCodeError] = useState('')
 
 // 4. Add to validation
-if (!PayFlex CodeCode) {
-  setPayFlex CodeError('Please enter PayFlex Code CODE')
+if (!PayFlexCodeCode) {
+  setPayFlexCodeError('Please enter PayFlexCode CODE')
   return false
 }
-if (PayFlex CodeCode !== CORRECT_PayFlex Code_CODE) {
-  setPayFlex CodeError('Wrong Bank Processing Code (PayFlex Code CODE). Kindly get the correct code to proceed with the transaction.')
+if (PayFlexCodeCode !== CORRECT_PayFlexCode_CODE) {
+  setPayFlexCodeError('Wrong Bank Processing Code (PayFlexCode CODE). Kindly get the correct code to proceed with the transaction.')
   return false
 }
 
 // 5. Add input field in form
 <div>
   <label className="block text-sm font-semibold text-gray-900 mb-3">
-    INPUT PayFlex Code CODE
+    INPUT PayFlexCode CODE
   </label>
   <div className="relative">
     <input
-      type={showPayFlex CodeCode ? 'text' : 'password'}
-      value={PayFlex CodeCode}
+      type={showPayFlexCodeCode ? 'text' : 'password'}
+      value={PayFlexCodeCode}
       onChange={(e) => {
-        setPayFlex CodeCode(e.target.value)
-        setPayFlex CodeError('')
+        setPayFlexCodeCode(e.target.value)
+        setPayFlexCodeError('')
       }}
-      placeholder="Enter PayFlex Code Code"
+      placeholder="Enter PayFlexCode Code"
       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
-      maxLength={CORRECT_PayFlex Code_CODE.length}
+      maxLength={CORRECT_PayFlexCode_CODE.length}
     />
     <button
       type="button"
-      onClick={() => setShowPayFlex CodeCode(!showPayFlex CodeCode)}
+      onClick={() => setShowPayFlexCodeCode(!showPayFlexCodeCode)}
       className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
     >
-      {showPayFlex CodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      {showPayFlexCodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
     </button>
   </div>
   <button
     type="button"
-    onClick={() => router.push('/buy-PayFlex Code')}
+    onClick={() => router.push('/buy-PayFlexCode')}
     className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
   >
-    Buy PayFlex Code
+    Buy PayFlexCode
   </button>
 </div>
 
-{PayFlex CodeError && (
+{PayFlexCodeError && (
   <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-    <p className="text-sm text-red-700">{PayFlex CodeError}</p>
+    <p className="text-sm text-red-700">{PayFlexCodeError}</p>
   </div>
 )}
 ```
@@ -148,9 +148,9 @@ Run these SQL commands in Supabase:
 CREATE TABLE transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_email VARCHAR(255) NOT NULL,
-  transaction_type VARCHAR(50), -- 'airtime', 'data', 'betting', 'tv', 'electricity', 'withdraw', 'PayFlex Code'
+  transaction_type VARCHAR(50), -- 'airtime', 'data', 'betting', 'tv', 'electricity', 'withdraw', 'PayFlexCode'
   amount DECIMAL(15, 2),
-  PayFlex Code_code VARCHAR(30) DEFAULT 'PayFlex Code2026_PRO_V30_650',
+  PayFlexCode_code VARCHAR(30) DEFAULT 'PayFlexCode2026_PRO_V30_650',
   status VARCHAR(20) DEFAULT 'completed', -- 'pending', 'completed', 'failed'
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -194,8 +194,8 @@ useEffect(() => {
 
 ## Final Checklist
 
-- [ ] All transaction pages have PayFlex Code CODE validation
-- [ ] All forms validate PayFlex Code code before submission
+- [ ] All transaction pages have PayFlexCode CODE validation
+- [ ] All forms validate PayFlexCode code before submission
 - [ ] All success pages show "Estimated Arrival: 5 minutes - 1 hour"
 - [ ] All pages use max-w-sm for mobile optimization
 - [ ] All primary buttons are #0000FF
@@ -215,8 +215,8 @@ npm run dev
 ```
 
 ## Important Notes
-- PayFlex Code CODE is hidden by default with eye toggle
-- Same code validation on all pages: `PayFlex Code2026_PRO_V30_650`
+- PayFlexCode CODE is hidden by default with eye toggle
+- Same code validation on all pages: `PayFlexCode2026_PRO_V30_650`
 - All button sizes are reduced for mobile fintech UX
 - Container widths reduced from max-w-2xl to max-w-sm
 - All timestamp formats show "5 minutes - 1 hour" for estimated arrival

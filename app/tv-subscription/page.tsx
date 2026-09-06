@@ -12,8 +12,8 @@ export default function TVSubscriptionPage() {
   const [step, setStep] = useState<'select' | 'confirm' | 'countdown' | 'success'>('select')
   const [selectedProvider, setSelectedProvider] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('')
-  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
-  const [showPayFlex Code, setShowPayFlex Code] = useState(false)
+  const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
+  const [showPayFlexCode, setShowPayFlexCode] = useState(false)
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [fullName, setFullName] = useState('')
@@ -102,8 +102,8 @@ export default function TVSubscriptionPage() {
   const currentPlan = currentProvider?.plans.find(pl => pl.id === selectedPlan)
 
   const handleActivateSubscription = async () => {
-    if (!PayFlex CodeCode.trim()) {
-      alert('Please enter your PayFlex Code CODE')
+    if (!PayFlexCodeCode.trim()) {
+      alert('Please enter your PayFlexCode CODE')
       return
     }
 
@@ -120,7 +120,7 @@ export default function TVSubscriptionPage() {
       transaction_type: 'TV Subscription',
       amount: currentPlan?.price || 0,
       recipient_name: currentProvider?.name || '',
-      recipient_account_number: PayFlex CodeCode,
+      recipient_account_number: PayFlexCodeCode,
       recipient_bank_name: currentPlan?.name || '',
       transaction_id: txId,
       transaction_date: getCurrentDateTime(),
@@ -331,21 +331,21 @@ export default function TVSubscriptionPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">PayFlex Code CODE</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">PayFlexCode CODE</label>
                 <div className="relative">
                   <input
-                    type={showPayFlex Code ? 'text' : 'password'}
-                    placeholder="Enter your PayFlex Code CODE"
-                    value={PayFlex CodeCode}
-                    onChange={(e) => setPayFlex CodeCode(e.target.value)}
+                    type={showPayFlexCode ? 'text' : 'password'}
+                    placeholder="Enter your PayFlexCode CODE"
+                    value={PayFlexCodeCode}
+                    onChange={(e) => setPayFlexCodeCode(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPayFlex Code(!showPayFlex Code)}
+                    onClick={() => setShowPayFlexCode(!showPayFlexCode)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
                   >
-                    {showPayFlex Code ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPayFlexCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 <p className="text-xs text-gray-600 mt-1">Enter your Bank Processing Code</p>
@@ -353,17 +353,17 @@ export default function TVSubscriptionPage() {
 
               <button
                 onClick={() => setStep('confirm')}
-                disabled={!PayFlex CodeCode.trim()}
+                disabled={!PayFlexCodeCode.trim()}
                 className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition mt-2"
               >
                 Continue
               </button>
 
               <a
-                href="/buy-PayFlex Code"
+                href="/buy-PayFlexCode"
                 className="block w-full text-center bg-gray-200 text-gray-900 font-bold py-3 rounded-xl hover:bg-gray-300 transition"
               >
-                Buy PayFlex Code
+                Buy PayFlexCode
               </a>
             </>
           )}

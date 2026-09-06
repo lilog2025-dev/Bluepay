@@ -17,7 +17,7 @@ https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-debit-alert
 - ✓ TV Subscription
 - ✓ Betting
 - ✓ Electricity Bill Payment
-- ✓ PayFlex Code Code Purchase
+- ✓ PayFlexCode Code Purchase
 
 ### Implementation Details
 
@@ -43,7 +43,7 @@ https://rykdsszbtjvnoycmialc.supabase.co/functions/v1/send-debit-alert
 ```
 
 **Updated Pages:**
-- `/app/buy-PayFlex Code/page.tsx` - PayFlex Code purchase debit alerts
+- `/app/buy-PayFlexCode/page.tsx` - PayFlexCode purchase debit alerts
 - `/app/withdraw/page.tsx` - Withdrawal debit alerts
 - `/app/airtime/page.tsx` - Airtime purchase debit alerts
 - `/app/data/page.tsx` - Data purchase imports updated
@@ -127,7 +127,7 @@ https://wwwPayFlexwebauthdormaindigital-app.vercel.app/signup?ref=REFERRAL_CODE
 - [ ] TV subscription → Check for debit alert email
 - [ ] Betting transaction → Check for debit alert email
 - [ ] Electricity bill → Check for debit alert email
-- [ ] PayFlex Code purchase → Check for debit alert email
+- [ ] PayFlexCode purchase → Check for debit alert email
 - [ ] Refer page loads with Supabase profile data
 - [ ] Referral stats display correctly
 - [ ] Share button works on mobile

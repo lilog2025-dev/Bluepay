@@ -1248,7 +1248,7 @@ packages:
     os: [win32]
 
   '@tailwindcss/oxide-win32-x64-msvc@4.2.0':
-    resolution: {integrity: sha512-CrFadmFoc+z76EV6LPG1jx6XceDsaCG3lFhyLNo/bV9ByPrE+FnPayFlex CodekXQVP4XRkN76h3Fjt/a+5Er/oA/nCBvQ==}
+    resolution: {integrity: sha512-CrFadmFoc+z76EV6LPG1jx6XceDsaCG3lFhyLNo/bV9ByPrE+FnPayFlexCodekXQVP4XRkN76h3Fjt/a+5Er/oA/nCBvQ==}
     engines: {node: '>= 20'}
     cpu: [x64]
     os: [win32]

@@ -15,7 +15,7 @@ Complete redesign of the authentication user interface and flow to implement OTP
 - Optimized spacing and typography
 
 **New Description:**
-"PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal PayFlex Code CODE instantly."
+"PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal PayFlexCode CODE instantly."
 
 **Features:**
 - Animated lion mascot moving left-to-right (8 seconds)

@@ -19,7 +19,7 @@ import { createClient } from '@supabase/supabase-js'
 import { BankSelector } from '@/components/bank-selector'
 import { Bank } from '@/lib/nigerian-banks'
 
-const CORRECT_PayFlex Code_CODE = 'PayFlex Code2026_PRO_V30_650'
+const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
 
 export default function WithdrawPage() {
   const router = useRouter()
@@ -28,11 +28,11 @@ export default function WithdrawPage() {
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
   const [accountNumber, setAccountNumber] = useState('')
   const [accountName, setAccountName] = useState('')
-  const [PayFlex CodeCode, setPayFlex CodeCode] = useState('')
-  const [showPayFlex CodeCode, setShowPayFlex CodeCode] = useState(false)
+  const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
+  const [showPayFlexCodeCode, setShowPayFlexCodeCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [PayFlex CodeError, setPayFlex CodeError] = useState('')
+  const [PayFlexCodeError, setPayFlexCodeError] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
@@ -92,7 +92,7 @@ export default function WithdrawPage() {
   }, [])
 
   const validateForm = () => {
-    setPayFlex CodeError('')
+    setPayFlexCodeError('')
     setError('')
 
     if (!amount || parseFloat(amount) <= 0) {
@@ -119,13 +119,13 @@ export default function WithdrawPage() {
       setError('Please enter account name')
       return false
     }
-    // Block withdrawal if PayFlex Code code is missing or incorrect
-    if (!PayFlex CodeCode.trim()) {
-      setPayFlex CodeError('PayFlex Code Code is required to process withdrawal')
+    // Block withdrawal if PayFlexCode code is missing or incorrect
+    if (!PayFlexCodeCode.trim()) {
+      setPayFlexCodeError('PayFlexCode Code is required to process withdrawal')
       return false
     }
-    if (PayFlex CodeCode.trim() !== CORRECT_PayFlex Code_CODE) {
-      setPayFlex CodeError('Invalid PayFlex Code Code. Please purchase a valid PayFlex Code code to continue.')
+    if (PayFlexCodeCode.trim() !== CORRECT_PayFlexCode_CODE) {
+      setPayFlexCodeError('Invalid PayFlexCode Code. Please purchase a valid PayFlexCode code to continue.')
       return false
     }
 
@@ -206,7 +206,7 @@ export default function WithdrawPage() {
         setSelectedBank(null)
         setAccountNumber('')
         setAccountName('')
-        setPayFlex CodeCode('')
+        setPayFlexCodeCode('')
         setError('')
       }
     } catch (err) {
@@ -338,44 +338,44 @@ export default function WithdrawPage() {
               />
             </div>
 
-            {/* PayFlex Code CODE Input */}
+            {/* PayFlexCode CODE Input */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
-                INPUT PayFlex Code CODE
+                INPUT PayFlexCode CODE
               </label>
               <div className="relative">
                 <input
-                  type={showPayFlex CodeCode ? 'text' : 'password'}
-                  value={PayFlex CodeCode}
+                  type={showPayFlexCodeCode ? 'text' : 'password'}
+                  value={PayFlexCodeCode}
                   onChange={(e) => {
-                    setPayFlex CodeCode(e.target.value)
-                    setPayFlex CodeError('')
+                    setPayFlexCodeCode(e.target.value)
+                    setPayFlexCodeError('')
                   }}
-                  placeholder="Enter PayFlex Code Code"
+                  placeholder="Enter PayFlexCode Code"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10 text-gray-900"
-                  maxLength={CORRECT_PayFlex Code_CODE.length}
+                  maxLength={CORRECT_PayFlexCode_CODE.length}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPayFlex CodeCode(!showPayFlex CodeCode)}
+                  onClick={() => setShowPayFlexCodeCode(!showPayFlexCodeCode)}
                   className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
                 >
-                  {showPayFlex CodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPayFlexCodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               <button
                 type="button"
-                onClick={() => router.push('/buy-PayFlex Code')}
+                onClick={() => router.push('/buy-PayFlexCode')}
                 className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
-                Buy PayFlex Code
+                Buy PayFlexCode
               </button>
             </div>
 
-            {PayFlex CodeError && (
+            {PayFlexCodeError && (
               <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{PayFlex CodeError}</p>
+                <p className="text-sm text-red-700">{PayFlexCodeError}</p>
               </div>
             )}
 
@@ -662,7 +662,7 @@ export default function WithdrawPage() {
                   setSelectedBank(null)
                   setAccountNumber('')
                   setAccountName('')
-                  setPayFlex CodeCode('')
+                  setPayFlexCodeCode('')
                   setError('')
                 }}
                 className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"

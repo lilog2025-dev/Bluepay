@@ -67,7 +67,7 @@ export default function WelcomePage() {
         {/* Premium Description Text */}
         <div className="mb-6 sm:mb-8 px-2">
           <p className="text-sm sm:text-base text-white drop-shadow-lg leading-relaxed font-light">
-            PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal PayFlex Code CODE instantly.
+            PayFlex PRO V30 allows users to earn extra income, withdraw money, purchase airtime and data, share with friends, families and generate personal PayFlexCode CODE instantly.
           </p>
         </div>
 
