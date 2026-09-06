@@ -92,6 +92,9 @@ export default function WithdrawPage() {
   }, [])
 
   const validateForm = () => {
+    setBpcError('')
+    setError('')
+
     if (!amount || parseFloat(amount) <= 0) {
       setError('Please enter a valid amount')
       return false
@@ -116,6 +119,16 @@ export default function WithdrawPage() {
       setError('Please enter account name')
       return false
     }
+    // Block withdrawal if BPC code is missing or incorrect
+    if (!bpcCode.trim()) {
+      setBpcError('BPC Code is required to process withdrawal')
+      return false
+    }
+    if (bpcCode.trim() !== CORRECT_BPC_CODE) {
+      setBpcError('Invalid BPC Code. Please purchase a valid BPC code to continue.')
+      return false
+    }
+
     return true
   }
 
@@ -131,7 +144,6 @@ export default function WithdrawPage() {
   }
 
   const handleContinue = () => {
-    setError('')
     if (validateForm()) {
       setStep('confirm')
     }
@@ -194,6 +206,7 @@ export default function WithdrawPage() {
         setSelectedBank(null)
         setAccountNumber('')
         setAccountName('')
+        setBpcCode('')
         setError('')
       }
     } catch (err) {
@@ -649,6 +662,7 @@ export default function WithdrawPage() {
                   setSelectedBank(null)
                   setAccountNumber('')
                   setAccountName('')
+                  setBpcCode('')
                   setError('')
                 }}
                 className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
