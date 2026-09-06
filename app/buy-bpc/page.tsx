@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -14,6 +14,9 @@ import {
   MessageCircle,
   Mail,
   Home,
+  Loader2,
+  XCircle,
+  RotateCcw,
 } from 'lucide-react'
 
 export default function BuyBPCPage() {
@@ -22,7 +25,11 @@ export default function BuyBPCPage() {
   const [copiedAccount, setCopiedAccount] = useState(false)
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [showSubmittedModal, setShowSubmittedModal] = useState(false)
+  
+  // Verification states
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [countdown, setCountdown] = useState(10)
+  const [showFailedModal, setShowFailedModal] = useState(false)
 
   // Static Manual Bank Details
   const MANUAL_BANK = {
@@ -34,6 +41,20 @@ export default function BuyBPCPage() {
 
   const TELEGRAM_LINK = 'https://t.me/available247_1'
   const GMAIL_LINK = 'mailto:lilog2025@gmail.com'
+
+  // Handle 10-second timer
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (isVerifying && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown((prev) => prev - 1)
+      }, 1000)
+    } else if (isVerifying && countdown === 0) {
+      setIsVerifying(false)
+      setShowFailedModal(true)
+    }
+    return () => clearTimeout(timer)
+  }, [isVerifying, countdown])
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -68,14 +89,21 @@ export default function BuyBPCPage() {
       return
     }
 
-    // Direct to manual support modal
-    setShowSubmittedModal(true)
+    // Start 10-second verification simulation
+    setCountdown(10)
+    setIsVerifying(true)
+  }
+
+  const handleTryAgain = () => {
+    setShowFailedModal(false)
+    setIsVerifying(false)
+    setCountdown(10)
   }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16 relative">
       {/* 1. Opay Warning Modal */}
-      {showWarningModal && !showSubmittedModal && (
+      {showWarningModal && !isVerifying && !showFailedModal && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
           <div className="bg-white rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
             <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto">
@@ -109,18 +137,36 @@ export default function BuyBPCPage() {
         </div>
       )}
 
-      {/* 2. Manual Payment Submitted Modal */}
-      {showSubmittedModal && (
+      {/* 2. Verifying Payment Loading Modal (10 Seconds) */}
+      {isVerifying && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-white rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-7 h-7 text-teal-600" />
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
+            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+              <Loader2 className="w-16 h-16 text-teal-500 animate-spin" />
+              <span className="absolute font-bold text-teal-700 text-base">{countdown}s</span>
             </div>
 
-            <h2 className="text-lg font-bold text-gray-900">Receipt Submitted</h2>
+            <h2 className="text-lg font-bold text-gray-900">Verifying Payment...</h2>
 
             <p className="text-xs text-gray-600 font-medium leading-relaxed">
-              Your receipt has been submitted for manual approval. Contact support for instant verification.
+              Please wait while our system checks for your transfer receipt confirmation.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Payment Not Confirmed Modal */}
+      {showFailedModal && (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+          <div className="bg-white rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
+            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto">
+              <XCircle className="w-7 h-7 text-red-600" />
+            </div>
+
+            <h2 className="text-lg font-bold text-gray-900">Payment Not Confirmed</h2>
+
+            <p className="text-xs text-gray-600 font-medium leading-relaxed">
+              Automatic verification could not detect your transfer yet. Please contact support with your receipt or try again.
             </p>
 
             <div className="space-y-2 pt-1">
@@ -131,7 +177,7 @@ export default function BuyBPCPage() {
                 className="w-full bg-blue-500 text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-sm"
               >
                 <MessageCircle className="w-4 h-4" />
-                Send Receipt on Telegram
+                Contact Support (Telegram)
               </a>
 
               <a
@@ -141,6 +187,14 @@ export default function BuyBPCPage() {
                 <Mail className="w-4 h-4 text-gray-600" />
                 Email Support
               </a>
+
+              <button
+                onClick={handleTryAgain}
+                className="w-full bg-teal-500 text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-teal-600 transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Try Again
+              </button>
 
               <button
                 onClick={() => router.push('/dashboard')}
@@ -154,7 +208,7 @@ export default function BuyBPCPage() {
         </div>
       )}
 
-      {/* Compact Header */}
+      {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-2.5 px-3">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="p-1">
@@ -172,7 +226,7 @@ export default function BuyBPCPage() {
           <p className="leading-tight">
             1. Transfer payment to the official account.<br />
             2. Upload a photo of your receipt.<br />
-            3. Click <strong>Submit Receipt</strong> for approval.
+            3. Click <strong>Submit Receipt</strong> to verify.
           </p>
         </div>
 
@@ -217,7 +271,7 @@ export default function BuyBPCPage() {
           </div>
         </div>
 
-        {/* Compact Receipt Upload Box */}
+        {/* Receipt Upload Box */}
         <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm space-y-2">
           <h2 className="font-bold text-gray-900 text-xs">Upload Payment Receipt</h2>
 
