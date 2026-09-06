@@ -22,7 +22,10 @@ export default function SignInPage() {
       const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          email, 
+          type: 'signin' // Instructs backend NOT to create account if user doesn't exist
+        }),
       })
 
       const data = await res.json()
@@ -32,7 +35,7 @@ export default function SignInPage() {
         setStep('verify')
         setMessage('Check your email for the 6-digit code!')
       } else {
-        setMessage(data.error || 'Failed to send code')
+        setMessage(data.error || 'Account not found. Please sign up first.')
       }
     } catch (err) {
       setLoading(false)
