@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Camera, Mail, Phone, MapPin, TrendingUp, Users, Loader2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import { getTransactions } from '@/lib/balance-store'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -13,6 +14,8 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [totalTransactions, setTotalTransactions] = useState(0)
+  const [totalReferrals, setTotalReferrals] = useState(0)
 
   const getSupabaseClient = () => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -52,10 +55,28 @@ export default function ProfilePage() {
         if (localEmail) setEmail((prev) => prev || localEmail)
         if (localName) setFullName((prev) => prev || localName)
         if (localImage) setProfileImage((prev) => prev || localImage)
+
+        // Load real transaction count
+        const txs = getTransactions()
+        setTotalTransactions(txs.length)
+
+        // Load real referral count (defaults to 0 stored in localStorage)
+        const storedReferrals = localStorage.getItem('totalReferrals')
+        setTotalReferrals(storedReferrals ? parseInt(storedReferrals, 10) : 0)
       }
     }
 
     loadUserData()
+
+    const handleStorageChange = () => {
+      const txs = getTransactions()
+      setTotalTransactions(txs.length)
+      const storedReferrals = localStorage.getItem('totalReferrals')
+      setTotalReferrals(storedReferrals ? parseInt(storedReferrals, 10) : 0)
+    }
+
+    window.addEventListener('transactionsChange', handleStorageChange)
+    return () => window.removeEventListener('transactionsChange', handleStorageChange)
   }, [])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,14 +230,14 @@ export default function ProfilePage() {
               <TrendingUp className="w-4 h-4 text-[#0000ff]" />
               <p className="text-xs text-gray-600 font-semibold">Total Transactions</p>
             </div>
-            <p className="text-lg font-bold text-gray-900">42</p>
+            <p className="text-lg font-bold text-gray-900">{totalTransactions}</p>
           </div>
           <div className="bg-white rounded-lg p-3 border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-[#0000ff]" />
               <p className="text-xs text-gray-600 font-semibold">Referrals</p>
             </div>
-            <p className="text-lg font-bold text-gray-900">8</p>
+            <p className="text-lg font-bold text-gray-900">{totalReferrals}</p>
           </div>
         </div>
 
