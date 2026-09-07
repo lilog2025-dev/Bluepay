@@ -18,7 +18,7 @@ import {
   CreditCard,
   Wifi,
 } from 'lucide-react'
-import { getBalance, getTransactions } from '@/lib/balance-store'
+import { getBalance } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -26,20 +26,22 @@ export default function DashboardPage() {
   const [balance, setBalance] = useState<number>(5000)
   const [showBalance, setShowBalance] = useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('Lilog2025')
-  const [transactions, setTransactions] = useState<any[]>([])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Load initial storage/store data
-    setBalance(getBalance())
-    setTransactions(getTransactions())
+    // Load initial storage data safely
+    if (typeof getBalance === 'function') {
+      setBalance(getBalance())
+    }
 
-    const handleBalanceChange = () => setBalance(getBalance())
-    const handleTxChange = () => setTransactions(getTransactions())
+    const handleBalanceChange = () => {
+      if (typeof getBalance === 'function') {
+        setBalance(getBalance())
+      }
+    }
 
     window.addEventListener('balanceChange', handleBalanceChange)
-    window.addEventListener('transactionsChange', handleTxChange)
 
     const loadUser = async () => {
       try {
@@ -67,7 +69,6 @@ export default function DashboardPage() {
 
     return () => {
       window.removeEventListener('balanceChange', handleBalanceChange)
-      window.removeEventListener('transactionsChange', handleTxChange)
     }
   }, [])
 
@@ -157,7 +158,7 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* More Services (Group, Earn, TV, Refer & Earn removed) */}
+        {/* More Services */}
         <div>
           <h3 className="text-sm font-bold text-gray-900 mb-3">More Services</h3>
           <div className="grid grid-cols-4 gap-3">
