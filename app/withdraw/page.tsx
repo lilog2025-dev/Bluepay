@@ -33,7 +33,7 @@ export default function WithdrawPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [PayFlexCodeError, setPayFlexCodeError] = useState('')
-  const [fullName, setFullName] = useState('PayFlex')
+  const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
   const [balance, setBalance] = useState(250000)
@@ -156,11 +156,12 @@ export default function WithdrawPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
       const withdrawAmount = parseFloat(amount)
+      const effectiveUserName = fullName || accountName || 'Valued User'
       
       const transactionId = generateTransactionId()
       await sendDebitAlert({
         email: userEmail,
-        full_name: fullName,
+        full_name: effectiveUserName,
         transaction_type: 'Withdrawal',
         amount: withdrawAmount,
         recipient_name: accountName,
@@ -550,7 +551,7 @@ export default function WithdrawPage() {
               <div className="flex justify-between">
                 <span className="text-gray-600">User Name</span>
                 <span className="font-bold text-gray-900">
-                  {fullName}
+                  {fullName || accountName || 'Valued User'}
                 </span>
               </div>
               <div className="flex justify-between">
