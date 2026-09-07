@@ -165,7 +165,8 @@ export default function DashboardPage() {
         {/* Quick Action Grid (Cleaned 3-Column Layout without WATCH) */}
         <div className="grid grid-cols-3 gap-3">
           <button
-            onClick={() => router.push('/buy-PayFlexCode')}
+            onClick={() => router.push('/buy-payflex-code')}
+
             className="bg-[#f2b830] text-amber-950 p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 font-bold text-xs shadow-sm active:scale-95 transition"
           >
             <CreditCard className="w-5 h-5" />
