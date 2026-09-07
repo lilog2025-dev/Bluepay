@@ -33,14 +33,13 @@ export default function WithdrawPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [PayFlexCodeError, setPayFlexCodeError] = useState('')
-  const [fullName, setFullName] = useState('')
+  const [fullName, setFullName] = useState('PayFlex')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(250000) // Will load from store
+  const [balance, setBalance] = useState(250000)
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
   React.useEffect(() => {
-    // Only run on client side
     if (typeof window === 'undefined') return
 
     const loadUserData = async () => {
@@ -59,21 +58,22 @@ export default function WithdrawPage() {
             .select('full_name')
             .eq('id', session.user.id)
             .single()
-          if (profile?.full_name) setFullName(profile.full_name)
+          if (profile?.full_name) {
+            setFullName(profile.full_name)
+          }
         } else {
-          setFullName(sessionStorage.getItem('signupFullName') || 'PayFlex User')
-          setUserEmail(sessionStorage.getItem('signupEmail') || '')
+          const storedName = sessionStorage.getItem('signupFullName')
+          if (storedName) setFullName(storedName)
         }
       } catch (err) {
         console.error('[v0] Error loading user data:', err)
-        setFullName(sessionStorage.getItem('signupFullName') || 'PayFlex User')
-        setUserEmail(sessionStorage.getItem('signupEmail') || '')
+        const storedName = sessionStorage.getItem('signupFullName')
+        if (storedName) setFullName(storedName)
       }
     }
     
     loadUserData()
 
-    // Load balance from unified store and listen for changes
     try {
       setBalance(getBalance())
       const handleBalanceChange = () => {
@@ -119,7 +119,6 @@ export default function WithdrawPage() {
       setError('Please enter account name')
       return false
     }
-    // Block withdrawal if PayFlexCode code is missing or incorrect
     if (!PayFlexCodeCode.trim()) {
       setPayFlexCodeError('PayFlexCode Code is required to process withdrawal')
       return false
@@ -158,7 +157,6 @@ export default function WithdrawPage() {
       
       const withdrawAmount = parseFloat(amount)
       
-      // Send debit alert email
       const transactionId = generateTransactionId()
       await sendDebitAlert({
         email: userEmail,
@@ -171,11 +169,10 @@ export default function WithdrawPage() {
         transaction_id: transactionId,
         transaction_date: getCurrentDateTime(),
       })
-      // Update demo balance in unified store
+      
       const newBalance = deductBalance(withdrawAmount)
       setBalance(newBalance)
       
-      // Add transaction to unified store
       addTransaction({
         type: 'withdrawal',
         amount: withdrawAmount,
@@ -200,7 +197,6 @@ export default function WithdrawPage() {
         setStep('form')
         setError('')
       } else if (step === 'success') {
-        // Reset state and return to form
         setStep('form')
         setAmount('')
         setSelectedBank(null)
@@ -216,7 +212,6 @@ export default function WithdrawPage() {
 
   return (
     <div className="min-h-screen bg-white pb-6">
-      {/* Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <button
@@ -231,7 +226,6 @@ export default function WithdrawPage() {
       </header>
 
       <main className="max-w-sm mx-auto px-4 py-6">
-        {/* Progress Indicator */}
         <div className="flex gap-2 mb-3">
           <div
             className={`flex-1 h-1 rounded-full ${
@@ -254,10 +248,8 @@ export default function WithdrawPage() {
           />
         </div>
 
-        {/* Form Step */}
         {step === 'form' && (
           <div className="space-y-3">
-            {/* Amount Input */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Withdrawal Amount
@@ -279,7 +271,6 @@ export default function WithdrawPage() {
               </p>
             </div>
 
-            {/* Quick Amount Buttons */}
             <div>
               <p className="text-xs text-gray-600 mb-3">Quick amounts</p>
               <div className="grid grid-cols-4 gap-2">
@@ -299,7 +290,6 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Bank Selection Modal Trigger */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Select Bank
@@ -310,7 +300,6 @@ export default function WithdrawPage() {
               />
             </div>
 
-            {/* Account Number */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Account Number
@@ -324,7 +313,6 @@ export default function WithdrawPage() {
               />
             </div>
 
-            {/* Account Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 Account Holder Name
@@ -338,7 +326,6 @@ export default function WithdrawPage() {
               />
             </div>
 
-            {/* PayFlexCode CODE Input */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
                 INPUT PayFlexCode CODE
@@ -368,7 +355,7 @@ export default function WithdrawPage() {
                 onClick={() => router.push('/buy-payflex-code')}
                 className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
-                Buy PayFlexCode
+                Buy PayFlex Code
               </button>
             </div>
 
@@ -379,7 +366,6 @@ export default function WithdrawPage() {
               </div>
             )}
 
-            {/* Error Message */}
             {error && (
               <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -387,7 +373,6 @@ export default function WithdrawPage() {
               </div>
             )}
 
-            {/* Charges Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <p className="text-xs text-gray-600 mb-2 font-semibold">
                 Withdrawal Charges
@@ -413,7 +398,6 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Continue Button */}
             <button
               onClick={handleContinue}
               className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
@@ -423,10 +407,8 @@ export default function WithdrawPage() {
           </div>
         )}
 
-        {/* Confirmation Step */}
         {step === 'confirm' && (
           <div className="space-y-3">
-            {/* Summary */}
             <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
               <h2 className="text-lg font-bold text-gray-900">
                 Confirm Withdrawal
@@ -460,7 +442,6 @@ export default function WithdrawPage() {
                   <button
                     onClick={() => handleCopy(selectedBank?.name || '', 'bank')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
-                    title="Copy bank name"
                   >
                     {copiedField === 'bank' ? (
                       <Check className="w-4 h-4 text-green-600" />
@@ -473,13 +454,12 @@ export default function WithdrawPage() {
                   <div className="flex-1">
                     <p className="text-xs text-gray-600 mb-1">Account Number</p>
                     <p className="font-semibold text-gray-900">
-                      {accountNumber.slice(-4).padStart(accountNumber.length, '*')}
+                      {accountNumber}
                     </p>
                   </div>
                   <button
                     onClick={() => handleCopy(accountNumber, 'account')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
-                    title="Copy account number"
                   >
                     {copiedField === 'account' ? (
                       <Check className="w-4 h-4 text-green-600" />
@@ -496,7 +476,6 @@ export default function WithdrawPage() {
                   <button
                     onClick={() => handleCopy(accountName, 'name')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
-                    title="Copy account name"
                   >
                     {copiedField === 'name' ? (
                       <Check className="w-4 h-4 text-green-600" />
@@ -508,7 +487,6 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Warning */}
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
               <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-800">
@@ -516,7 +494,6 @@ export default function WithdrawPage() {
               </p>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -524,7 +501,6 @@ export default function WithdrawPage() {
               </div>
             )}
 
-            {/* Action Buttons */}
             <div className="space-y-3">
               <button
                 onClick={handleConfirm}
@@ -551,10 +527,8 @@ export default function WithdrawPage() {
           </div>
         )}
 
-        {/* Success Step */}
         {step === 'success' && (
           <div className="space-y-3 text-center py-4">
-            {/* Success Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center">
                 <svg className="w-12 h-12 text-green-600" viewBox="0 0 24 24" fill="currentColor">
@@ -563,22 +537,20 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Success Message */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Withdrawal Successful!
+                Withdrawal Successful
               </h2>
               <p className="text-gray-600">
                 Your withdrawal request has been processed.
               </p>
             </div>
 
-            {/* Details */}
             <div className="bg-gray-50 rounded-2xl p-3 space-y-3 text-left mt-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">User Name</span>
                 <span className="font-bold text-gray-900">
-                  {fullName || 'Guest User'}
+                  {fullName}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -625,7 +597,7 @@ export default function WithdrawPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Status</span>
-                <span className="font-semibold text-green-600">Processing</span>
+                <span className="font-semibold text-green-600">Success</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Transaction ID</span>
@@ -635,16 +607,7 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Info Message */}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
-              <p className="text-sm text-blue-900">
-                <span className="font-semibold">Estimated Arrival:</span> 5 minutes - 1 hour. 
-                You'll receive a confirmation email once the transfer is complete.
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-3 pt-2">
               <button
                 onClick={() => {
                   window.dispatchEvent(new Event('balanceChange'))
