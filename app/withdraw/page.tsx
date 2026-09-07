@@ -19,7 +19,7 @@ import { createClient } from '@supabase/supabase-js'
 import { BankSelector } from '@/components/bank-selector'
 import { Bank } from '@/lib/nigerian-banks'
 
-const CORRECT_FlexPay_CODE = 'PayFlexCode2026_PRO_V30_650'
+const CORRECT_PAYFLEX_CODE = 'PayFlexCode2026_PRO_V30_650'
 
 export default function WithdrawPage() {
   const router = useRouter()
@@ -28,11 +28,11 @@ export default function WithdrawPage() {
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
   const [accountNumber, setAccountNumber] = useState('')
   const [accountName, setAccountName] = useState('')
-  const [flexPayCode, setFlexPayCode] = useState('')
-  const [showFlexPayCode, setShowFlexPayCode] = useState(false)
+  const [payFlexCode, setPayFlexCode] = useState('')
+  const [showPayFlexCode, setShowPayFlexCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [flexPayError, setFlexPayError] = useState('')
+  const [payFlexError, setPayFlexError] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
@@ -48,7 +48,6 @@ export default function WithdrawPage() {
   })
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  // Live balance tracker synced with dashboard
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -61,11 +60,10 @@ export default function WithdrawPage() {
       }
     }
 
-    // Initial fetch on mount
     updateCurrentBalance()
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'user_balance') {
+      if (e.key && e.key.includes('balance')) {
         updateCurrentBalance()
       }
     }
@@ -77,7 +75,6 @@ export default function WithdrawPage() {
     window.addEventListener('storage', handleStorageChange)
     window.addEventListener('balanceChange', handleCustomBalanceChange as EventListener)
 
-    // Interval poll to ensure sync if events miss
     const interval = setInterval(updateCurrentBalance, 1000)
 
     return () => {
@@ -124,7 +121,7 @@ export default function WithdrawPage() {
   }, [])
 
   const validateForm = () => {
-    setFlexPayError('')
+    setPayFlexError('')
     setError('')
 
     if (!amount || parseFloat(amount) <= 0) {
@@ -151,12 +148,12 @@ export default function WithdrawPage() {
       setError('Please enter account name')
       return false
     }
-    if (!flexPayCode.trim()) {
-      setFlexPayError('FlexPay Code is required to process withdrawal')
+    if (!payFlexCode.trim()) {
+      setPayFlexError('PayFlex Code is required to process withdrawal')
       return false
     }
-    if (flexPayCode.trim() !== CORRECT_FlexPay_CODE) {
-      setFlexPayError('Invalid FlexPay Code. Please purchase a valid FlexPay code to continue.')
+    if (payFlexCode.trim() !== CORRECT_PAYFLEX_CODE) {
+      setPayFlexError('Invalid PayFlex Code. Please purchase a valid PayFlex code to continue.')
       return false
     }
 
@@ -235,7 +232,7 @@ export default function WithdrawPage() {
         setSelectedBank(null)
         setAccountNumber('')
         setAccountName('')
-        setFlexPayCode('')
+        setPayFlexCode('')
         setError('')
       }
     } catch (err) {
@@ -345,25 +342,25 @@ export default function WithdrawPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
-                INPUT FlexPay CODE
+                INPUT PayFlex CODE
               </label>
               <div className="relative">
                 <input
-                  type={showFlexPayCode ? 'text' : 'password'}
-                  value={flexPayCode}
+                  type={showPayFlexCode ? 'text' : 'password'}
+                  value={payFlexCode}
                   onChange={(e) => {
-                    setFlexPayCode(e.target.value)
-                    setFlexPayError('')
+                    setPayFlexCode(e.target.value)
+                    setPayFlexError('')
                   }}
-                  placeholder="Enter FlexPay Code"
+                  placeholder="Enter PayFlex Code"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10 text-gray-900"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowFlexPayCode(!showFlexPayCode)}
+                  onClick={() => setShowPayFlexCode(!showPayFlexCode)}
                   className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
                 >
-                  {showFlexPayCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPayFlexCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               <button
@@ -371,14 +368,14 @@ export default function WithdrawPage() {
                 onClick={() => router.push('/buy-payflex-code')}
                 className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
-                Buy FlexPay Code
+                Buy PayFlex Code
               </button>
             </div>
 
-            {flexPayError && (
+            {payFlexError && (
               <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{flexPayError}</p>
+                <p className="text-sm text-red-700">{payFlexError}</p>
               </div>
             )}
 
@@ -627,7 +624,7 @@ export default function WithdrawPage() {
                   setSelectedBank(null)
                   setAccountNumber('')
                   setAccountName('')
-                  setFlexPayCode('')
+                  setPayFlexCode('')
                   setError('')
                 }}
                 className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
