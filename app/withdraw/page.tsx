@@ -365,7 +365,7 @@ export default function WithdrawPage() {
               </div>
               <button
                 type="button"
-                onClick={() => router.push('/buy-PayFlexCode')}
+                onClick={() => router.push('/buy-payflex-code')}
                 className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
                 Buy PayFlexCode
