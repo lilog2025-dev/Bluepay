@@ -19,7 +19,7 @@ import { createClient } from '@supabase/supabase-js'
 import { BankSelector } from '@/components/bank-selector'
 import { Bank } from '@/lib/nigerian-banks'
 
-const CORRECT_PayFlexcode_CODE = 'PayFlexCode2026_PRO_V30_650'
+const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
 
 export default function WithdrawPage() {
   const router = useRouter()
@@ -28,8 +28,8 @@ export default function WithdrawPage() {
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
   const [accountNumber, setAccountNumber] = useState('')
   const [accountName, setAccountName] = useState('')
-  const [PayFlexCodeCODE, setPayFlexCodeCODE] = useState('')
-  const [showPayFlexCodeCODE, setShowPayFle Code] = useState(false)
+  const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
+  const [showPayFlexCodeCode, setShowPayFlexCodeCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [PayFlexCodeError, setPayFlexCodeError] = useState('')
