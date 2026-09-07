@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
-import { sendPayFlexCodeEmail } from '@/lib/PayFlexCode-email'
+import { sendPayFlexCodeEmail } from '@/lib/payflex-email'
 import { generateTransactionId } from '@/lib/debit-alert'
 import { getBalance, deductBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
