@@ -7,7 +7,6 @@ import {
   Eye,
   EyeOff,
   Headphones,
-  BarChart2,
   Gamepad2,
   Zap,
   Calendar,
@@ -287,24 +286,16 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* More Services */}
+        {/* More Services (3 items now, adjusted grid to grid-cols-3) */}
         <div>
           <h3 className="text-sm font-bold text-gray-900 mb-3">More Services</h3>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button
               onClick={() => router.push('/support')}
               className="bg-sky-400 hover:bg-sky-500 text-white p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm transition aspect-square"
             >
               <Headphones className="w-5 h-5 mb-1" />
               <span className="text-[10px] font-bold">SUPPORT</span>
-            </button>
-
-            <button
-              onClick={() => router.push('/data-review')}
-              className="bg-rose-500 hover:bg-rose-600 text-white p-3 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm transition aspect-square"
-            >
-              <BarChart2 className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-bold leading-tight">DATA<br />REVIEW</span>
             </button>
 
             <button
