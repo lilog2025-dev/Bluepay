@@ -36,7 +36,7 @@ export default function WithdrawPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(250000)
+  const [balance, setBalance] = useState(0) // Changed initial state to 0 instead of 250000
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
   React.useEffect(() => {
@@ -175,10 +175,8 @@ export default function WithdrawPage() {
         transaction_date: getCurrentDateTime(),
       })
       
-      // Deduct balance and ensure localStorage / localStorage events propagate correctly
       const newBalance = deductBalance(withdrawAmount)
       
-      // Fallback synchronization to guarantee dashboard balance update across listeners
       const currentStored = parseFloat(localStorage.getItem('user_available_balance') || balance.toString())
       const updatedTotal = Math.max(0, currentStored - withdrawAmount)
       localStorage.setItem('user_available_balance', updatedTotal.toString())
@@ -597,7 +595,7 @@ export default function WithdrawPage() {
                   {accountNumber}
                 </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-name">
                 <span className="text-gray-600">Account Name</span>
                 <span className="font-semibold text-gray-900">
                   {accountName}
