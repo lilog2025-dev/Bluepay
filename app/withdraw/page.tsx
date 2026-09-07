@@ -1,11 +1,11 @@
+// app/withdraw/page.tsx
+
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
-  DollarSign,
-  CheckCircle,
   AlertCircle,
   Loader,
   Eye,
@@ -19,7 +19,7 @@ import { createClient } from '@supabase/supabase-js'
 import { BankSelector } from '@/components/bank-selector'
 import { Bank } from '@/lib/nigerian-banks'
 
-const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
+const CORRECT_FlexPay_CODE = 'PayFlexCode2026_PRO_V30_650'
 
 export default function WithdrawPage() {
   const router = useRouter()
@@ -28,15 +28,15 @@ export default function WithdrawPage() {
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
   const [accountNumber, setAccountNumber] = useState('')
   const [accountName, setAccountName] = useState('')
-  const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
-  const [showPayFlexCodeCode, setShowPayFlexCodeCode] = useState(false)
+  const [flexPayCode, setFlexPayCode] = useState('')
+  const [showFlexPayCode, setShowFlexPayCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [PayFlexCodeError, setPayFlexCodeError] = useState('')
+  const [flexPayError, setFlexPayError] = useState('')
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(() => {
+  const [balance, setBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       try {
         return getBalance()
@@ -48,7 +48,46 @@ export default function WithdrawPage() {
   })
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  React.useEffect(() => {
+  // Live balance tracker synced with dashboard
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const updateCurrentBalance = () => {
+      try {
+        const freshBalance = getBalance()
+        setBalance(freshBalance)
+      } catch (e) {
+        console.error('[v0] Error fetching balance:', e)
+      }
+    }
+
+    // Initial fetch on mount
+    updateCurrentBalance()
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user_balance') {
+        updateCurrentBalance()
+      }
+    }
+
+    const handleCustomBalanceChange = () => {
+      updateCurrentBalance()
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('balanceChange', handleCustomBalanceChange as EventListener)
+
+    // Interval poll to ensure sync if events miss
+    const interval = setInterval(updateCurrentBalance, 1000)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('balanceChange', handleCustomBalanceChange as EventListener)
+      clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
     if (typeof window === 'undefined') return
 
     const loadUserData = async () => {
@@ -82,30 +121,10 @@ export default function WithdrawPage() {
     }
     
     loadUserData()
-
-    try {
-      setBalance(getBalance())
-      const handleBalanceChange = () => {
-        try {
-          setBalance(getBalance())
-        } catch (e) {
-          console.error('[v0] Error updating balance:', e)
-        }
-      }
-      window.addEventListener('balanceChange', handleBalanceChange)
-      window.addEventListener('storage', handleBalanceChange)
-      
-      return () => {
-        window.removeEventListener('balanceChange', handleBalanceChange)
-        window.removeEventListener('storage', handleBalanceChange)
-      }
-    } catch (err) {
-      console.error('[v0] Error setting up balance listener:', err)
-    }
   }, [])
 
   const validateForm = () => {
-    setPayFlexCodeError('')
+    setFlexPayError('')
     setError('')
 
     if (!amount || parseFloat(amount) <= 0) {
@@ -132,12 +151,12 @@ export default function WithdrawPage() {
       setError('Please enter account name')
       return false
     }
-    if (!PayFlexCodeCode.trim()) {
-      setPayFlexCodeError('PayFlexCode Code is required to process withdrawal')
+    if (!flexPayCode.trim()) {
+      setFlexPayError('FlexPay Code is required to process withdrawal')
       return false
     }
-    if (PayFlexCodeCode.trim() !== CORRECT_PayFlexCode_CODE) {
-      setPayFlexCodeError('Invalid PayFlexCode Code. Please purchase a valid PayFlexCode code to continue.')
+    if (flexPayCode.trim() !== CORRECT_FlexPay_CODE) {
+      setFlexPayError('Invalid FlexPay Code. Please purchase a valid FlexPay code to continue.')
       return false
     }
 
@@ -185,13 +204,6 @@ export default function WithdrawPage() {
       })
       
       const newBalance = deductBalance(withdrawAmount)
-      
-      const currentStored = parseFloat(localStorage.getItem('user_available_balance') || balance.toString())
-      const updatedTotal = Math.max(0, currentStored - withdrawAmount)
-      localStorage.setItem('user_available_balance', updatedTotal.toString())
-      window.dispatchEvent(new Event('storage'))
-      window.dispatchEvent(new Event('balanceChange'))
-
       setBalance(newBalance)
       
       addTransaction({
@@ -223,7 +235,7 @@ export default function WithdrawPage() {
         setSelectedBank(null)
         setAccountNumber('')
         setAccountName('')
-        setPayFlexCodeCode('')
+        setFlexPayCode('')
         setError('')
       }
     } catch (err) {
@@ -248,25 +260,9 @@ export default function WithdrawPage() {
 
       <main className="max-w-sm mx-auto px-4 py-6">
         <div className="flex gap-2 mb-3">
-          <div
-            className={`flex-1 h-1 rounded-full ${
-              step === 'form' || step === 'confirm' || step === 'success'
-                ? 'bg-[#0000ff]'
-                : 'bg-gray-200'
-            }`}
-          />
-          <div
-            className={`flex-1 h-1 rounded-full ${
-              step === 'confirm' || step === 'success'
-                ? 'bg-[#0000ff]'
-                : 'bg-gray-200'
-            }`}
-          />
-          <div
-            className={`flex-1 h-1 rounded-full ${
-              step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'
-            }`}
-          />
+          <div className={`flex-1 h-1 rounded-full ${step === 'form' || step === 'confirm' || step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'}`} />
+          <div className={`flex-1 h-1 rounded-full ${step === 'confirm' || step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'}`} />
+          <div className={`flex-1 h-1 rounded-full ${step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'}`} />
         </div>
 
         {step === 'form' && (
@@ -349,26 +345,25 @@ export default function WithdrawPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-3">
-                INPUT PayFlexCode CODE
+                INPUT FlexPay CODE
               </label>
               <div className="relative">
                 <input
-                  type={showPayFlexCodeCode ? 'text' : 'password'}
-                  value={PayFlexCodeCode}
+                  type={showFlexPayCode ? 'text' : 'password'}
+                  value={flexPayCode}
                   onChange={(e) => {
-                    setPayFlexCodeCode(e.target.value)
-                    setPayFlexCodeError('')
+                    setFlexPayCode(e.target.value)
+                    setFlexPayError('')
                   }}
-                  placeholder="Enter PayFlexCode Code"
+                  placeholder="Enter FlexPay Code"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10 text-gray-900"
-                  maxLength={CORRECT_PayFlexCode_CODE.length}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPayFlexCodeCode(!showPayFlexCodeCode)}
+                  onClick={() => setShowFlexPayCode(!showFlexPayCode)}
                   className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
                 >
-                  {showPayFlexCodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showFlexPayCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               <button
@@ -376,14 +371,14 @@ export default function WithdrawPage() {
                 onClick={() => router.push('/buy-payflex-code')}
                 className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
-                Buy PayFlex Code
+                Buy FlexPay Code
               </button>
             </div>
 
-            {PayFlexCodeError && (
+            {flexPayError && (
               <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{PayFlexCodeError}</p>
+                <p className="text-sm text-red-700">{flexPayError}</p>
               </div>
             )}
 
@@ -464,29 +459,19 @@ export default function WithdrawPage() {
                     onClick={() => handleCopy(selectedBank?.name || '', 'bank')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
                   >
-                    {copiedField === 'bank' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
+                    {copiedField === 'bank' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
                   </button>
                 </div>
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1">
                     <p className="text-xs text-gray-600 mb-1">Account Number</p>
-                    <p className="font-semibold text-gray-900">
-                      {accountNumber}
-                    </p>
+                    <p className="font-semibold text-gray-900">{accountNumber}</p>
                   </div>
                   <button
                     onClick={() => handleCopy(accountNumber, 'account')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
                   >
-                    {copiedField === 'account' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
+                    {copiedField === 'account' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
                   </button>
                 </div>
                 <div className="flex justify-between items-start gap-2">
@@ -498,11 +483,7 @@ export default function WithdrawPage() {
                     onClick={() => handleCopy(accountName, 'name')}
                     className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
                   >
-                    {copiedField === 'name' ? (
-                      <Check className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    )}
+                    {copiedField === 'name' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
                   </button>
                 </div>
               </div>
@@ -646,7 +627,7 @@ export default function WithdrawPage() {
                   setSelectedBank(null)
                   setAccountNumber('')
                   setAccountName('')
-                  setPayFlexCodeCode('')
+                  setFlexPayCode('')
                   setError('')
                 }}
                 className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
