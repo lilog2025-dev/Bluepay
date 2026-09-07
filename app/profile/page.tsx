@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Camera, Mail, Phone, MapPin, TrendingUp, Users, Loader2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
-import { getTransactions } from '@/lib/balance-store'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -46,7 +45,7 @@ export default function ProfilePage() {
         console.error('[v0] Error loading Supabase profile:', err)
       }
 
-      // 2. Fallback to localStorage if state is still empty
+      // 2. Fallback to localStorage and load stats
       if (typeof window !== 'undefined') {
         const localEmail = localStorage.getItem('userEmail') || localStorage.getItem('user_email') || localStorage.getItem('email')
         const localName = localStorage.getItem('userName') || localStorage.getItem('user_name') || localStorage.getItem('fullName')
@@ -56,11 +55,18 @@ export default function ProfilePage() {
         if (localName) setFullName((prev) => prev || localName)
         if (localImage) setProfileImage((prev) => prev || localImage)
 
-        // Load real transaction count
-        const txs = getTransactions()
-        setTotalTransactions(txs.length)
+        // Load real transaction count from localStorage safely
+        try {
+          const savedTxs = localStorage.getItem('transactions')
+          if (savedTxs) {
+            const parsed = JSON.parse(savedTxs)
+            if (Array.isArray(parsed)) setTotalTransactions(parsed.length)
+          }
+        } catch (e) {
+          setTotalTransactions(0)
+        }
 
-        // Load real referral count (defaults to 0 stored in localStorage)
+        // Load real referral count
         const storedReferrals = localStorage.getItem('totalReferrals')
         setTotalReferrals(storedReferrals ? parseInt(storedReferrals, 10) : 0)
       }
@@ -69,8 +75,15 @@ export default function ProfilePage() {
     loadUserData()
 
     const handleStorageChange = () => {
-      const txs = getTransactions()
-      setTotalTransactions(txs.length)
+      try {
+        const savedTxs = localStorage.getItem('transactions')
+        if (savedTxs) {
+          const parsed = JSON.parse(savedTxs)
+          if (Array.isArray(parsed)) setTotalTransactions(parsed.length)
+        }
+      } catch (e) {
+        setTotalTransactions(0)
+      }
       const storedReferrals = localStorage.getItem('totalReferrals')
       setTotalReferrals(storedReferrals ? parseInt(storedReferrals, 10) : 0)
     }
