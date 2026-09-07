@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const router = useRouter()
   const [balance, setBalance] = useState<number>(0)
   const [showBalance, setShowBalance] = useState<boolean>(true)
-  const [fullName, setFullName] = useState<string>('Lilog2025')
+  const [fullName, setFullName] = useState<string>('User')
 
   // Mining States
   const [isMining, setIsMining] = useState(false)
@@ -37,9 +37,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Completely wipe old balance keys so it defaults to 0 safely
-    localStorage.removeItem('balance')
-    
+    // Balance Initialization
     const storedBalance = localStorage.getItem('user_available_balance')
     if (storedBalance === null || isNaN(parseFloat(storedBalance))) {
       localStorage.setItem('user_available_balance', '0')
@@ -63,6 +61,7 @@ export default function DashboardPage() {
     if (savedProgress) setMinedAmount(parseFloat(savedProgress))
     if (savedStatus === 'true') setIsCompleted(true)
 
+    // Load actual logged-in user profile from Supabase or session storage fallback
     const loadUser = async () => {
       try {
         const supabase = createClient(
@@ -78,11 +77,20 @@ export default function DashboardPage() {
             .single()
           if (profile?.full_name) {
             setFullName(profile.full_name)
+            return
+          }
+          if (session.user.email) {
+            setFullName(session.user.email.split('@')[0])
+            return
           }
         }
       } catch (err) {
-        const storedName = sessionStorage.getItem('signupFullName')
-        if (storedName) setFullName(storedName)
+        // Fallback check
+      }
+
+      const storedName = sessionStorage.getItem('signupFullName') || localStorage.getItem('signupFullName')
+      if (storedName) {
+        setFullName(storedName)
       }
     }
     loadUser()
@@ -344,7 +352,7 @@ export default function DashboardPage() {
             className="flex flex-col items-center text-gray-500 hover:text-[#0000ff]"
           >
             <HelpCircle className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px] font-medium">Support</span>
+            <span className="text-[10px] font-medium" >Support</span>
           </button>
 
           <button
