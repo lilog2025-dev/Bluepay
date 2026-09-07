@@ -20,7 +20,6 @@ import {
   Play,
   CheckCircle2,
 } from 'lucide-react'
-import { getBalance, updateBalance } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -38,13 +37,15 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Force clear any old cached 250k balance and reset store to 0 if uninitialized
-    const hasInitializedZero = localStorage.getItem('hasInitializedZero')
-    if (!hasInitializedZero) {
-      if (typeof updateBalance === 'function') {
-        updateBalance(0)
-      }
-      localStorage.setItem('hasInitializedZero', 'true')
+    // Completely wipe old balance keys so it defaults to 0 safely
+    localStorage.removeItem('balance')
+    
+    const storedBalance = localStorage.getItem('user_available_balance')
+    if (storedBalance === null || isNaN(parseFloat(storedBalance))) {
+      localStorage.setItem('user_available_balance', '0')
+      setBalance(0)
+    } else {
+      setBalance(parseFloat(storedBalance))
     }
 
     // Check if it's a new day to reset mining
@@ -61,20 +62,6 @@ export default function DashboardPage() {
     const savedStatus = localStorage.getItem('miningCompleted')
     if (savedProgress) setMinedAmount(parseFloat(savedProgress))
     if (savedStatus === 'true') setIsCompleted(true)
-
-    // Load initial balance safely
-    if (typeof getBalance === 'function') {
-      const currentBal = getBalance()
-      setBalance(isNaN(currentBal) ? 0 : currentBal)
-    }
-
-    const handleBalanceChange = () => {
-      if (typeof getBalance === 'function') {
-        setBalance(getBalance())
-      }
-    }
-
-    window.addEventListener('balanceChange', handleBalanceChange)
 
     const loadUser = async () => {
       try {
@@ -99,13 +86,9 @@ export default function DashboardPage() {
       }
     }
     loadUser()
-
-    return () => {
-      window.removeEventListener('balanceChange', handleBalanceChange)
-    }
   }, [])
 
-  // Mining increment effect that directly updates balance store and state
+  // Mining increment effect updating local state and localStorage directly
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isMining && minedAmount < DAILY_LIMIT) {
@@ -122,23 +105,19 @@ export default function DashboardPage() {
             localStorage.setItem('minedToday', DAILY_LIMIT.toString())
             localStorage.setItem('lastMiningDate', new Date().toDateString())
             
-            // Add final chunk directly to balance store
-            if (typeof updateBalance === 'function' && finalChunk > 0) {
-              const current = typeof getBalance === 'function' ? getBalance() : balance
-              const newTotal = current + finalChunk
-              updateBalance(newTotal)
-              setBalance(newTotal)
-            }
+            setBalance((currentBal) => {
+              const newTotal = currentBal + finalChunk
+              localStorage.setItem('user_available_balance', newTotal.toString())
+              return newTotal
+            })
             return DAILY_LIMIT
           }
 
-          // Add intermediate increment to balance store
-          if (typeof updateBalance === 'function') {
-            const current = typeof getBalance === 'function' ? getBalance() : balance
-            const newTotal = current + increment
-            updateBalance(newTotal)
-            setBalance(newTotal)
-          }
+          setBalance((currentBal) => {
+            const newTotal = currentBal + increment
+            localStorage.setItem('user_available_balance', newTotal.toString())
+            return newTotal
+          })
 
           localStorage.setItem('minedToday', nextVal.toString())
           return nextVal
@@ -146,7 +125,7 @@ export default function DashboardPage() {
       }, 400)
     }
     return () => clearInterval(interval)
-  }, [isMining, minedAmount, balance])
+  }, [isMining, minedAmount])
 
   const startMining = () => {
     if (isCompleted) return
