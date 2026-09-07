@@ -38,6 +38,15 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    // Force clear any old cached 250k balance and reset store to 0 if uninitialized
+    const hasInitializedZero = localStorage.getItem('hasInitializedZero')
+    if (!hasInitializedZero) {
+      if (typeof updateBalance === 'function') {
+        updateBalance(0)
+      }
+      localStorage.setItem('hasInitializedZero', 'true')
+    }
+
     // Check if it's a new day to reset mining
     const lastMiningDate = localStorage.getItem('lastMiningDate')
     const todayStr = new Date().toDateString()
@@ -53,10 +62,9 @@ export default function DashboardPage() {
     if (savedProgress) setMinedAmount(parseFloat(savedProgress))
     if (savedStatus === 'true') setIsCompleted(true)
 
-    // Load initial balance safely (defaults to 0 for new accounts)
+    // Load initial balance safely
     if (typeof getBalance === 'function') {
       const currentBal = getBalance()
-      // If balance has never been set or initialized higher than 250k, start at 0
       setBalance(isNaN(currentBal) ? 0 : currentBal)
     }
 
