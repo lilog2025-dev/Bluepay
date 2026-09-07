@@ -1,6 +1,6 @@
 // lib/balance-store.ts
 
-export const INITIAL_BALANCE = 250000
+export const INITIAL_BALANCE = 0
 
 export interface Transaction {
   id?: string
@@ -25,11 +25,9 @@ export function getBalance(): number {
 export function updateBalance(newBalance: number): number {
   if (typeof window === 'undefined') return newBalance
   
-  // Store updated balance
   localStorage.setItem('user_balance', newBalance.toString())
-  
-  // Broadcast event across all components in current window
   window.dispatchEvent(new CustomEvent('balanceChange', { detail: { balance: newBalance } }))
+  window.dispatchEvent(new Event('storage'))
   
   return newBalance
 }
@@ -40,19 +38,20 @@ export function addEarnings(amount: number): number {
   return updateBalance(updated)
 }
 
-// Helper aliases to resolve Next.js build errors across page routes
 export function addBalance(amount: number): number {
   return addEarnings(amount)
 }
 
 export function deductBalance(amount: number): number {
   const current = getBalance()
-  const updated = current - amount
+  const updated = Math.max(0, current - amount)
   return updateBalance(updated)
 }
 
 export function addTransaction(tx: Transaction | unknown): void {
   if (typeof window !== 'undefined') {
+    const existing = JSON.parse(localStorage.getItem('user_transactions') || '[]')
+    localStorage.setItem('user_transactions', JSON.stringify([tx, ...existing]))
     window.dispatchEvent(new CustomEvent('transactionAdded', { detail: tx }))
   }
 }
