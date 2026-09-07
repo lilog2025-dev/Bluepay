@@ -280,7 +280,7 @@ export default function ElectricityPage() {
             </div>
             <button
               type="button"
-              onClick={() => router.push('/buy-pay-flex-code')}
+              onClick={() => router.push('/buy-PayFlexCode')}
               className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
             >
               Buy PayFlexCode
