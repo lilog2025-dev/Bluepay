@@ -249,7 +249,7 @@ export default function DataPage() {
         setSelectedCountry('')
         setPhoneNumber('')
         setSelectedPlan('')
-        setAmount('')
+        setCustomAmount('')
         setError('')
       }
     } catch (err) {
@@ -264,13 +264,6 @@ export default function DataPage() {
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const formatDateTimeForEmail = () => {
-    const now = new Date()
-    const date = now.toLocaleDateString('en-NG')
-    const time = now.toLocaleTimeString('en-NG')
-    return { date, time }
   }
 
   return (
@@ -489,7 +482,7 @@ export default function DataPage() {
               </div>
               <button
                 type="button"
-                onClick={() => router.push('/buy-PayFlexCode')}
+                onClick={() => router.push('/buy-payflex-code')}
                 className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
               >
                 Buy PayFlexCode
