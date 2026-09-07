@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Camera, Mail, Phone, MapPin, TrendingUp, Users, Loader2 } from 'lucide-react'
+import { ArrowLeft, Camera, Mail, MapPin, TrendingUp, Loader2 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 
 export default function ProfilePage() {
@@ -14,7 +14,6 @@ export default function ProfilePage() {
   const [isUploading, setIsUploading] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [totalTransactions, setTotalTransactions] = useState(0)
-  const [totalReferrals, setTotalReferrals] = useState(0)
 
   const getSupabaseClient = () => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -25,7 +24,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      // 1. Try pulling from Supabase session first
       try {
         const supabase = getSupabaseClient()
         if (supabase) {
@@ -45,7 +43,6 @@ export default function ProfilePage() {
         console.error('[v0] Error loading Supabase profile:', err)
       }
 
-      // 2. Fallback to localStorage for email/name/image and load stats
       if (typeof window !== 'undefined') {
         const localEmail = localStorage.getItem('userEmail') || localStorage.getItem('user_email') || localStorage.getItem('email') || sessionStorage.getItem('signupEmail')
         const localName = localStorage.getItem('userName') || localStorage.getItem('user_name') || localStorage.getItem('fullName') || sessionStorage.getItem('signupFullName')
@@ -55,7 +52,6 @@ export default function ProfilePage() {
         setFullName((prev) => prev || localName || '')
         if (localImage) setProfileImage((prev) => prev || localImage)
 
-        // Load real transaction count from localStorage safely
         try {
           const savedTxs = localStorage.getItem('transactions')
           if (savedTxs) {
@@ -65,10 +61,6 @@ export default function ProfilePage() {
         } catch (e) {
           setTotalTransactions(0)
         }
-
-        // Load real referral count
-        const storedReferrals = localStorage.getItem('totalReferrals')
-        setTotalReferrals(storedReferrals ? parseInt(storedReferrals, 10) : 0)
       }
     }
 
@@ -84,8 +76,6 @@ export default function ProfilePage() {
       } catch (e) {
         setTotalTransactions(0)
       }
-      const storedReferrals = localStorage.getItem('totalReferrals')
-      setTotalReferrals(storedReferrals ? parseInt(storedReferrals, 10) : 0)
     }
 
     window.addEventListener('transactionsChange', handleStorageChange)
@@ -125,7 +115,6 @@ export default function ProfilePage() {
         }
       }
 
-      // Local preview fallback if Supabase storage upload is unavailable
       const reader = new FileReader()
       reader.onloadend = () => {
         const base64Url = reader.result as string
@@ -180,7 +169,7 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <main className="px-3 py-3 max-w-2xl mx-auto">
+      <main className="px-3 py-3 max-w-2xl mx-auto space-y-3">
         {/* Profile Picture Section */}
         <div className="flex flex-col items-center mb-6">
           <div className="relative w-24 h-24 mb-3">
@@ -209,7 +198,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Account Details */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200 mb-3">
+        <div className="bg-white rounded-lg p-3 border border-gray-200">
           <h3 className="font-bold text-gray-900 text-sm mb-3">Account Details</h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -219,14 +208,7 @@ export default function ProfilePage() {
                 <p className="font-semibold text-gray-900 text-sm break-all">{email || 'No email provided'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-4 h-4 text-[#0000ff]" />
-              <div className="flex-1">
-                <p className="text-xs text-gray-600">Phone</p>
-                <p className="font-semibold text-gray-900 text-sm">+234 (Update in settings)</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
+            <div className="updated-row flex items-center gap-3">
               <MapPin className="w-4 h-4 text-[#0000ff]" />
               <div className="flex-1">
                 <p className="text-xs text-gray-600">Location</p>
@@ -236,8 +218,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        {/* Statistics (Single Column for Total Transactions, Referrals removed) */}
+        <div>
           <div className="bg-white rounded-lg p-3 border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-[#0000ff]" />
@@ -245,23 +227,10 @@ export default function ProfilePage() {
             </div>
             <p className="text-lg font-bold text-gray-900">{totalTransactions}</p>
           </div>
-          <div className="bg-white rounded-lg p-3 border border-gray-200">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-[#0000ff]" />
-              <p className="text-xs text-gray-600 font-semibold">Referrals</p>
-            </div>
-            <p className="text-lg font-bold text-gray-900">{totalReferrals}</p>
-          </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="space-y-2">
-          <button className="w-full bg-white border border-gray-200 text-gray-900 font-bold py-2.5 rounded-lg hover:bg-gray-50 transition text-sm">
-            Security Settings
-          </button>
-          <button className="w-full bg-white border border-gray-200 text-gray-900 font-bold py-2.5 rounded-lg hover:bg-gray-50 transition text-sm">
-            Notification Preferences
-          </button>
+        {/* Action Buttons (Security & Notification Preferences removed) */}
+        <div className="space-y-2 pt-2">
           <button
             onClick={handleSignOut}
             disabled={isSigningOut}
