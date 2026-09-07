@@ -121,11 +121,11 @@ export default function WithdrawPage() {
     }
     // Block withdrawal if PayFlexCode code is missing or incorrect
     if (!PayFlexCodeCode.trim()) {
-      setPayFlexCodeError('PayFlexCode  is required to process withdrawal')
+      setPayFlexCodeError('PayFlexCode Code is required to process withdrawal')
       return false
     }
     if (PayFlexCodeCode.trim() !== CORRECT_PayFlexCode_CODE) {
-      setPayFlexCodeError('Invalid PayFlexCode. Please purchase a valid PayFlexCode code to continue.'
+      setPayFlexCodeError('Invalid PayFlexCode Code. Please purchase a valid PayFlexCode code to continue.')
       return false
     }
 
