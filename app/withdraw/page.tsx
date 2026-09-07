@@ -36,7 +36,16 @@ export default function WithdrawPage() {
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(0) // Changed initial state to 0 instead of 250000
+  const [balance, setBalance] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return getBalance()
+      } catch (e) {
+        return 0
+      }
+    }
+    return 0
+  })
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
   React.useEffect(() => {
@@ -595,7 +604,7 @@ export default function WithdrawPage() {
                   {accountNumber}
                 </span>
               </div>
-              <div className="flex justify-name">
+              <div className="flex justify-between">
                 <span className="text-gray-600">Account Name</span>
                 <span className="font-semibold text-gray-900">
                   {accountName}
