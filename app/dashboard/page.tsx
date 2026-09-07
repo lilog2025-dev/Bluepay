@@ -17,6 +17,8 @@ import {
   Plus,
   CreditCard,
   Wifi,
+  Play,
+  CheckCircle2,
 } from 'lucide-react'
 import { getBalance } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
@@ -27,8 +29,20 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('Lilog2025')
 
+  // Mining States
+  const [isMining, setIsMining] = useState(false)
+  const [minedAmount, setMinedAmount] = useState(0)
+  const [isCompleted, setIsCompleted] = useState(false)
+  const DAILY_LIMIT = 250000
+
   useEffect(() => {
     if (typeof window === 'undefined') return
+
+    // Load initial mining storage data
+    const savedProgress = localStorage.getItem('minedToday')
+    const savedStatus = localStorage.getItem('miningCompleted')
+    if (savedProgress) setMinedAmount(parseFloat(savedProgress))
+    if (savedStatus === 'true') setIsCompleted(true)
 
     // Load initial storage data safely
     if (typeof getBalance === 'function') {
@@ -72,6 +86,35 @@ export default function DashboardPage() {
     }
   }, [])
 
+  // Mining increment effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isMining && minedAmount < DAILY_LIMIT) {
+      interval = setInterval(() => {
+        setMinedAmount((prev) => {
+          const nextVal = prev + 5000
+          if (nextVal >= DAILY_LIMIT) {
+            setIsMining(false)
+            setIsCompleted(true)
+            localStorage.setItem('miningCompleted', 'true')
+            localStorage.setItem('minedToday', DAILY_LIMIT.toString())
+            return DAILY_LIMIT
+          }
+          localStorage.setItem('minedToday', nextVal.toString())
+          return nextVal
+        })
+      }, 100)
+    }
+    return () => clearInterval(interval)
+  }, [isMining, minedAmount])
+
+  const startMining = () => {
+    if (isCompleted) return
+    setIsMining(true)
+  }
+
+  const progressPercentage = (minedAmount / DAILY_LIMIT) * 100
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24 text-gray-900">
       {/* Top Header */}
@@ -97,6 +140,63 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-4 space-y-4">
+        {/* Daily Mining Card */}
+        <div className="bg-white rounded-3xl p-4 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-blue-50 rounded-xl text-[#0000ff]">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm">Daily Allocation Mining</h3>
+                <p className="text-xs text-gray-500">Tap to mine your daily NGN 250,000</p>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-[#0000ff] bg-blue-50 px-2.5 py-1 rounded-full">
+              {progressPercentage.toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mb-3">
+            <div 
+              className="bg-[#0000ff] h-full transition-all duration-200"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-gray-500">Mined Value</span>
+            <span className="font-bold text-gray-900 text-base">
+              ₦{minedAmount.toLocaleString()} <span className="text-xs text-gray-400 font-normal">/ ₦250,000</span>
+            </span>
+          </div>
+
+          {!isCompleted ? (
+            <button
+              onClick={startMining}
+              disabled={isMining}
+              className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-95 transition flex items-center justify-center gap-2 text-sm disabled:opacity-70 shadow-md"
+            >
+              {isMining ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Mining in progress...
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 fill-white" />
+                  Start Mining Today's Allocation
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="w-full bg-green-50 text-green-700 border border-green-200 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              Mining Completed Successfully
+            </div>
+          )}
+        </div>
+
         {/* Balance Card */}
         <div className="bg-[#0000ff] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden">
           <div className="flex justify-between items-start mb-4">
