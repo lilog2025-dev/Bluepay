@@ -17,6 +17,8 @@ import {
   Loader2,
   XCircle,
   RotateCcw,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 
 export default function BuyPayFlexCodePage() {
@@ -26,6 +28,10 @@ export default function BuyPayFlexCodePage() {
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   
+  // Code and visibility state
+  const [payFlexCode, setPayFlexCode] = useState('')
+  const [showCode, setShowCode] = useState(false)
+
   // Verification states
   const [isVerifying, setIsVerifying] = useState(false)
   const [countdown, setCountdown] = useState(10)
@@ -235,6 +241,29 @@ export default function BuyPayFlexCodePage() {
           <div className="flex justify-between items-center text-xs">
             <span className="text-gray-600 font-medium">PayFlex Rate</span>
             <span className="font-bold text-gray-900 text-sm">{MANUAL_BANK.PayFlexCodeRate}</span>
+          </div>
+        </div>
+
+        {/* Input PayFlex Code Section matching your screenshot */}
+        <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm space-y-2">
+          <label className="font-bold text-gray-900 text-xs tracking-wide block uppercase">
+            INPUT PayFlex Code
+          </label>
+          <div className="relative flex items-center">
+            <input 
+              type={showCode ? "text" : "password"} 
+              value={payFlexCode}
+              onChange={(e) => setPayFlexCode(e.target.value)}
+              placeholder="Enter PayFlex Code" 
+              className="w-full px-3 py-3 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-teal-500 font-mono pr-10"
+            />
+            <button 
+              type="button"
+              onClick={() => setShowCode(!showCode)}
+              className="absolute right-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
