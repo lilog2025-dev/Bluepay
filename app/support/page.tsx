@@ -2,14 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, MessageSquare, Mail, AlertCircle, HelpCircle, Send } from 'lucide-react'
+import { ArrowLeft, MessageSquare, Mail } from 'lucide-react'
 
 export default function SupportPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'ai-chat' | 'support' | 'review' | 'complaint'>('ai-chat')
+  const [activeTab, setActiveTab] = useState<'ai-chat' | 'complaint'>('ai-chat')
   const [message, setMessage] = useState('')
   const [complaintName, setComplaintName] = useState('')
-  const [reviewRating, setReviewRating] = useState(0)
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; text: string }>>([])
   const [isAITyping, setIsAITyping] = useState(false)
 
@@ -83,7 +82,7 @@ export default function SupportPage() {
         </div>
       </header>
 
-      {/* Tabs */}
+      {/* Tabs (Only AI Chat and Complaint remaining, Support and Review removed) */}
       <div className="bg-white border-b border-gray-200 sticky top-11 z-40">
         <div className="flex px-3 overflow-x-auto">
           <button
@@ -95,26 +94,6 @@ export default function SupportPage() {
             }`}
           >
             AI Chat
-          </button>
-          <button
-            onClick={() => setActiveTab('support')}
-            className={`px-3 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
-              activeTab === 'support'
-                ? 'border-[#0000ff] text-[#0000ff]'
-                : 'border-transparent text-gray-600'
-            }`}
-          >
-            Support
-          </button>
-          <button
-            onClick={() => setActiveTab('review')}
-            className={`px-3 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
-              activeTab === 'review'
-                ? 'border-[#0000ff] text-[#0000ff]'
-                : 'border-transparent text-gray-600'
-            }`}
-          >
-            Review
           </button>
           <button
             onClick={() => setActiveTab('complaint')}
@@ -210,99 +189,6 @@ export default function SupportPage() {
           </div>
         )}
 
-        {/* Support Tab */}
-        {activeTab === 'support' && (
-          <div className="space-y-3">
-            <h3 className="font-bold text-gray-900 text-sm mt-3 mb-2">Frequently Asked Questions</h3>
-            <div className="space-y-2">
-              {[
-                { q: 'How do I get my PayFlexCode CODE?', a: 'Visit Buy PayFlexCode page and follow the steps' },
-                { q: 'Why is my payment pending?', a: 'Payments are verified within 24 hours' },
-                { q: 'How do I reset my PIN?', a: 'Go to security settings to reset PIN' },
-              ].map((item, idx) => (
-                <div key={idx} className="bg-white rounded-lg p-3 border border-gray-200">
-                  <div className="flex gap-2">
-                    <HelpCircle className="w-5 h-5 text-[#0000ff] flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-sm">{item.q}</p>
-                      <p className="text-xs text-gray-600 mt-1">{item.a}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-[#0000ff]/10 rounded-lg p-3 border border-[#0000ff]/20 mt-4">
-              <p className="text-xs text-gray-900 mb-2 font-semibold">Need immediate assistance?</p>
-              <button
-                onClick={() => setActiveTab('ai-chat')}
-                className="w-full bg-[#0000ff] text-white font-bold py-2 rounded-lg hover:opacity-90 transition text-sm"
-              >
-                Start Live Chat with AI
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Review Tab */}
-        {activeTab === 'review' && (
-          <div className="bg-white rounded-lg p-4 border border-gray-200 mt-3">
-            <h3 className="font-bold text-gray-900 text-sm mb-3">Share Your Feedback</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 mb-1.5">
-                  How would you rate PayFlex?
-                </label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setReviewRating(star)}
-                      className={`text-2xl hover:scale-110 transition ${reviewRating >= star ? 'opacity-100' : 'opacity-30'}`}
-                    >
-                      ⭐
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 mb-1.5">
-                  Your Feedback
-                </label>
-                <textarea
-                  placeholder="Tell us what you think..."
-                  rows={3}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (reviewRating === 0) {
-                    alert('Please select a rating')
-                    return
-                  }
-                  if (!message.trim()) {
-                    alert('Please enter your feedback')
-                    return
-                  }
-                  alert(`Thank you for your ${reviewRating}-star review!`)
-                  setMessage('')
-                  setReviewRating(0)
-                }}
-                className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm"
-              >
-                Submit Review
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Complaint Tab */}
         {activeTab === 'complaint' && (
           <div className="bg-white rounded-lg p-4 border border-gray-200 mt-3">
@@ -341,7 +227,7 @@ export default function SupportPage() {
                   placeholder="Describe your complaint in detail..."
                   rows={4}
                   value={message}
-                  onChange={(e) => newMessage => setMessage(newMessage.target.value)}
+                  onChange={(e) => setMessage(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
                 />
               </div>
