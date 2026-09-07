@@ -20,7 +20,7 @@ import {
   Play,
   CheckCircle2,
 } from 'lucide-react'
-import { getBalance } from '@/lib/balance-store'
+import { getBalance, addTransaction } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('Lilog2025')
 
-  // Mining States
+  // Mining States (Slower speed, adds to available balance, resets daily)
   const [isMining, setIsMining] = useState(false)
   const [minedAmount, setMinedAmount] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -38,13 +38,22 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    // Check if it's a new day to reset mining
+    const lastMiningDate = localStorage.getItem('lastMiningDate')
+    const todayStr = new Date().toDateString()
+    if (lastMiningDate !== todayStr) {
+      localStorage.setItem('lastMiningDate', todayStr)
+      localStorage.setItem('minedToday', '0')
+      localStorage.setItem('miningCompleted', 'false')
+    }
+
     // Load initial mining storage data
     const savedProgress = localStorage.getItem('minedToday')
     const savedStatus = localStorage.getItem('miningCompleted')
     if (savedProgress) setMinedAmount(parseFloat(savedProgress))
     if (savedStatus === 'true') setIsCompleted(true)
 
-    // Load initial storage data safely
+    // Load initial balance safely
     if (typeof getBalance === 'function') {
       setBalance(getBalance())
     }
@@ -86,24 +95,55 @@ export default function DashboardPage() {
     }
   }, [])
 
-  // Mining increment effect
+  // Slower mining increment effect that adds to available balance incrementally
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isMining && minedAmount < DAILY_LIMIT) {
       interval = setInterval(() => {
         setMinedAmount((prev) => {
-          const nextVal = prev + 5000
+          const increment = 2500 // Slower chunk size
+          const nextVal = prev + increment
+          
           if (nextVal >= DAILY_LIMIT) {
+            const finalChunk = DAILY_LIMIT - prev
             setIsMining(false)
             setIsCompleted(true)
             localStorage.setItem('miningCompleted', 'true')
             localStorage.setItem('minedToday', DAILY_LIMIT.toString())
+            localStorage.setItem('lastMiningDate', new Date().toDateString())
+            
+            // Add final amount to balance store
+            if (typeof addTransaction === 'function' && finalChunk > 0) {
+              addTransaction({
+                type: 'credit',
+                amount: finalChunk,
+                title: 'Daily Allocation Mining',
+                status: 'successful'
+              })
+            }
+            if (typeof getBalance === 'function') {
+              setBalance(getBalance())
+            }
             return DAILY_LIMIT
           }
+
+          // Add intermediate increment to balance store
+          if (typeof addTransaction === 'function') {
+            addTransaction({
+              type: 'credit',
+              amount: increment,
+              title: 'Daily Allocation Mining',
+              status: 'successful'
+            })
+          }
+          if (typeof getBalance === 'function') {
+            setBalance(getBalance())
+          }
+
           localStorage.setItem('minedToday', nextVal.toString())
           return nextVal
         })
-      }, 100)
+      }, 400) // Slower tick rate (400ms instead of 100ms)
     }
     return () => clearInterval(interval)
   }, [isMining, minedAmount])
@@ -159,7 +199,7 @@ export default function DashboardPage() {
 
           <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mb-3">
             <div 
-              className="bg-[#0000ff] h-full transition-all duration-200"
+              className="bg-[#0000ff] h-full transition-all duration-300"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -192,14 +232,14 @@ export default function DashboardPage() {
           ) : (
             <div className="w-full bg-green-50 text-green-700 border border-green-200 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Mining Completed Successfully
+              Mining Completed for Today (Resets Tomorrow)
             </div>
           )}
         </div>
 
-        {/* Balance Card */}
+        {/* Balance Card (Daily allocation section removed) */}
         <div className="bg-[#0000ff] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex justify-between items-start">
             <div>
               <p className="text-xs text-blue-200 font-medium uppercase tracking-wider">Available Balance</p>
               <div className="flex items-center gap-2 mt-1">
@@ -220,14 +260,6 @@ export default function DashboardPage() {
             >
               Withdraw
             </button>
-          </div>
-
-          <div className="pt-3 border-t border-blue-600/50 flex justify-between items-center text-xs">
-            <span className="text-blue-200">Daily Allocation</span>
-            <span className="font-semibold text-white">NGN 250,000.00</span>
-          </div>
-          <div className="w-full bg-blue-900/40 h-1.5 rounded-full mt-2 overflow-hidden">
-            <div className="bg-white h-full rounded-full" style={{ width: '100%' }} />
           </div>
         </div>
 
