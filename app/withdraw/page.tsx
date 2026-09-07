@@ -84,8 +84,12 @@ export default function WithdrawPage() {
         }
       }
       window.addEventListener('balanceChange', handleBalanceChange)
+      window.addEventListener('storage', handleBalanceChange)
       
-      return () => window.removeEventListener('balanceChange', handleBalanceChange)
+      return () => {
+        window.removeEventListener('balanceChange', handleBalanceChange)
+        window.removeEventListener('storage', handleBalanceChange)
+      }
     } catch (err) {
       console.error('[v0] Error setting up balance listener:', err)
     }
@@ -171,7 +175,16 @@ export default function WithdrawPage() {
         transaction_date: getCurrentDateTime(),
       })
       
+      // Deduct balance and ensure localStorage / localStorage events propagate correctly
       const newBalance = deductBalance(withdrawAmount)
+      
+      // Fallback synchronization to guarantee dashboard balance update across listeners
+      const currentStored = parseFloat(localStorage.getItem('user_available_balance') || balance.toString())
+      const updatedTotal = Math.max(0, currentStored - withdrawAmount)
+      localStorage.setItem('user_available_balance', updatedTotal.toString())
+      window.dispatchEvent(new Event('storage'))
+      window.dispatchEvent(new Event('balanceChange'))
+
       setBalance(newBalance)
       
       addTransaction({
@@ -612,7 +625,7 @@ export default function WithdrawPage() {
               <button
                 onClick={() => {
                   window.dispatchEvent(new Event('balanceChange'))
-                  window.dispatchEvent(new Event('transactionsChange'))
+                  window.dispatchEvent(new Event('storage'))
                   router.push('/dashboard')
                 }}
                 className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
