@@ -20,16 +20,16 @@ import {
   Play,
   CheckCircle2,
 } from 'lucide-react'
-import { getBalance, addTransaction } from '@/lib/balance-store'
+import { getBalance, updateBalance } from '@/lib/balance-store'
 import { createClient } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [balance, setBalance] = useState<number>(5000)
+  const [balance, setBalance] = useState<number>(4000)
   const [showBalance, setShowBalance] = useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('Lilog2025')
 
-  // Mining States (Slower speed, adds to available balance, resets daily)
+  // Mining States
   const [isMining, setIsMining] = useState(false)
   const [minedAmount, setMinedAmount] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -55,7 +55,8 @@ export default function DashboardPage() {
 
     // Load initial balance safely
     if (typeof getBalance === 'function') {
-      setBalance(getBalance())
+      const currentBal = getBalance()
+      setBalance(currentBal)
     }
 
     const handleBalanceChange = () => {
@@ -95,13 +96,13 @@ export default function DashboardPage() {
     }
   }, [])
 
-  // Slower mining increment effect that adds to available balance incrementally
+  // Mining increment effect that directly updates balance store and state
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isMining && minedAmount < DAILY_LIMIT) {
       interval = setInterval(() => {
         setMinedAmount((prev) => {
-          const increment = 2500 // Slower chunk size
+          const increment = 2500 // Chunk size per tick
           const nextVal = prev + increment
           
           if (nextVal >= DAILY_LIMIT) {
@@ -112,41 +113,31 @@ export default function DashboardPage() {
             localStorage.setItem('minedToday', DAILY_LIMIT.toString())
             localStorage.setItem('lastMiningDate', new Date().toDateString())
             
-            // Add final amount to balance store
-            if (typeof addTransaction === 'function' && finalChunk > 0) {
-              addTransaction({
-                type: 'credit',
-                amount: finalChunk,
-                title: 'Daily Allocation Mining',
-                status: 'successful'
-              })
-            }
-            if (typeof getBalance === 'function') {
-              setBalance(getBalance())
+            // Add final chunk directly to balance store
+            if (typeof updateBalance === 'function' && finalChunk > 0) {
+              const current = typeof getBalance === 'function' ? getBalance() : balance
+              const newTotal = current + finalChunk
+              updateBalance(newTotal)
+              setBalance(newTotal)
             }
             return DAILY_LIMIT
           }
 
           // Add intermediate increment to balance store
-          if (typeof addTransaction === 'function') {
-            addTransaction({
-              type: 'credit',
-              amount: increment,
-              title: 'Daily Allocation Mining',
-              status: 'successful'
-            })
-          }
-          if (typeof getBalance === 'function') {
-            setBalance(getBalance())
+          if (typeof updateBalance === 'function') {
+            const current = typeof getBalance === 'function' ? getBalance() : balance
+            const newTotal = current + increment
+            updateBalance(newTotal)
+            setBalance(newTotal)
           }
 
           localStorage.setItem('minedToday', nextVal.toString())
           return nextVal
         })
-      }, 400) // Slower tick rate (400ms instead of 100ms)
+      }, 400)
     }
     return () => clearInterval(interval)
-  }, [isMining, minedAmount])
+  }, [isMining, minedAmount, balance])
 
   const startMining = () => {
     if (isCompleted) return
@@ -237,7 +228,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Balance Card (Daily allocation section removed) */}
+        {/* Balance Card */}
         <div className="bg-[#0000ff] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
@@ -395,7 +386,7 @@ function PhoneIcon(props: any) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0_1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
     </svg>
   )
 }
