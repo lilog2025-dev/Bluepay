@@ -6,26 +6,33 @@ export interface Transaction {
   id?: string
   title?: string
   amount: number
-  type?: 'credit' | 'debit' | 'earning' | string
-  date?: string
-  status?: string
+  type?: string
   [key: string]: unknown
 }
 
 export function getBalance(): number {
   if (typeof window === 'undefined') return INITIAL_BALANCE
-  const saved = localStorage.getItem('user_balance')
-  if (!saved) {
-    localStorage.setItem('user_balance', INITIAL_BALANCE.toString())
-    return INITIAL_BALANCE
+  
+  // Checks all possible storage keys your dashboard might be using
+  const keys = ['user_balance', 'user_available_balance', 'balance', 'wallet_balance', 'available_balance']
+  for (const key of keys) {
+    const val = localStorage.getItem(key)
+    if (val !== null && !isNaN(parseFloat(val))) {
+      return parseFloat(val)
+    }
   }
-  return parseFloat(saved) || INITIAL_BALANCE
+  
+  localStorage.setItem('user_balance', INITIAL_BALANCE.toString())
+  return INITIAL_BALANCE
 }
 
 export function updateBalance(newBalance: number): number {
   if (typeof window === 'undefined') return newBalance
   
-  localStorage.setItem('user_balance', newBalance.toString())
+  // Updates every potential key simultaneously so they stay perfectly synced
+  const keys = ['user_balance', 'user_available_balance', 'balance', 'wallet_balance', 'available_balance']
+  keys.forEach(key => localStorage.setItem(key, newBalance.toString()))
+  
   window.dispatchEvent(new CustomEvent('balanceChange', { detail: { balance: newBalance } }))
   window.dispatchEvent(new Event('storage'))
   
@@ -33,9 +40,7 @@ export function updateBalance(newBalance: number): number {
 }
 
 export function addEarnings(amount: number): number {
-  const current = getBalance()
-  const updated = current + amount
-  return updateBalance(updated)
+  return updateBalance(getBalance() + amount)
 }
 
 export function addBalance(amount: number): number {
@@ -43,9 +48,7 @@ export function addBalance(amount: number): number {
 }
 
 export function deductBalance(amount: number): number {
-  const current = getBalance()
-  const updated = Math.max(0, current - amount)
-  return updateBalance(updated)
+  return updateBalance(Math.max(0, getBalance() - amount))
 }
 
 export function addTransaction(tx: Transaction | unknown): void {
