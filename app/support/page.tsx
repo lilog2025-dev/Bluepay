@@ -2,79 +2,37 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, MessageSquare, Mail } from 'lucide-react'
+import { ArrowLeft, Mail } from 'lucide-react'
 
 export default function SupportPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'ai-chat' | 'complaint'>('ai-chat')
-  const [message, setMessage] = useState('')
   const [complaintName, setComplaintName] = useState('')
-  const [chatMessages, setChatMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; text: string }>>([])
-  const [isAITyping, setIsAITyping] = useState(false)
+  const [complaintCategory, setComplaintCategory] = useState('Transaction Issue')
+  const [complaintDetails, setComplaintDetails] = useState('')
 
-  const aiKnowledgeBase: Record<string, string> = {
-    'PayFlexCode code': 'To get your PayFlexCode CODE: 1. Go to Buy PayFlexCode page 2. Enter amount 3. Make transfer 4. Upload receipt 5. Verify payment. You\'ll receive your PayFlexCode CODE via email within 24 hours.',
-    'withdrawal': 'To withdraw: 1. Go to Withdraw 2. Enter amount and bank details 3. Confirm 4. You\'ll receive debit alert via email. Withdrawals typically process within 2-3 business days.',
-    'referral': 'Earn rewards by referring friends! Each successful referral earns you 1000 NGN. Share your unique referral code via Refer & Earn page. There\'s no limit to how much you can earn!',
-    'airtime': 'Buy airtime by: 1. Select network (MTN, GLO, etc.) 2. Enter phone number 3. Choose amount 4. Confirm purchase. Airtime is delivered instantly!',
-    'data': 'Purchase data: 1. Go to Data page 2. Select network 3. Choose data plan 4. Confirm. Data is activated immediately on your phone.',
-    'betting': 'Fund your betting account: 1. Go to Betting page 2. Enter amount 3. Confirm payment. Balance updates instantly. You can then place bets on your favorite sports.',
-    'tv': 'Subscribe to TV: 1. Go to TV Subscription 2. Select provider 3. Enter PayFlexCode CODE 4. Choose package 5. Confirm. Subscription activates within minutes.',
-    'electricity': 'Pay electricity bills: 1. Go to Electricity 2. Enter meter number 3. Choose amount 4. Confirm payment. Receipt will be sent to your email.',
-    'transaction': 'View all your transactions on the Transactions page. Each transaction shows: Type, Amount, Status, Date & Time, and Transaction ID.',
-    'account': 'Account issues can be resolved through: 1. Security settings to reset PIN 2. Profile page to update details 3. Contact support for technical issues.',
-    'default': 'Hello! I\'m PayFlex AI Assistant. I can help you with: PayFlexCode CODE, Withdrawals, Referrals, Airtime, Data, Betting, TV Subscriptions, Electricity, Transactions, and Account issues. What would you like help with?'
-  }
+  const supportEmail = 'supportPayFlexpro.com@gmail.com'
 
-  const findAIResponse = (userInput: string): string => {
-    const lowerInput = userInput.toLowerCase()
-    for (const [key, response] of Object.entries(aiKnowledgeBase)) {
-      if (lowerInput.includes(key)) {
-        return response
-      }
-    }
-    return aiKnowledgeBase['default']
-  }
-
-  const handleSendMessage = async () => {
-    if (!message.trim()) return
-
-    const userMsg = { id: Date.now().toString(), type: 'user' as const, text: message }
-    setChatMessages(prev => [...prev, userMsg])
-    setMessage('')
-
-    setIsAITyping(true)
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    const aiResponse = findAIResponse(message)
-    const aiMsg = { id: (Date.now() + 1).toString(), type: 'ai' as const, text: aiResponse }
-    setChatMessages(prev => [...prev, aiMsg])
-    setIsAITyping(false)
-  }
-
-  const handleSubmitComplaint = () => {
-    if (!complaintName.trim() || !message.trim()) {
-      alert('Please fill in your name and complaint details')
+  const handleSubmitComplaint = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!complaintName.trim() || !complaintDetails.trim()) {
+      alert('Please fill in your full name and complaint details.')
       return
     }
 
-    const now = new Date().toLocaleString()
-    const complaintText = `COMPLAINT from PayFlex:\n\nName: ${complaintName}\nDate/Time: ${now}\nComplaint: ${message}`
-    const whatsappUrl = `https://wa.me/2347078434086?text=${encodeURIComponent(complaintText)}`
-    
-    window.open(whatsappUrl, '_blank')
-    
-    setComplaintName('')
-    setMessage('')
-    alert('Redirecting you to WhatsApp to file your complaint...')
+    const subject = encodeURIComponent(`PayFlex Complaint: ${complaintCategory} - from ${complaintName}`)
+    const body = encodeURIComponent(
+      `Name: ${complaintName}\nCategory: ${complaintCategory}\n\nComplaint Details:\n${complaintDetails}`
+    )
+
+    window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`
   }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-2 px-3">
-        <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="p-1">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-3 px-4">
+        <div className="flex items-center justify-between max-w-2xl mx-auto">
+          <button onClick={() => router.back()} className="p-1 cursor-pointer">
             <ArrowLeft className="w-5 h-5 text-gray-900" />
           </button>
           <h1 className="text-lg font-bold text-gray-900">Support & Feedback</h1>
@@ -82,165 +40,84 @@ export default function SupportPage() {
         </div>
       </header>
 
-      {/* Tabs (Only AI Chat and Complaint remaining, Support and Review removed) */}
-      <div className="bg-white border-b border-gray-200 sticky top-11 z-40">
-        <div className="flex px-3 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('ai-chat')}
-            className={`px-3 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
-              activeTab === 'ai-chat'
-                ? 'border-[#0000ff] text-[#0000ff]'
-                : 'border-transparent text-gray-600'
-            }`}
-          >
-            AI Chat
-          </button>
-          <button
-            onClick={() => setActiveTab('complaint')}
-            className={`px-3 py-2 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
-              activeTab === 'complaint'
-                ? 'border-[#0000ff] text-[#0000ff]'
-                : 'border-transparent text-gray-600'
-            }`}
-          >
-            Complaint
-          </button>
-        </div>
-      </div>
-
-      <main className="px-3 py-3 max-w-2xl mx-auto space-y-4">
-        {/* Contact Support Section (Email only, fully clickable) */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
-          <h3 className="font-bold text-gray-900 text-sm mb-3">Contact Support</h3>
+      <main className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+        {/* Contact Support Card */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm space-y-4">
+          <h2 className="font-bold text-gray-900 text-sm">Contact Support</h2>
+          
           <div className="grid grid-cols-1 gap-3">
             <a
-              href="mailto:supportPayFlexpro.com@gmail.com?subject=PayFlex%20Support%20Request&body=Hello%20PayFlex%20Support%20Team,%0A%0AI%20need%20assistance%20with..."
-              className="bg-gray-50 rounded-xl p-3.5 border border-gray-200 hover:border-[#0000ff] hover:shadow-md transition flex items-center gap-3 text-left w-full cursor-pointer"
+              href={`mailto:${supportEmail}?subject=PayFlex%20Support%20Request&body=Hello%20PayFlex%20Support%20Team,%0A%0AI%20need%20assistance%20with...`}
+              className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 transition text-left w-full cursor-pointer"
             >
               <div className="p-2.5 bg-blue-50 text-[#0000ff] rounded-xl shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-gray-500 font-medium">Contact Us via Email</p>
-                <p className="font-semibold text-gray-900 text-sm truncate">supportPayFlexpro.com@gmail.com</p>
+                <p className="font-semibold text-gray-900 text-sm truncate">{supportEmail}</p>
               </div>
             </a>
           </div>
         </div>
 
-        {/* AI Chat Tab */}
-        {activeTab === 'ai-chat' && (
-          <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-96">
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50">
-              {chatMessages.length === 0 && (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <MessageSquare className="w-12 h-12 text-[#0000ff]/30 mx-auto mb-2" />
-                    <p className="text-gray-600 text-xs font-medium">Start a conversation with AI Support</p>
-                    <p className="text-gray-500 text-xs mt-1">Ask me about withdrawals, PayFlexCode, referrals, and more!</p>
-                  </div>
-                </div>
-              )}
-              
-              {chatMessages.map(msg => (
-                <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs rounded-lg p-2.5 text-xs ${
-                    msg.type === 'user'
-                      ? 'bg-[#0000ff] text-white rounded-br-none'
-                      : 'bg-gray-200 text-gray-900 rounded-bl-none'
-                  }`}>
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-
-              {isAITyping && (
-                <div className="flex justify-start">
-                  <div className="bg-gray-200 text-gray-900 rounded-lg rounded-bl-none p-2.5">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                    </div>
-                  </div>
-                </div>
-              )}
+        {/* File a Complaint Form */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+          <h2 className="font-bold text-gray-900 text-sm mb-4">File a Complaint</h2>
+          
+          <form onSubmit={handleSubmitComplaint} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1.5">
+                Your Full Name
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your full name..."
+                value={complaintName}
+                onChange={(e) => setComplaintName(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
+                required
+              />
             </div>
 
-            <div className="border-t border-gray-200 p-3 bg-white">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Ask a question..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={isAITyping || !message.trim()}
-                  className="px-3 py-2 bg-[#0000ff] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition text-xs font-semibold"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Complaint Tab */}
-        {activeTab === 'complaint' && (
-          <div className="bg-white rounded-lg p-4 border border-gray-200 mt-3">
-            <h3 className="font-bold text-gray-900 text-sm mb-3">File a Complaint</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 mb-1.5">
-                  Your Full Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your full name..."
-                  value={complaintName}
-                  onChange={(e) => setComplaintName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 mb-1.5">
-                  Complaint Category
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]">
-                  <option>Transaction Issue</option>
-                  <option>Technical Issue</option>
-                  <option>Account Issue</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-900 mb-1.5">
-                  Complaint Details
-                </label>
-                <textarea
-                  placeholder="Describe your complaint in detail..."
-                  rows={4}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
-                />
-              </div>
-
-              <button
-                onClick={handleSubmitComplaint}
-                className="w-full bg-red-600 text-white font-bold py-2.5 rounded-lg hover:opacity-90 transition text-sm"
+            <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1.5">
+                Complaint Category
+              </label>
+              <select 
+                value={complaintCategory}
+                onChange={(e) => setComplaintCategory(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff] bg-white"
               >
-                Submit Complaint via WhatsApp
-              </button>
+                <option value="Transaction Issue">Transaction Issue</option>
+                <option value="Technical Issue">Technical Issue</option>
+                <option value="Account Issue">Account Issue</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
-          </div>
-        )}
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1.5">
+                Complaint Details
+              </label>
+              <textarea
+                placeholder="Describe your complaint in detail..."
+                rows={4}
+                value={complaintDetails}
+                onChange={(e) => setComplaintDetails(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0000ff]"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition text-sm cursor-pointer shadow-sm"
+            >
+              Submit Complaint via Gmail
+            </button>
+          </form>
+        </div>
       </main>
     </div>
   )
