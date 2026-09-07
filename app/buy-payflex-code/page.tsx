@@ -36,12 +36,12 @@ export default function BuyPayFlexCodePage() {
   // Static Manual Bank Details
   const MANUAL_BANK = {
     bankName: 'Paga',
-    accountNumber: '1234567890',
-    accountName: 'David Ada',
-    PayFlexCodeRate: '₦10,500 for the PayFlex Code',
+    accountNumber: '1902059851',
+    accountName: 'Olamilakan Oso',
+    PayFlexCodeRate: '₦2,500 for the PayFlex Code',
   }
 
-  const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
+  const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PR0_V30_650'
 
   const TELEGRAM_LINK = 'https://t.me/available247_1'
   const GMAIL_LINK = 'mailto:lilog2025@gmail.com'
