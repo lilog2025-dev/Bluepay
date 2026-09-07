@@ -37,14 +37,20 @@ export default function DashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Balance Initialization
-    const storedBalance = localStorage.getItem('user_available_balance')
-    if (storedBalance === null || isNaN(parseFloat(storedBalance))) {
-      localStorage.setItem('user_available_balance', '0')
-      setBalance(0)
-    } else {
-      setBalance(parseFloat(storedBalance))
+    // Balance Initialization & Sync across tabs/actions
+    const syncBalance = () => {
+      const storedBalance = localStorage.getItem('user_available_balance')
+      if (storedBalance === null || isNaN(parseFloat(storedBalance))) {
+        localStorage.setItem('user_available_balance', '0')
+        setBalance(0)
+      } else {
+        setBalance(parseFloat(storedBalance))
+      }
     }
+    syncBalance()
+
+    // Listen for storage changes (e.g. when withdrawals subtract from balance)
+    window.addEventListener('storage', syncBalance)
 
     // Check if it's a new day to reset mining
     const lastMiningDate = localStorage.getItem('lastMiningDate')
@@ -94,6 +100,10 @@ export default function DashboardPage() {
       }
     }
     loadUser()
+
+    return () => {
+      window.removeEventListener('storage', syncBalance)
+    }
   }, [])
 
   // Mining increment effect updating local state and localStorage directly
@@ -224,7 +234,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Balance Card (Starts at NGN 0.00 and builds up via mining) */}
+        {/* Balance Card */}
         <div className="bg-[#0000ff] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
@@ -352,7 +362,7 @@ export default function DashboardPage() {
             className="flex flex-col items-center text-gray-500 hover:text-[#0000ff]"
           >
             <HelpCircle className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px] font-medium" >Support</span>
+            <span className="text-[10px] font-medium">Support</span>
           </button>
 
           <button
