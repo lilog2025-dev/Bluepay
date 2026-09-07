@@ -201,7 +201,7 @@ export default function BettingPage() {
                 setSelectedPlatform('')
                 setUserBettingId('')
                 setAmount('')
-                setError('')
+                setPayFlexCodeError('')
               }}
               className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
             >
@@ -292,7 +292,7 @@ export default function BettingPage() {
             </div>
             <button
               type="button"
-              onClick={() => router.push('/buy-PayFlexCode')}
+              onClick={() => router.push('/buy-payflex-code')}
               className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
             >
               Buy PayFlexCode
