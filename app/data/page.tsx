@@ -62,7 +62,7 @@ export default function DataPage() {
     { name: 'MTN', color: 'bg-yellow-500', code: 'MTN' },
     { name: 'Airtel', color: 'bg-red-500', code: 'ATL' },
     { name: 'Glo', color: 'bg-green-500', code: 'GLO' },
-    { name: '9Mobile', color: 'bg-cyan-500', code: '9MB' },
+    { name: 'T2', color: 'bg-cyan-500', code: '9MB' },
   ]
 
   const dataPlans = [
