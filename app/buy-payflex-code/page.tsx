@@ -11,12 +11,8 @@ import {
   FileCheck,
   AlertTriangle,
   Volume2,
-  MessageCircle,
-  Mail,
   Home,
   Loader2,
-  XCircle,
-  RotateCcw,
   Check,
 } from 'lucide-react'
 
@@ -38,13 +34,10 @@ export default function BuyPayFlexCodePage() {
     bankName: 'Paga',
     accountNumber: '1902059851',
     accountName: 'Olamilakan Oso',
-    PayFlexCodeRate: '₦2,500 for the PayFlex Code',
+    PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
 
   const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PR0_V30_650'
-
-  const TELEGRAM_LINK = 'https://t.me/available247_1'
-  const GMAIL_LINK = 'mailto:lilog2025@gmail.com'
 
   // Handle 10-second timer
   useEffect(() => {
