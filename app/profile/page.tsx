@@ -25,7 +25,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      // 1. Try pulling from Supabase session
+      // 1. Try pulling from Supabase session first
       try {
         const supabase = getSupabaseClient()
         if (supabase) {
@@ -45,14 +45,14 @@ export default function ProfilePage() {
         console.error('[v0] Error loading Supabase profile:', err)
       }
 
-      // 2. Fallback to localStorage and load stats
+      // 2. Fallback to localStorage for email/name/image and load stats
       if (typeof window !== 'undefined') {
-        const localEmail = localStorage.getItem('userEmail') || localStorage.getItem('user_email') || localStorage.getItem('email')
-        const localName = localStorage.getItem('userName') || localStorage.getItem('user_name') || localStorage.getItem('fullName')
+        const localEmail = localStorage.getItem('userEmail') || localStorage.getItem('user_email') || localStorage.getItem('email') || sessionStorage.getItem('signupEmail')
+        const localName = localStorage.getItem('userName') || localStorage.getItem('user_name') || localStorage.getItem('fullName') || sessionStorage.getItem('signupFullName')
         const localImage = localStorage.getItem('profileImage') || localStorage.getItem('user_avatar')
 
-        if (localEmail) setEmail((prev) => prev || localEmail)
-        if (localName) setFullName((prev) => prev || localName)
+        setEmail((prev) => prev || localEmail || '')
+        setFullName((prev) => prev || localName || '')
         if (localImage) setProfileImage((prev) => prev || localImage)
 
         // Load real transaction count from localStorage safely
