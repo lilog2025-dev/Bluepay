@@ -17,19 +17,21 @@ import {
   Loader2,
   XCircle,
   RotateCcw,
+  Check,
 } from 'lucide-react'
 
 export default function BuyPayFlexCodePage() {
   const router = useRouter()
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [copiedAccount, setCopiedAccount] = useState(false)
+  const [copiedCode, setCopiedCode] = useState(false)
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   
   // Verification states
   const [isVerifying, setIsVerifying] = useState(false)
   const [countdown, setCountdown] = useState(10)
-  const [showFailedModal, setShowFailedModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // Static Manual Bank Details
   const MANUAL_BANK = {
@@ -38,6 +40,8 @@ export default function BuyPayFlexCodePage() {
     accountName: 'David Ada',
     PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
+
+  const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PRO_V30_650'
 
   const TELEGRAM_LINK = 'https://t.me/available247_1'
   const GMAIL_LINK = 'mailto:lilog2025@gmail.com'
@@ -51,15 +55,20 @@ export default function BuyPayFlexCodePage() {
       }, 1000)
     } else if (isVerifying && countdown === 0) {
       setIsVerifying(false)
-      setShowFailedModal(true)
+      setShowSuccessModal(true)
     }
     return () => clearTimeout(timer)
   }, [isVerifying, countdown])
 
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, type: 'account' | 'code') => {
     navigator.clipboard.writeText(text)
-    setCopiedAccount(true)
-    setTimeout(() => setCopiedAccount(false), 2000)
+    if (type === 'account') {
+      setCopiedAccount(true)
+      setTimeout(() => setCopiedAccount(false), 2000)
+    } else {
+      setCopiedCode(true)
+      setTimeout(() => setCopiedCode(false), 2000)
+    }
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,16 +103,10 @@ export default function BuyPayFlexCodePage() {
     setIsVerifying(true)
   }
 
-  const handleTryAgain = () => {
-    setShowFailedModal(false)
-    setIsVerifying(false)
-    setCountdown(10)
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 pb-16 relative">
       {/* 1. Opay Warning Modal */}
-      {showWarningModal && !isVerifying && !showFailedModal && (
+      {showWarningModal && !isVerifying && !showSuccessModal && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
           <div className="bg-white rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
             <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto">
@@ -137,70 +140,64 @@ export default function BuyPayFlexCodePage() {
         </div>
       )}
 
-      {/* 2. Verifying Payment Loading Modal (10 Seconds) */}
+      {/* 2. Verifying Payment Loading Modal (10 Seconds Countdown) */}
       {isVerifying && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
           <div className="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
             <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-              <Loader2 className="w-16 h-16 text-teal-500 animate-spin" />
-              <span className="absolute font-bold text-teal-700 text-base">{countdown}s</span>
+              <Loader2 className="w-16 h-16 text-[#0000ff] animate-spin" />
+              <span className="absolute font-bold text-[#0000ff] text-base">{countdown}s</span>
             </div>
 
             <h2 className="text-lg font-bold text-gray-900">Verifying Payment...</h2>
 
             <p className="text-xs text-gray-600 font-medium leading-relaxed">
-              Please wait while our system checks for your transfer receipt confirmation.
+              Please wait while our system checks your transfer receipt confirmation ({countdown} seconds remaining).
             </p>
           </div>
         </div>
       )}
 
-      {/* 3. Payment Not Confirmed Modal */}
-      {showFailedModal && (
+      {/* 3. Payment Received Successfully & Code Reveal Modal */}
+      {showSuccessModal && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-white rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto">
-              <XCircle className="w-7 h-7 text-red-600" />
+          <div className="bg-white rounded-2xl p-4 max-w-sm w-full shadow-2xl text-center space-y-3">
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-7 h-7 text-emerald-600" />
             </div>
 
-            <h2 className="text-lg font-bold text-gray-900">Payment Not Confirmed</h2>
+            <h2 className="text-lg font-bold text-gray-900">Payment Received Successfully!</h2>
 
             <p className="text-xs text-gray-600 font-medium leading-relaxed">
-              Automatic verification could not detect your transfer yet. Please contact support with your receipt or try again.
+              Here is your PayFlex Code. Copy it and paste it into your withdrawal page to proceed:
             </p>
 
-            <div className="space-y-2 pt-1">
-              <a
-                href={TELEGRAM_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-blue-500 text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow-sm"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Contact Support (Telegram)
-              </a>
-
-              <a
-                href={GMAIL_LINK}
-                className="w-full bg-gray-100 text-gray-800 font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
-              >
-                <Mail className="w-4 h-4 text-gray-600" />
-                Email Support
-              </a>
-
+            <div className="bg-gray-100 p-3 rounded-xl border border-gray-200 flex items-center justify-between gap-2">
+              <span className="font-mono font-bold text-xs text-[#0000ff] select-all break-all text-left">
+                {CORRECT_PayFlexCode_CODE}
+              </span>
               <button
-                onClick={handleTryAgain}
-                className="w-full bg-teal-500 text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-teal-600 transition flex items-center justify-center gap-2 shadow-sm"
+                onClick={() => handleCopy(CORRECT_PayFlexCode_CODE, 'code')}
+                className="bg-[#0000ff] text-white p-2 rounded-lg hover:bg-blue-700 transition flex-shrink-0"
+                title="Copy Code"
               >
-                <RotateCcw className="w-4 h-4" />
-                Try Again
+                {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <button
+                onClick={() => router.push('/withdraw')}
+                className="w-full bg-[#0000ff] text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm"
+              >
+                Proceed to Withdrawal
               </button>
 
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full bg-gray-900 text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-black transition flex items-center justify-center gap-2 shadow-sm"
+                className="w-full bg-gray-100 text-gray-800 font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
               >
-                <Home className="w-4 h-4" />
+                <Home className="w-4 h-4 text-gray-600" />
                 Go to Homepage
               </button>
             </div>
@@ -257,7 +254,7 @@ export default function BuyPayFlexCodePage() {
                 {MANUAL_BANK.accountNumber}
               </span>
               <button
-                onClick={() => handleCopy(MANUAL_BANK.accountNumber)}
+                onClick={() => handleCopy(MANUAL_BANK.accountNumber, 'account')}
                 className="p-1 bg-gray-100 rounded hover:bg-gray-200 text-gray-700 transition"
               >
                 {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
