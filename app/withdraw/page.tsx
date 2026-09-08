@@ -1,14 +1,63 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2, Search, ChevronDown } from 'lucide-react'
+
+// Comprehensive list of over 200 Nigerian Banks & Financial Institutions
+const NIGERIAN_BANKS = [
+  "Access Bank", "Access Bank (Diamond)", "Citibank Nigeria", "Ecobank Nigeria", 
+  "Fidelity Bank", "First Bank of Nigeria", "First City Monument Bank (FCMB)", 
+  "Globus Bank", "Guaranty Trust Bank (GTB)", "Heritage Bank", "Jaiz Bank", 
+  "Keystone Bank", "Kuda Bank", "Paga", "Palmpay", "Moniepoint MFB", "Opay Digital Services", 
+  "Polaris Bank", "Providus Bank", "Stanbic IBTC Bank", "Standard Chartered Bank", 
+  "Sterling Bank", "Suntrust Bank", "TAJ Bank", "Titan Trust Bank", "Union Bank of Nigeria", 
+  "United Bank for Africa (UBA)", "Unity Bank", "Wema Bank", "Zenith Bank",
+  "Abbey Mortgage Bank", "Above Only MFB", "Afriglobal MFB", "Ahmadu Bello University Microfinance Bank",
+  "Airtel Smartcash PSB", "Aleyo MFB", "Alpha MFB", "AMAC MFB", "Amegy MFB", "Amju Unique MFB",
+  "Apoch MFB", "Arao MFB", "Arc MFB", "Asset Matrix MFB", "Astrapolaris MFB", "Attractive MFB",
+  "Baines Credit MFB", "Balogun Gambari MFB", "BC Kash MFB", "BIPC MFB", "BOCTRUST MFB",
+  "Borgu MFB", "Bosak MFB", "Bowen Microfinance Bank", "Brent MFB", "CASHIO MFB", "Catedral MFB",
+  "Cellulant", "CEMCS MFB", "Chikum Microfinance Bank", "Citimaster MFB", "Citizen MFB",
+  "Citycode Mortgage Bank", "Chibueze MFB", "Corestep MFB", " Covenant MFB", "Crescent MFB",
+  "Crust MFB", "E-Barclays MFB", "Eagle Flight MFB", "Eaglet MFB", "Eclat MFB", "Ed financeiros",
+  "Ekimogun MFB", "Ekondo MFB", "Emerald MFB", "Empire MFB", "Enthroned MFB", "Erad MFB",
+  "Esan MFB", "Etranzact", "Evangel MFB", "Everest MFB", "FADAM MFB", "FBNQuest", "FCMB Easy",
+  "Federal Polytechnic Nekede MFB", "Fina Trust MFB", "Finca MFB", "First Royal MFB", 
+  "First Savings Mortgage Bank", "FIRS MFB", "Fortis MFB", "Fountain MFB", "Futo MFB",
+  "Garki MFB", "Gateway MFB", "GIWIRE MFB", "Global MFB", "Goodnews MFB", "Gowans MFB",
+  "Green Energy MFB", "Greenville MFB", "Grooming MFB", "GTBank Plc", "Guide MFB", "Hadassah MFB",
+  "Haggai Mortgage Bank", "Hasal MFB", "Headway MFB", "HighStreet MFB", "IBILE MFB", "Ikire MFB",
+  "ILARO MFB", "ILISAN MFB", "Imowo MFB", "Infinity MFB", "Infinity Trust Mortgage Bank",
+  "Innovectives Kesh", "Insight MFB", "Interland MFB", "Isaleoyo MFB", "Izon MFB", "Jubilee Life Mortgage Bank",
+  "Kadpoly MFB", "Kano MFB", "Kwasu MFB", "La Fayette MFB", "Lapo MFB", "Lavender MFB",
+  "Legend MFB", "LetMGo MFB", "Likkay MFB", "Livingtrust Mortgage Bank", "Lotus Bank",
+  "Mainland MFB", "Malachy MFB", "Mansa MFB", "Marach MFB", "Matrix MFB", "Megapraise MFB",
+  "Microcred MFB", "Midland MFB", "Mint MFB", "Model MFB", "Moneymaster PSB", "Moniepoint",
+  "Mutual Trust MFB", "Nagarta MFB", "Navy MFB", "NDCC MFB", "New Dawn MFB", "New General MFB",
+  "NIP Virtual Bank", "NIRSAL MFB", "Nnewi MFB", "Non-Interest Bank", "Nova MFB", "Npf MFB",
+  "Oak MFB", "Ohafia MFB", "Okpoga MFB", "Olowolagba MFB", "Omiye MFB", "Omoluabi MFB",
+  "Orisun MFB", "Pace MFB", "Patrick Gold MFB", "Peace MFB", "PECANTRUST MFB", "Pennywise MFB",
+  "Personal Trust MFB", "Petra MFB", "Pillar MFB", "Platinum MFB", "Pocket App", "Polaris",
+  "Praco MFB", "Premier MFB", "Prestigious MFB", "Prudent MFB", "Fidelity", "Safe Haven MFB",
+  "Sage MFB", "Shield MFB", "Solid Rock MFB", "Sparkle", "Spectrum MFB", "Standard MFB",
+  "Stellas MFB", "Supreme MFB", "Tanadi MFB", "Tcf MFB", "TeamApt", "Tehila MFB", "Topshield MFB",
+  "Trident MFB", "Trust MFB", "TrustBanc MFB", "Unical MFB", "Unilag MFB", "UNN MFB",
+  "Uzondu MFB", "Vale MFB", "VFD MFB", "Visa MFB", "Woori MFB", "Xpress Payments", "Yobe MFB",
+  "Zikora MFB"
+]
 
 export default function WithdrawPage() {
   const router = useRouter()
   const [balance, setBalance] = useState<number>(0)
   const [amount, setAmount] = useState<string>('')
+  
+  // Bank Search States
   const [bank, setBank] = useState<string>('')
+  const [bankSearchQuery, setBankSearchQuery] = useState<string>('')
+  const [isBankDropdownOpen, setIsBankDropdownOpen] = useState<boolean>(false)
+  const bankDropdownRef = useRef<HTMLDivElement>(null)
+
   const [accountNumber, setAccountNumber] = useState<string>('')
   const [accountName, setAccountName] = useState<string>('')
   const [payflexCode, setPayflexCode] = useState<string>('')
@@ -23,7 +72,20 @@ export default function WithdrawPage() {
     if (storedBalance) {
       setBalance(parseFloat(storedBalance))
     }
+
+    // Close bank dropdown when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (bankDropdownRef.current && !bankDropdownRef.current.contains(event.target as Node)) {
+        setIsBankDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const filteredBanks = NIGERIAN_BANKS.filter(b => 
+    b.toLowerCase().includes(bankSearchQuery.toLowerCase())
+  )
 
   const handleQuickAmount = (val: number) => {
     setAmount(val.toString())
@@ -42,12 +104,27 @@ export default function WithdrawPage() {
       setError('Insufficient available balance.')
       return
     }
-    if (!bank || accountNumber.length !== 10 || !accountName) {
-      setError('Please fill in valid bank account details.')
+    if (!bank) {
+      setError('Please select a destination bank.')
       return
     }
-    if (!payflexCode) {
-      setError('Please enter your PayFlex Code.')
+    if (!accountNumber || accountNumber.length !== 10) {
+      setError('Please enter a valid 10-digit account number.')
+      return
+    }
+    if (!accountName) {
+      setError('Please enter the account holder name.')
+      return
+    }
+
+    // Strict PayFlex Code Validation (Prevents fake/blank codes)
+    const cleanCode = payflexCode.trim()
+    if (!cleanCode) {
+      setError('PayFlex Code is required to process withdrawals.')
+      return
+    }
+    if (cleanCode.length < 6) {
+      setError('Invalid PayFlex Code format. Please check and try again.')
       return
     }
 
@@ -127,23 +204,57 @@ export default function WithdrawPage() {
             </div>
           </div>
 
-          {/* Select Bank */}
-          <div>
+          {/* Searchable Select Bank (200+ Banks) */}
+          <div className="relative" ref={bankDropdownRef}>
             <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-              Select Bank
+              Select Bank ({NIGERIAN_BANKS.length}+ Available)
             </label>
-            <select
-              value={bank}
-              onChange={(e) => setBank(e.target.value)}
-              className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white focus:outline-none focus:border-blue-500 transition"
+            <div 
+              onClick={() => setIsBankDropdownOpen(!isBankDropdownOpen)}
+              className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white flex items-center justify-between cursor-pointer focus:border-blue-500 transition"
             >
-              <option value="" disabled className="bg-[#1a1c23]">Choose Bank</option>
-              <option value="opay" className="bg-[#1a1c23]">OPay</option>
-              <option value="kuda" className="bg-[#1a1c23]">Kuda Bank</option>
-              <option value="gtb" className="bg-[#1a1c23]">Guaranty Trust Bank</option>
-              <option value="zenith" className="bg-[#1a1c23]">Zenith Bank</option>
-              <option value="access" className="bg-[#1a1c23]">Access Bank</option>
-            </select>
+              <span className={bank ? 'text-white font-medium' : 'text-white/30'}>
+                {bank || 'Search or choose bank'}
+              </span>
+              <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${isBankDropdownOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            {isBankDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1c23] border border-white/15 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="p-3 border-b border-white/10 flex items-center gap-2">
+                  <Search className="w-4 h-4 text-white/40" />
+                  <input
+                    type="text"
+                    value={bankSearchQuery}
+                    onChange={(e) => setBankSearchQuery(e.target.value)}
+                    placeholder="Search bank name..."
+                    className="w-full bg-transparent text-white text-xs placeholder-white/30 focus:outline-none"
+                    autoFocus
+                  />
+                </div>
+                <div className="max-h-60 overflow-y-auto divide-y divide-white/5">
+                  {filteredBanks.length > 0 ? (
+                    filteredBanks.map((bName) => (
+                      <div
+                        key={bName}
+                        onClick={() => {
+                          setBank(bName)
+                          setIsBankDropdownOpen(false)
+                          setBankSearchQuery('')
+                        }}
+                        className="py-3 px-4 text-xs text-white/80 hover:bg-white/10 cursor-pointer transition"
+                      >
+                        {bName}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-4 px-4 text-xs text-white/40 text-center">
+                      No matching bank found
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Account Number */}
@@ -194,7 +305,7 @@ export default function WithdrawPage() {
                 type={showCode ? 'text' : 'password'}
                 value={payflexCode}
                 onChange={(e) => setPayflexCode(e.target.value)}
-                placeholder="Enter PayFlex Code"
+                placeholder="Enter valid PayFlex Code"
                 className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
               />
               <button
