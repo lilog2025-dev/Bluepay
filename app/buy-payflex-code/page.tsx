@@ -37,7 +37,8 @@ export default function BuyPayFlexCodePage() {
     PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
 
-  const CORRECT_PayFlexCode_CODE = 'PayFlexCode2026_PR0_V30_650'
+  // Updated code constant to match withdraw page
+  const CORRECT_PayFlexCode_CODE = 'Payflex0102'
 
   // Handle 10-second timer
   useEffect(() => {
