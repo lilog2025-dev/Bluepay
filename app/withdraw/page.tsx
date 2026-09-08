@@ -52,8 +52,8 @@ const NIGERIAN_BANKS = [
   "Xpress Payments", "Yobe MFB", "Zikora MFB"
 ]
 
-// Correct code constant defined explicitly for verification
-const CORRECT_PAYFLEX_CODE = 'PayFlexCode2026_PRO_V30_650'
+// Correct code constant updated to Payflex0102
+const CORRECT_PAYFLEX_CODE = 'Payflex0102'
 
 export default function WithdrawPage() {
   const router = useRouter()
