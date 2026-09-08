@@ -1,148 +1,142 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check } from 'lucide-react'
-
-type ChecklistItem = 'validating' | 'encrypting' | 'generating'
+import { AlertCircle } from 'lucide-react'
 
 export default function CreatingAccountPage() {
   const router = useRouter()
-  const [completed, setCompleted] = useState<ChecklistItem[]>([])
-  const [currentStep, setCurrentStep] = useState<ChecklistItem>('validating')
-  const [fullName, setFullName] = useState('')
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(''))
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
   const [email, setEmail] = useState('')
+  const [fullName, setFullName] = useState('')
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
-    // Get data from session storage
-    const name = sessionStorage.getItem('signupFullName') || ''
-    const userEmail = sessionStorage.getItem('signupEmail') || ''
-    setFullName(name)
-    setEmail(userEmail)
+    const storedEmail = sessionStorage.getItem('signupEmail')
+    const storedName = sessionStorage.getItem('signupFullName')
+    if (storedEmail) setEmail(storedEmail)
+    if (storedName) setFullName(storedName)
+  }, [])
 
-    // Animation sequence
-    const timings = {
-      validating: 1500,
-      encrypting: 1500,
-      generating: 1500,
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) {
+      const pastedData = value.slice(0, 6).split('')
+      const newOtp = [...otp]
+      pastedData.forEach((char, i) => {
+        newOtp[i] = char
+      })
+      setOtp(newOtp)
+      const nextFocus = Math.min(pastedData.length, 5)
+      inputRefs.current[nextFocus]?.focus()
+      return
     }
 
-    const validateTimer = setTimeout(() => {
-      setCompleted((prev) => [...prev, 'validating'])
-      setCurrentStep('encrypting')
-    }, timings.validating)
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
 
-    const encryptTimer = setTimeout(() => {
-      setCompleted((prev) => [...prev, 'encrypting'])
-      setCurrentStep('generating')
-    }, timings.validating + timings.encrypting)
-
-    const generateTimer = setTimeout(() => {
-      setCompleted((prev) => [...prev, 'generating'])
-      // Redirect to verification page
-      setTimeout(() => {
-        router.push('/verify-email')
-      }, 500)
-    }, timings.validating + timings.encrypting + timings.generating)
-
-    return () => {
-      clearTimeout(validateTimer)
-      clearTimeout(encryptTimer)
-      clearTimeout(generateTimer)
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus()
     }
-  }, [router])
+  }
 
-  const steps = [
-    { id: 'validating', label: 'Validating information' },
-    { id: 'encrypting', label: 'Encrypting credentials' },
-    { id: 'generating', label: 'Generating verification code' },
-  ]
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
+
+    const code = otp.join('')
+
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      })
+
+      const data = await res.json()
+      setLoading(false)
+
+      if (data.success) {
+        if (typeof window !== 'undefined') {
+          const finalName = fullName || data.user?.full_name || email.split('@')[0]
+          localStorage.setItem('userEmail', email)
+          localStorage.setItem('userName', finalName)
+          window.dispatchEvent(new Event('storage'))
+        }
+
+        router.push('/dashboard')
+      } else {
+        setMessage(data.error || 'Invalid verification code')
+      }
+    } catch (err) {
+      setLoading(false)
+      setMessage('Failed to verify code. Please try again.')
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
-      <div className="w-full max-w-md flex flex-col items-center">
-        {/* Spinner Animation */}
-        <div className="mb-8 sm:mb-12">
-          <div className="w-16 sm:w-24 h-16 sm:h-24 relative">
-            <svg
-              className="w-full h-full animate-spin"
-              viewBox="0 0 100 100"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="rgba(255, 255, 255, 0.3)"
-                strokeWidth="3"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#ffffff"
-                strokeWidth="3"
-                strokeDasharray="62.8"
-                strokeDashoffset="0"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
+            Verify Your Account
+          </h1>
+          <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
+            We&apos;ve sent a 6-digit verification code to <span className="font-semibold text-white">{email || 'your email'}</span>.
+          </p>
         </div>
 
-        {/* Title */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-2 sm:mb-4">
-          Creating Your Account
-        </h1>
-
-        {/* Description */}
-        <p className="text-white text-center text-xs sm:text-base md:text-lg mb-5 sm:mb-8 leading-relaxed">
-          Setting up your PayFlex account with security features...
-        </p>
-
-        {/* Divider line */}
-        <div className="w-full h-0.5 bg-white bg-opacity-30 mb-5 sm:mb-8 rounded-full" />
-
-        {/* Checklist */}
-        <div className="w-full space-y-3 sm:space-y-4">
-          {steps.map((step) => {
-            const isCompleted = completed.includes(step.id as ChecklistItem)
-            const isActive = currentStep === step.id
-
-            return (
-              <div key={step.id} className="flex items-center gap-3 sm:gap-4">
-                {/* Icon/Checkbox */}
-                <div
-                  className={`flex-shrink-0 w-8 sm:w-10 h-8 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    isCompleted
-                      ? 'bg-white text-[#0000ff]'
-                      : isActive
-                        ? 'border-2 border-white'
-                        : 'bg-white bg-opacity-20 border-2 border-white'
-                  }`}
-                >
-                  {isCompleted ? (
-                    <Check size={20} className="sm:w-6 sm:h-6 font-bold" />
-                  ) : isActive ? (
-                    <div className="w-3 sm:w-4 h-3 sm:h-4 rounded-full bg-white animate-pulse" />
-                  ) : null}
-                </div>
-
-                {/* Label */}
-                <span
-                  className={`text-sm sm:text-lg transition-all duration-300 ${
-                    isCompleted || isActive
-                      ? 'text-white font-semibold'
-                      : 'text-white text-opacity-60'
-                  }`}
-                >
-                  {step.label}
-                </span>
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
+          <form onSubmit={handleVerifyOtp} className="space-y-6">
+            <div>
+              <label className="block text-xs font-semibold text-white/80 mb-3 text-center">
+                Enter 6-digit code
+              </label>
+              <div className="flex justify-between gap-2">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => {
+                      inputRefs.current[index] = el
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    className="w-11 h-12 text-center bg-white text-gray-900 font-bold rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-white shadow-inner"
+                  />
+                ))}
               </div>
-            )
-          })}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || otp.join('').length < 6}
+              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+            >
+              {loading ? 'Verifying & Creating Account...' : 'VERIFY & COMPLETE'}
+            </button>
+          </form>
         </div>
+
+        {message && (
+          <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 border ${message.includes('success') || !message.includes('Invalid') ? 'bg-green-500/20 border-green-500/50 text-green-200' : 'bg-red-500/20 border-red-500/50 text-red-200'}`}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <p className="text-xs sm:text-sm">{message}</p>
+          </div>
+        )}
       </div>
     </div>
   )
