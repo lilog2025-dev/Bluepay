@@ -1,5 +1,3 @@
-// app/calendar/page.tsx
-
 'use client'
 
 import React, { useState } from 'react'
@@ -27,43 +25,43 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
+    <div className="min-h-screen bg-[#121212] text-white pb-8">
+      <header className="sticky top-0 z-40 bg-[#181818] border-b border-[#242424]">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 hover:bg-[#242424] rounded-lg text-white/80 transition"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-900" />
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Calendar</h1>
+          <h1 className="text-lg font-bold text-white">Calendar</h1>
           <div className="w-10" />
         </div>
       </header>
 
       <main className="max-w-md mx-auto px-4 py-6">
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 shadow-2xl">
           {/* Month Header */}
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={prevMonth}
-              className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-600"
+              className="p-2 hover:bg-[#242424] rounded-xl transition text-white/70 hover:text-white"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h2 className="text-base font-bold text-gray-900">
+            <h2 className="text-sm font-bold text-white tracking-wide">
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
             </h2>
             <button
               onClick={nextMonth}
-              className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-600"
+              className="p-2 hover:bg-[#242424] rounded-xl transition text-white/70 hover:text-white"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
 
           {/* Days of the Week */}
-          <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-400 mb-3">
+          <div className="grid grid-cols-7 text-center text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-3">
             <span>Sun</span>
             <span>Mon</span>
             <span>Tue</span>
@@ -74,7 +72,7 @@ export default function CalendarPage() {
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-y-3 text-center text-sm">
+          <div className="grid grid-cols-7 gap-y-3 text-center text-xs">
             {Array.from({ length: firstDayIndex }).map((_, index) => (
               <div key={`empty-${index}`} />
             ))}
@@ -88,10 +86,10 @@ export default function CalendarPage() {
               return (
                 <div key={day} className="flex justify-center">
                   <div
-                    className={`w-9 h-9 flex items-center justify-center rounded-xl font-medium transition ${
+                    className={`w-9 h-9 flex items-center justify-center rounded-2xl font-medium transition ${
                       isToday
-                        ? 'bg-blue-600 text-white font-bold shadow-sm shadow-blue-200'
-                        : 'text-gray-800 hover:bg-gray-100'
+                        ? 'bg-[#10B981] text-white font-bold shadow-lg shadow-[#10B981]/20'
+                        : 'text-white/80 hover:bg-[#242424]'
                     }`}
                   >
                     {day}
