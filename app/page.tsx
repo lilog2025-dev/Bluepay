@@ -15,16 +15,16 @@ export default function WelcomePage() {
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-between px-6 py-10">
+    <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-between px-6 py-10 text-white">
       <div className="w-full flex flex-col items-center pt-8">
-        <h1 className="text-3xl font-extrabold text-white tracking-wider mb-1 drop-shadow-lg">
+        <h1 className="text-3xl font-extrabold tracking-wider mb-1 text-white">
           PayFlex
         </h1>
-        <div className="w-12 h-1 bg-white rounded-full"></div>
+        <div className="w-12 h-1 bg-blue-500 rounded-full"></div>
       </div>
 
-      <div className="w-full max-w-sm bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center my-auto">
-        <div className="relative w-44 h-44 mb-6 rounded-2xl overflow-hidden shadow-inner border border-white/20 flex items-center justify-center bg-black">
+      <div className="w-full max-w-sm bg-[#1a1c23] border border-white/10 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center my-auto">
+        <div className="relative w-44 h-44 mb-6 rounded-2xl overflow-hidden shadow-inner border border-white/10 flex items-center justify-center bg-black">
           <Image
             src="/logo.png"
             alt="PayFlex Logo"
@@ -34,7 +34,7 @@ export default function WelcomePage() {
             priority
           />
         </div>
-        <p className="text-white text-sm leading-relaxed drop-shadow-md">
+        <p className="text-sm font-medium leading-relaxed text-white/70">
           PayFlex allows users to earn extra income, withdraw money, purchase airtime and data, and generate personal PayFlex Code instantly.
         </p>
       </div>
@@ -42,16 +42,16 @@ export default function WelcomePage() {
       <div className="w-full max-w-sm flex flex-col gap-4 pb-6">
         <button
           onClick={() => router.push('/signup')}
-          className="w-full py-4 bg-white text-black font-bold text-base rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+          className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-base rounded-2xl shadow-xl transition-all duration-300"
         >
           Get Started
         </button>
 
-        <p className="text-center text-sm text-white/80">
+        <p className="text-center text-sm text-white/60">
           Already have an account?{' '}
           <button
             onClick={() => router.push('/login')}
-            className="text-white font-bold underline hover:text-gray-200 transition"
+            className="text-blue-400 font-bold underline hover:text-blue-300 transition"
           >
             Sign In
           </button>
