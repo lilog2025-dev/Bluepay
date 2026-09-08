@@ -26,7 +26,7 @@ export default function WelcomePage() {
       <div className="w-full max-w-sm bg-[#1a1c23] border border-white/10 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center my-auto">
         <div className="relative w-44 h-44 mb-6 rounded-2xl overflow-hidden shadow-inner border border-white/10 flex items-center justify-center bg-black">
           <Image
-            src="/logo.png"
+            src="/3FB9F6B0-1D1D-4DFA-AEAA-6315916251DC.png"
             alt="PayFlex Logo"
             width={160}
             height={160}
@@ -50,7 +50,7 @@ export default function WelcomePage() {
         <p className="text-center text-sm text-white/60">
           Already have an account?{' '}
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/signin')}
             className="text-blue-400 font-bold underline hover:text-blue-300 transition"
           >
             Sign In
