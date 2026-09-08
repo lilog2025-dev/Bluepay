@@ -98,7 +98,7 @@ export default function CreatingAccountPage() {
 
         {/* Description */}
         <p className="text-white text-center text-xs sm:text-base md:text-lg mb-5 sm:mb-8 leading-relaxed">
-          Setting up your PayFlex PRO V30 account with security features...
+          Setting up your PayFlex account with security features...
         </p>
 
         {/* Divider line */}
