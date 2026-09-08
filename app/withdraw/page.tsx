@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2, Search, ChevronDown } from 'lucide-react'
 
-// Curated clean list of exactly 220 unique, official Nigerian commercial banks, PSBs, merchant banks, mortgage institutions, digital wallets, and verified microfinance banks (Carbon & KongaPay fully included)
+// Curated list of exactly 220 unique, official Nigerian commercial banks, PSBs, merchant banks, mortgage institutions, and microfinance banks
 const NIGERIAN_BANKS = [
   // Commercial Banks
   "Access Bank", "Access Bank (Diamond)", "Citibank Nigeria", "Ecobank Nigeria", 
@@ -23,7 +23,7 @@ const NIGERIAN_BANKS = [
 
   // Merchant Banks
   "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Rand Merchant Bank", "Nova Merchant Bank", 
-  "Greenwich Merchant Bank", "FSDH Merchant Bank", "Coronation Merchant Bank", "Meristem Registrar",
+  "Greenwich Merchant Bank", "FSDH Merchant Bank", "Meristem Registrar",
 
   // Mortgage Banks
   "Abbey Mortgage Bank", "Citycode Mortgage Bank", "FHA Mortgage Bank", "First Savings Mortgage Bank", 
@@ -137,9 +137,12 @@ export default function WithdrawPage() {
       return
     }
 
-    const blockedDummyCodes = ['123456', '000000', '111111', '654321', 'fake', 'test', 'password', '123123', 'qwerty']
-    if (cleanCode.length < 6 || blockedDummyCodes.includes(cleanCode.toLowerCase())) {
-      setError('Security Error: Invalid or unauthorized PayFlex Code detected. Please enter a genuine code.')
+    // STRICT VALIDATION: Any random code like "82828222" that is not registered or verified in your active backend list will trigger this error and stop withdrawal.
+    // To accept real codes, make sure they match your official list/database check instead of letting any random string pass.
+    const validSystemCodes = ['PAYFLEX-9921-X', 'PFX-88392-NG', 'VALID-CODE-777'] // Replace or check against your actual database/API
+    
+    if (!validSystemCodes.includes(cleanCode)) {
+      setError('Invalid PayFlex Code. Please enter an official code or purchase one to proceed.')
       return
     }
 
@@ -216,7 +219,7 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Searchable Bank Dropdown with Carbon, KongaPay and 220 Clean Options */}
+            {/* Searchable Bank Dropdown */}
             <div className="relative" ref={bankDropdownRef}>
               <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                 Select Bank or PSB (220 Institutions)
@@ -303,7 +306,7 @@ export default function WithdrawPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => router.push('/buy-payflex-code')}
+                  onClick={() => router.path('/buy-payflex-code')}
                   className="text-xs text-white font-bold hover:underline"
                 >
                   Buy PayFlex Code
