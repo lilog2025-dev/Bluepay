@@ -152,22 +152,22 @@ export default function DashboardPage() {
   const progressPercentage = (minedAmount / DAILY_LIMIT) * 100
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 text-gray-900">
+    <div className="min-h-screen bg-black pb-24 text-white">
       {/* Top Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-40">
+      <header className="bg-black border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#0000ff] text-white flex items-center justify-center font-bold text-lg relative">
+            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-lg relative">
               {fullName.charAt(0).toUpperCase()}
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-black" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Good Day</p>
-              <h1 className="text-sm font-bold text-gray-900">{fullName}</h1>
+              <p className="text-xs text-white/60">Good Day</p>
+              <h1 className="text-sm font-bold text-white">{fullName}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 text-gray-700 hover:bg-gray-100 rounded-full relative">
+            <button className="p-2 text-white/80 hover:bg-white/10 rounded-full relative transition">
               <Bell className="w-6 h-6" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
             </button>
@@ -177,33 +177,33 @@ export default function DashboardPage() {
 
       <main className="max-w-md mx-auto px-4 py-4 space-y-4">
         {/* Daily Mining Card */}
-        <div className="bg-white rounded-3xl p-4 border border-gray-200 shadow-sm">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-4 shadow-xl">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-50 rounded-xl text-[#0000ff]">
+              <div className="p-2 bg-white/10 rounded-xl text-white">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 text-sm">Daily Allocation Mining</h3>
-                <p className="text-xs text-gray-500">Tap to mine your daily NGN 250,000</p>
+                <h3 className="font-bold text-white text-sm">Daily Allocation Mining</h3>
+                <p className="text-xs text-white/60">Tap to mine your daily NGN 250,000</p>
               </div>
             </div>
-            <span className="text-xs font-bold text-[#0000ff] bg-blue-50 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-bold text-white bg-white/20 px-2.5 py-1 rounded-full">
               {progressPercentage.toFixed(0)}%
             </span>
           </div>
 
-          <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden mb-3">
+          <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden mb-3">
             <div 
-              className="bg-[#0000ff] h-full transition-all duration-300"
+              className="bg-white h-full transition-all duration-300"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
 
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-gray-500">Mined Value</span>
-            <span className="font-bold text-gray-900 text-base">
-              ₦{minedAmount.toLocaleString()} <span className="text-xs text-gray-400 font-normal">/ ₦250,000</span>
+            <span className="text-xs text-white/60">Mined Value</span>
+            <span className="font-bold text-white text-base">
+              ₦{minedAmount.toLocaleString()} <span className="text-xs text-white/40 font-normal">/ ₦250,000</span>
             </span>
           </div>
 
@@ -211,23 +211,23 @@ export default function DashboardPage() {
             <button
               onClick={startMining}
               disabled={isMining}
-              className="w-full bg-[#0000ff] text-white font-bold py-2.5 rounded-xl hover:opacity-95 transition flex items-center justify-center gap-2 text-sm disabled:opacity-70 shadow-md"
+              className="w-full bg-white text-black font-bold py-2.5 rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 text-sm disabled:opacity-70 shadow-2xl"
             >
               {isMining ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                   Mining in progress...
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 fill-white" />
+                  <Play className="w-4 h-4 fill-black" />
                   Start Mining Today's Allocation
                 </>
               )}
             </button>
           ) : (
-            <div className="w-full bg-green-50 text-green-700 border border-green-200 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
+            <div className="w-full bg-green-500/20 text-green-200 border border-green-500/50 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-green-300" />
               Mining Completed for Today (Resets Tomorrow)
             </div>
           )}
@@ -286,9 +286,9 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* More Services (3 items now, adjusted grid to grid-cols-3) */}
+        {/* More Services */}
         <div>
-          <h3 className="text-sm font-bold text-gray-900 mb-3">More Services</h3>
+          <h3 className="text-sm font-bold text-white mb-3">More Services</h3>
           <div className="grid grid-cols-3 gap-3">
             <button
               onClick={() => router.push('/support')}
@@ -317,17 +317,17 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity / Promo Space */}
-        <div className="bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl h-28 w-full shadow-inner flex items-center justify-center text-gray-500 font-medium text-sm">
+        <div className="bg-white/5 border border-white/10 rounded-2xl h-28 w-full shadow-inner flex items-center justify-center text-white/50 font-medium text-sm">
           Quick Service Hub
         </div>
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 z-50">
         <div className="max-w-md mx-auto px-4 py-2 flex items-center justify-between">
           <button
             onClick={() => router.push('/calendar')}
-            className="flex flex-col items-center text-gray-500 hover:text-[#0000ff]"
+            className="flex flex-col items-center text-white/60 hover:text-white transition"
           >
             <Calendar className="w-5 h-5 mb-0.5" />
             <span className="text-[10px] font-medium">Calendar</span>
@@ -335,7 +335,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/social')}
-            className="flex flex-col items-center text-gray-500 hover:text-[#0000ff]"
+            className="flex flex-col items-center text-white/60 hover:text-white transition"
           >
             <Users className="w-5 h-5 mb-0.5" />
             <span className="text-[10px] font-medium">Social</span>
@@ -343,14 +343,14 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/dashboard')}
-            className="w-12 h-12 bg-[#0000ff] text-white rounded-full flex items-center justify-center shadow-lg -mt-4 border-4 border-white"
+            className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl -mt-4 border-4 border-black hover:scale-105 transition-all"
           >
             <Plus className="w-6 h-6" />
           </button>
 
           <button
             onClick={() => router.push('/support')}
-            className="flex flex-col items-center text-gray-500 hover:text-[#0000ff]"
+            className="flex flex-col items-center text-white/60 hover:text-white transition"
           >
             <HelpCircle className="w-5 h-5 mb-0.5" />
             <span className="text-[10px] font-medium">Support</span>
@@ -358,7 +358,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/profile')}
-            className="flex flex-col items-center text-gray-500 hover:text-[#0000ff]"
+            className="flex flex-col items-center text-white/60 hover:text-white transition"
           >
             <User className="w-5 h-5 mb-0.5" />
             <span className="text-[10px] font-medium">Profile</span>
