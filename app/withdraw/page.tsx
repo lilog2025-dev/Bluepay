@@ -4,9 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2, Search, ChevronDown } from 'lucide-react'
 
-// Curated list of exactly 220 unique, official Nigerian commercial banks, PSBs, merchant banks, mortgage institutions, and microfinance banks
 const NIGERIAN_BANKS = [
-  // Commercial Banks
   "Access Bank", "Access Bank (Diamond)", "Citibank Nigeria", "Ecobank Nigeria", 
   "Fidelity Bank", "First Bank of Nigeria", "First City Monument Bank (FCMB)", 
   "Globus Bank", "Guaranty Trust Bank (GTB)", "Heritage Bank", "Jaiz Bank", 
@@ -14,25 +12,17 @@ const NIGERIAN_BANKS = [
   "Standard Chartered Bank", "Sterling Bank", "Suntrust Bank", "TAJ Bank", 
   "Titan Trust Bank", "Union Bank of Nigeria", "United Bank for Africa (UBA)", 
   "Unity Bank", "Wema Bank", "Zenith Bank", "Lotus Bank", "Optimus Bank", "Parallex Bank",
-
-  // Fintechs, Wallets & Payment Service Banks (PSBs)
   "Carbon", "KongaPay", "Sparkle", "Kuda Bank", "Moniepoint MFB", "Opay Digital Services", 
   "Palmpay", "Fairmoney Microfinance Bank", "VFD MFB", "Mint MFB", "Raven MFB", "Imowo MFB", 
   "Paga", "Pocket App", "GoMoney", "Eyowo", "Hope PSB", "Momo PSB", "Moneymaster PSB", 
   "Airtel Smartcash PSB", "9Payment Service Bank",
-
-  // Merchant Banks
   "Coronation Merchant Bank", "FBNQuest Merchant Bank", "Rand Merchant Bank", "Nova Merchant Bank", 
   "Greenwich Merchant Bank", "FSDH Merchant Bank", "Meristem Registrar",
-
-  // Mortgage Banks
   "Abbey Mortgage Bank", "Citycode Mortgage Bank", "FHA Mortgage Bank", "First Savings Mortgage Bank", 
   "Haggai Mortgage Bank", "Infinity Trust Mortgage Bank", "Jubilee Life Mortgage Bank", 
   "Livingtrust Mortgage Bank", "Lagos Building Investment Company (LBIC)", "Niger Delta Mortgage Bank", 
   "Refuge Mortgage Bank", "Brent Mortgage Bank", "Gateway Mortgage Bank", "Imperial Mortgage Bank", 
   "Delta Trust Mortgage Bank", "Coop Savings & Mortgage", "FBN Mortgages", "Infinity Mortgage", "ASO Savings and Loans", "Cooperative Mortgage Bank",
-
-  // Distinct Verified Microfinance Banks & Institutions
   "Above Only MFB", "Absolute MFB", "Abulesoro MFB", "Acumen MFB", "Adebimpe MFB", "Adeyemi College MFB", 
   "Afrinvest MFB", "Afriglobal MFB", "Ahmadu Bello University MFB", "Aleyo MFB", "Alpha MFB", 
   "AMAC MFB", "Amegy MFB", "Amju Unique MFB", "Apoch MFB", "Arao MFB", "Arc MFB", "Asset Matrix MFB", 
@@ -137,15 +127,6 @@ export default function WithdrawPage() {
       return
     }
 
-    // STRICT VALIDATION: Any random code like "82828222" that is not registered or verified in your active backend list will trigger this error and stop withdrawal.
-    // To accept real codes, make sure they match your official list/database check instead of letting any random string pass.
-    const validSystemCodes = ['PAYFLEX-9921-X', 'PFX-88392-NG', 'VALID-CODE-777'] // Replace or check against your actual database/API
-    
-    if (!validSystemCodes.includes(cleanCode)) {
-      setError('Invalid PayFlex Code. Please enter an official code or purchase one to proceed.')
-      return
-    }
-
     setIsLoading(true)
 
     setTimeout(() => {
@@ -219,7 +200,6 @@ export default function WithdrawPage() {
               </div>
             </div>
 
-            {/* Searchable Bank Dropdown */}
             <div className="relative" ref={bankDropdownRef}>
               <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                 Select Bank or PSB (220 Institutions)
@@ -306,7 +286,7 @@ export default function WithdrawPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => router.path('/buy-payflex-code')}
+                  onClick={() => router.push('/buy-payflex-code')}
                   className="text-xs text-white font-bold hover:underline"
                 >
                   Buy PayFlex Code
