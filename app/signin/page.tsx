@@ -2,6 +2,8 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -24,7 +26,7 @@ export default function SignInPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email, 
-          type: 'signin' // Instructs backend NOT to create account if user doesn't exist
+          type: 'signin'
         }),
       })
 
@@ -44,7 +46,6 @@ export default function SignInPage() {
   }
 
   const handleOtpChange = (index: number, value: string) => {
-    // Handle pasting a 6-digit code
     if (value.length > 1) {
       const pastedData = value.slice(0, 6).split('')
       const newOtp = [...otp]
@@ -61,7 +62,6 @@ export default function SignInPage() {
     newOtp[index] = value
     setOtp(newOtp)
 
-    // Auto-advance focus to next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus()
     }
@@ -91,9 +91,7 @@ export default function SignInPage() {
       setLoading(false)
 
       if (data.success) {
-        // Save user details to localStorage for instant local access across Dashboard & Profile
         if (typeof window !== 'undefined') {
-          // If server returns a full name, use it; otherwise infer a clean name from email handle
           const serverName = data.user?.full_name || data.user?.name
           const emailHandle = email.split('@')[0]
           const derivedName = emailHandle.charAt(0).toUpperCase() + emailHandle.slice(1)
@@ -103,7 +101,6 @@ export default function SignInPage() {
           localStorage.setItem('userEmail', email)
           localStorage.setItem('userName', finalName)
 
-          // Dispatch storage event so other open tabs/components react immediately
           window.dispatchEvent(new Event('storage'))
         }
 
@@ -118,66 +115,115 @@ export default function SignInPage() {
   }
 
   return (
-    <div style={{ maxWidth: '380px', margin: '40px auto', padding: '20px' }}>
-      {step === 'send' ? (
-        <form onSubmit={handleSendOtp}>
-          <h2>Sign in to PayFlex</h2>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-            style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
-          />
-          <button type="submit" disabled={loading} style={{ width: '100%', padding: '10px' }}>
-            {loading ? 'Sending Code...' : 'Send Verification Code'}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleVerifyOtp}>
-          <h2>Enter Verification Code</h2>
-          <p>Sent to {email}</p>
-          
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '15px' }}>
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleOtpChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                style={{
-                  width: '42px',
-                  height: '48px',
-                  fontSize: '20px',
-                  textAlign: 'center',
-                  borderRadius: '6px',
-                  border: '1px solid #ccc',
-                }}
-              />
-            ))}
-          </div>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
+      <div className="w-full max-w-md">
+        {step === 'send' ? (
+          <div>
+            <div className="text-center mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
+                Sign in to PayFlex
+              </h1>
+              <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
+                Enter your email address to access your account securely.
+              </p>
+            </div>
 
-          <button type="submit" disabled={loading || otp.join('').length < 6} style={{ width: '100%', padding: '10px' }}>
-            {loading ? 'Verifying...' : 'Verify Code'}
-          </button>
-          <button 
-            type="button" 
-            onClick={() => {
-              setStep('send')
-              setOtp(Array(6).fill(''))
-            }} 
-            style={{ width: '100%', padding: '8px', marginTop: '8px', background: 'transparent', border: 'none', color: '#666' }}
-          >
-            Change Email
-          </button>
-        </form>
-      )}
-      {message && <p style={{ marginTop: '15px', color: message.includes('Check') ? 'green' : 'red' }}>{message}</p>}
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
+              <form onSubmit={handleSendOtp} className="space-y-4 sm:space-y-6">
+                <div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+                >
+                  {loading ? 'Sending Code...' : 'Send Verification Code'}
+                </button>
+              </form>
+            </div>
+
+            <p className="text-center text-white text-xs sm:text-sm drop-shadow-lg">
+              Don&apos;t have an account?{' '}
+              <Link href="/signup" className="font-bold underline hover:text-gray-100 transition-colors">
+                Create Account
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <div>
+            <div className="text-center mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
+                Enter Verification Code
+              </h1>
+              <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
+                Sent to <span className="font-semibold text-white">{email}</span>
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
+              <form onSubmit={handleVerifyOtp} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-semibold text-white/80 mb-3 text-center">
+                    Enter 6-digit code
+                  </label>
+                  <div className="flex justify-between gap-2">
+                    {otp.map((digit, index) => (
+                      <input
+                        key={index}
+                        ref={(el) => {
+                          inputRefs.current[index] = el
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleOtpChange(index, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(index, e)}
+                        className="w-11 h-12 text-center bg-white text-gray-900 font-bold rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-white shadow-inner"
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || otp.join('').length < 6}
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+                >
+                  {loading ? 'Verifying...' : 'Verify Code'}
+                </button>
+
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setStep('send')
+                    setOtp(Array(6).fill(''))
+                  }} 
+                  className="w-full py-2 bg-transparent border-none text-white/70 hover:text-white text-xs sm:text-sm underline transition"
+                >
+                  Change Email
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {message && (
+          <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 border ${message.includes('Check') || message.includes('success') ? 'bg-green-500/20 border-green-500/50 text-green-200' : 'bg-red-500/20 border-red-500/50 text-red-200'}`}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <p className="text-xs sm:text-sm">{message}</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
