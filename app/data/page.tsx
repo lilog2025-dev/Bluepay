@@ -13,7 +13,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/balance-store'
+import { getBalance, deductBalance, addTransaction } from '@/lib/balance-store'
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -35,10 +35,10 @@ export default function DataPage() {
   const [copied, setCopied] = useState(false)
   const [fullName, setFullName] = useState('')
   const [userEmail, setUserEmail] = useState('')
-  const [toastMessage, setToastMessage] = useState('')
-  const [showToast, setShowToast] = useState(false)
-  const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(250000) // Demo balance
+  const [, setToastMessage] = useState('')
+  const [, setShowToast] = useState(false)
+  const [, setUserId] = useState('')
+  const [, setBalance] = useState(250000) // Demo balance
 
   const countries = [
     { name: 'Nigeria', code: '+234' },
@@ -123,7 +123,6 @@ export default function DataPage() {
       setError('Please enter a valid phone number')
       return false
     }
-    // Check if either a plan or custom amount is selected
     if (!selectedPlan && !customAmount) {
       setError('Please select a data plan or enter a custom amount')
       return false
@@ -155,7 +154,6 @@ export default function DataPage() {
     setError('')
     
     try {
-      // Validate required data before processing
       if (!selectedNetwork) {
         setError('Please select a network')
         setIsLoading(false)
@@ -168,7 +166,6 @@ export default function DataPage() {
         return
       }
 
-      // Determine the amount - either from custom input or selected plan
       let amount = 0
       let description = ''
       
@@ -184,18 +181,14 @@ export default function DataPage() {
         return
       }
 
-      // Validate amount
       if (!amount || amount <= 0) {
         setError('Invalid amount selected. Please try again.')
         setIsLoading(false)
         return
       }
 
-      console.log('[v0] Processing data purchase:', { amount, description, userId })
-
       await new Promise((resolve) => setTimeout(resolve, 2000))
       
-      // Send debit alert email
       const transactionId = generateTransactionId()
       
       await sendDebitAlert({
@@ -210,7 +203,6 @@ export default function DataPage() {
         transaction_date: getCurrentDateTime(),
       })
 
-      // Update demo balance
       const newBalance = deductBalance(amount)
       setBalance(newBalance)
 
@@ -243,7 +235,6 @@ export default function DataPage() {
         setStep('form')
         setError('')
       } else if (step === 'success') {
-        // Reset state instead of navigating away
         setStep('form')
         setSelectedNetwork('')
         setSelectedCountry('')
@@ -267,17 +258,17 @@ export default function DataPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-8">
+    <div className="min-h-screen bg-[#121212] text-white pb-8">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
+      <header className="sticky top-0 z-40 bg-[#181818] border-b border-[#242424]">
         <div className="max-w-sm mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={handleBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 hover:bg-[#242424] rounded-lg transition text-white/80"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-900" />
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Buy Data</h1>
+          <h1 className="text-lg font-bold text-white">Buy Data</h1>
           <div className="w-10" />
         </div>
       </header>
@@ -288,41 +279,41 @@ export default function DataPage() {
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'form' || step === 'confirm' || step === 'success'
-                ? 'bg-cyan-500'
-                : 'bg-gray-200'
+                ? 'bg-[#10B981]'
+                : 'bg-[#242424]'
             }`}
           />
           <div
             className={`flex-1 h-1 rounded-full ${
               step === 'confirm' || step === 'success'
-                ? 'bg-cyan-500'
-                : 'bg-gray-200'
+                ? 'bg-[#10B981]'
+                : 'bg-[#242424]'
             }`}
           />
           <div
             className={`flex-1 h-1 rounded-full ${
-              step === 'success' ? 'bg-cyan-500' : 'bg-gray-200'
+              step === 'success' ? 'bg-[#10B981]' : 'bg-[#242424]'
             }`}
           />
         </div>
 
         {/* Form Step */}
         {step === 'form' && (
-          <div className="space-y-3">
+          <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 space-y-4 shadow-2xl">
             {/* Network Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
+              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                 Select Network
               </label>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-2">
                 {networks.map((network) => (
                   <button
                     key={network.code}
                     onClick={() => setSelectedNetwork(network.name)}
-                    className={`py-4 px-2 rounded-xl font-semibold transition ${
+                    className={`py-3 px-1 rounded-xl text-xs font-bold transition border ${
                       selectedNetwork === network.name
-                        ? `${network.color} text-white shadow-lg`
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        ? 'bg-[#10B981]/20 border-[#10B981] text-white'
+                        : 'bg-[#121212] border-[#2c2c2c] text-white/60 hover:border-white/40'
                     }`}
                   >
                     {network.name}
@@ -333,16 +324,16 @@ export default function DataPage() {
 
             {/* Country Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
+              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                 Country
               </label>
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+                className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] font-medium text-white transition"
               >
                 {countries.map((country) => (
-                  <option key={country.code} value={country.name}>
+                  <option key={country.code} value={country.name} className="bg-[#121212] text-white">
                     {country.name} ({country.code})
                   </option>
                 ))}
@@ -351,7 +342,7 @@ export default function DataPage() {
 
             {/* Phone Number */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
+              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                 Phone Number
               </label>
               <input
@@ -359,13 +350,13 @@ export default function DataPage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                 placeholder="Enter phone number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent font-semibold text-gray-900"
+                className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] text-white placeholder-white/30 transition"
               />
             </div>
 
             {/* Data Plans */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
+              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
                 Select Data Plan
               </label>
               <div className="space-y-2">
@@ -376,28 +367,28 @@ export default function DataPage() {
                       setSelectedPlan(plan.size)
                       setCustomAmount('')
                     }}
-                    className={`w-full py-3 px-4 rounded-xl font-semibold transition border-2 flex items-center justify-between ${
+                    className={`w-full py-3 px-4 rounded-2xl transition border flex items-center justify-between ${
                       selectedPlan === plan.size && !customAmount
-                        ? 'bg-cyan-50 border-cyan-500 text-cyan-700'
-                        : 'bg-white border-gray-200 text-gray-900 hover:border-gray-300'
+                        ? 'bg-[#10B981]/20 border-[#10B981] text-white'
+                        : 'bg-[#121212] border-[#2c2c2c] text-white/80 hover:border-white/40'
                     }`}
                   >
                     <div className="text-left">
-                      <p className="text-sm font-bold">{plan.size}</p>
-                      <p className="text-xs text-gray-600">{plan.validity}</p>
+                      <p className="text-xs font-bold text-white">{plan.size}</p>
+                      <p className="text-[10px] text-white/50">{plan.validity}</p>
                     </div>
-                    <p className="text-lg font-bold">₦{plan.price.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-white">₦{plan.price.toLocaleString()}</p>
                   </button>
                 ))}
               </div>
 
               {/* Custom Amount Option */}
-              <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <label className="block text-xs font-semibold text-gray-700 mb-2">
+              <div className="mt-4 bg-[#121212] border border-[#2c2c2c] rounded-2xl p-4">
+                <label className="block text-xs font-semibold text-white/60 mb-2">
                   Or Enter Custom Amount
                 </label>
-                <div className="flex gap-2">
-                  <span className="text-lg font-bold text-gray-900">₦</span>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-sm font-bold text-white/60">₦</span>
                   <input
                     type="number"
                     value={customAmount}
@@ -408,58 +399,65 @@ export default function DataPage() {
                         if (val) setSelectedPlan('')
                       }
                     }}
-                    placeholder="Enter custom data amount"
+                    placeholder="Enter custom amount"
                     min="50"
                     max="50000"
-                    className="flex-1 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-semibold text-gray-900"
+                    className="w-full pl-8 pr-3 py-3 bg-[#181818] border border-[#2c2c2c] rounded-xl focus:outline-none focus:border-[#10B981] text-xs font-semibold text-white placeholder-white/30 transition"
                   />
                 </div>
-                <p className="text-xs text-gray-600 mt-2">Minimum: ₦50 | Maximum: ₦50,000</p>
+                <p className="text-[10px] text-white/40 mt-2">Minimum: ₦50 | Maximum: ₦50,000</p>
               </div>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="flex gap-3 p-3 bg-red-500/20 border border-red-500/40 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-red-200">{error}</p>
               </div>
             )}
 
             {/* Benefits Info */}
             {selectedPlan && selectedPlanObj && (
-              <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
-                <p className="text-xs text-gray-600 mb-3 font-semibold flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-cyan-600" />
+              <div className="bg-[#121212] border border-[#2c2c2c] rounded-2xl p-4 space-y-2">
+                <p className="text-xs text-white/60 font-semibold flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-[#10B981]" />
                   Plan Details
                 </p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Data Size:</span>
-                    <span className="font-bold text-gray-900">{selectedPlanObj.size}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Validity:</span>
-                    <span className="font-semibold text-gray-900">
-                      {selectedPlanObj.validity}
-                    </span>
-                  </div>
-                  <div className="h-px bg-cyan-200 my-2" />
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700 font-semibold">Amount to Pay:</span>
-                    <span className="font-bold text-cyan-600">
-                      ₦{selectedPlanObj.price.toLocaleString()}
-                    </span>
-                  </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Data Size:</span>
+                  <span className="font-bold text-white">{selectedPlanObj.size}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Validity:</span>
+                  <span className="font-semibold text-white">
+                    {selectedPlanObj.validity}
+                  </span>
+                </div>
+                <div className="h-px bg-[#2c2c2c] my-1" />
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60 font-semibold">Amount to Pay:</span>
+                  <span className="font-bold text-[#10B981]">
+                    ₦{selectedPlanObj.price.toLocaleString()}
+                  </span>
                 </div>
               </div>
             )}
 
             {/* PayFlexCode CODE Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                INPUT PayFlexCode CODE
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider">
+                  INPUT PAYFLEX CODE
+                </label>
+                <button
+                  type="button"
+                  onClick={() => router.push('/buy-payflex-code')}
+                  className="text-xs text-[#10B981] font-bold hover:underline"
+                >
+                  Buy PayFlex Code
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type={showPayFlexCodeCode ? 'text' : 'password'}
@@ -469,37 +467,30 @@ export default function DataPage() {
                     setPayFlexCodeError('')
                   }}
                   placeholder="Enter PayFlexCode Code"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
+                  className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] pr-12 text-white placeholder-white/30 transition"
                   maxLength={CORRECT_PayFlexCode_CODE.length}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPayFlexCodeCode(!showPayFlexCodeCode)}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition"
                 >
                   {showPayFlexCodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={() => router.push('/buy-payflex-code')}
-                className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
-              >
-                Buy PayFlexCode
-              </button>
             </div>
 
             {PayFlexCodeError && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{PayFlexCodeError}</p>
+              <div className="flex gap-3 p-3 bg-red-500/20 border border-red-500/40 rounded-xl">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-red-200">{PayFlexCodeError}</p>
               </div>
             )}
 
             {/* Continue Button */}
             <button
               onClick={handleContinue}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
+              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-4 rounded-2xl shadow-lg transition mt-4 tracking-wide"
             >
               Review & Confirm
             </button>
@@ -508,75 +499,78 @@ export default function DataPage() {
 
         {/* Confirmation Step */}
         {step === 'confirm' && (
-          <div className="space-y-3">
-            {/* Summary */}
-            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
-              <h2 className="text-lg font-bold text-gray-900">
+          <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 space-y-4 shadow-2xl">
+            <div className="space-y-4">
+              <h2 className="text-base font-bold text-white">
                 Confirm Purchase
               </h2>
               
-              <div className="space-y-4 py-4 border-t border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Network</span>
+              <div className="space-y-3 py-3 border-t border-b border-[#2c2c2c]">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">Network</span>
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-4 h-4 rounded ${selectedNetworkObj?.color}`}
+                      className={`w-3 h-3 rounded ${selectedNetworkObj?.color}`}
                     />
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-white">
                       {selectedNetwork}
                     </span>
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Phone Number</span>
-                  <span className="font-semibold text-gray-900">
+                <div className="flex justify-between text-xs">
+                  <span className="text-white/60">Phone Number</span>
+                  <span className="font-semibold text-white">
                     +234{phoneNumber.slice(-10)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Data Plan</span>
-                  <span className="font-bold text-gray-900">
-                    {selectedPlanObj?.size}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Validity</span>
-                  <span className="font-semibold text-gray-900">
-                    {selectedPlanObj?.validity}
-                  </span>
-                </div>
-                <div className="h-px bg-gray-200 my-2" />
-                <div className="flex justify-between text-lg">
-                  <span className="font-semibold text-gray-900">Total Debit</span>
-                  <span className="font-bold text-cyan-500">
-                    ₦{selectedPlanObj?.price.toLocaleString()}
+                {selectedPlan && (
+                  <>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-white/60">Data Plan</span>
+                      <span className="font-bold text-white">
+                        {selectedPlanObj?.size}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-white/60">Validity</span>
+                      <span className="font-semibold text-white">
+                        {selectedPlanObj?.validity}
+                      </span>
+                    </div>
+                  </>
+                )}
+                <div className="h-px bg-[#2c2c2c] my-2" />
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-white/60 uppercase">Total Debit</span>
+                  <span className="text-base font-bold text-[#10B981]">
+                    ₦{customAmount ? parseFloat(customAmount).toLocaleString() : selectedPlanObj?.price.toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Warning */}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-800">
-                Data will be activated on your phone within seconds of confirmation. No refunds on data purchases.
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 flex gap-2">
+              <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-200">
+                Data will be activated within seconds. No refunds on data purchases.
               </p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="flex gap-3 p-3 bg-red-500/20 border border-red-500/40 rounded-xl">
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-red-200">{error}</p>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-2 pt-2">
               <button
                 onClick={handleConfirm}
                 disabled={isLoading}
-                className="w-full bg-cyan-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-4 rounded-2xl shadow-lg transition disabled:opacity-50 flex items-center justify-center gap-2 tracking-wide"
               >
                 {isLoading ? (
                   <>
@@ -590,7 +584,7 @@ export default function DataPage() {
               <button
                 onClick={() => setStep('form')}
                 disabled={isLoading}
-                className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition disabled:opacity-50"
+                className="w-full bg-[#121212] border border-[#2c2c2c] text-white font-bold py-3.5 rounded-2xl hover:bg-[#242424] transition disabled:opacity-50 text-xs tracking-wide"
               >
                 Edit Details
               </button>
@@ -600,36 +594,32 @@ export default function DataPage() {
 
         {/* Success Step */}
         {step === 'success' && (
-          <div className="space-y-3 text-center py-4">
-            {/* Success Icon */}
-            <div className="flex justify-center mb-4">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+          <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 space-y-4 shadow-2xl text-center">
+            <div className="flex justify-center mb-2">
+              <div className="w-16 h-16 bg-[#10B981]/20 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-10 h-10 text-[#10B981]" />
               </div>
             </div>
 
-            {/* Success Message */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-lg font-bold text-white mb-1">
                 Data Purchased!
               </h2>
-              <p className="text-gray-600">
+              <p className="text-xs text-white/60">
                 Data is being activated on your number.
               </p>
             </div>
 
-            {/* Details */}
-            <div className="bg-gray-50 rounded-2xl p-3 space-y-4 text-left mt-2">
-            <div className="bg-gray-50 rounded-2xl p-3 space-y-3 text-left mt-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">User Name</span>
-                <span className="font-bold text-gray-900">
-                  Guest User
+            <div className="bg-[#121212] border border-[#2c2c2c] rounded-2xl p-4 space-y-3 text-left">
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">User Name</span>
+                <span className="font-bold text-white">
+                  {fullName || 'Guest User'}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Transaction Date & Time</span>
-                <span className="font-semibold text-gray-900 text-xs">
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Date & Time</span>
+                <span className="font-semibold text-white/80 text-[10px]">
                   {new Date().toLocaleDateString('en-US', { 
                     weekday: 'short',
                     year: 'numeric',
@@ -641,70 +631,69 @@ export default function DataPage() {
                   })}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Network</span>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/60">Network</span>
                 <div className="flex items-center gap-2">
-                  <div className={`w-4 h-4 rounded ${selectedNetworkObj?.color}`} />
-                  <span className="font-semibold text-gray-900">
+                  <div className={`w-3 h-3 rounded ${selectedNetworkObj?.color}`} />
+                  <span className="font-semibold text-white">
                     {selectedNetwork}
                   </span>
                 </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Phone Number</span>
-                <span className="font-semibold text-gray-900">
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Phone Number</span>
+                <span className="font-semibold text-white">
                   +234{phoneNumber.slice(-10)}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Data Received</span>
-                <span className="font-bold text-cyan-600">{selectedPlanObj?.size}</span>
+              {selectedPlan && (
+                <>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white/60">Data Received</span>
+                    <span className="font-bold text-[#10B981]">{selectedPlanObj?.size}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white/60">Validity</span>
+                    <span className="font-semibold text-white">
+                      {selectedPlanObj?.validity}
+                    </span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between text-xs">
+                <span className="text-white/60">Status</span>
+                <span className="font-semibold text-[#10B981]">Active</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Validity</span>
-                <span className="font-semibold text-gray-900">
-                  {selectedPlanObj?.validity}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Status</span>
-                <span className="font-semibold text-green-600">Active</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Transaction ID</span>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-white/60">Transaction ID</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm text-gray-900">
+                  <span className="font-mono text-xs text-white">
                     TX{Date.now().toString().slice(-8)}
                   </span>
                   <button
                     onClick={() => copyToClipboard(`TX${Date.now().toString().slice(-8)}`)}
-                    className="p-1 hover:bg-gray-100 rounded"
+                    className="p-1 hover:bg-[#242424] rounded text-white/70"
                   >
-                    <Copy className="w-4 h-4 text-gray-600" />
+                    <Copy className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             </div>
-            </div>
 
-            {/* Confirmation Message */}
             {copied && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-800">
+              <div className="bg-[#10B981]/20 border border-[#10B981]/40 rounded-xl p-2.5 text-xs text-green-200">
                 Transaction ID copied to clipboard
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-2 pt-2">
               <button
                 onClick={() => {
-                  // Dispatch event to notify dashboard of updates
                   window.dispatchEvent(new Event('balanceChange'))
                   window.dispatchEvent(new Event('transactionsChange'))
-                  // Navigate to dashboard
                   router.push('/dashboard')
                 }}
-                className="w-full bg-cyan-500 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
+                className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-4 rounded-2xl shadow-lg transition tracking-wide"
               >
                 Back to Dashboard
               </button>
@@ -713,9 +702,10 @@ export default function DataPage() {
                   setStep('form')
                   setPhoneNumber('')
                   setSelectedPlan('')
+                  setCustomAmount('')
                   setError('')
                 }}
-                className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
+                className="w-full bg-[#121212] border border-[#2c2c2c] text-white font-bold py-3.5 rounded-2xl hover:bg-[#242424] transition text-xs tracking-wide"
               >
                 Buy More Data
               </button>
