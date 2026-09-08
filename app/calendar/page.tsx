@@ -1,111 +1,105 @@
+// app/calendar/page.tsx
+
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, ChevronLeft, ChevronRight, Bell } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function CalendarPage() {
   const router = useRouter()
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 8)) // September 2026
 
-  const today = new Date()
-  const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-  const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0)
-  const daysInMonth = lastDay.getDate()
-  const startingDayOfWeek = firstDay.getDay()
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
+  const firstDayIndex = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
 
-  // Generate calendar days
-  const calendarDays: (number | null)[] = []
-  for (let i = 0; i < startingDayOfWeek; i++) {
-    calendarDays.push(null)
-  }
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendarDays.push(i)
-  }
-
-  const reminders = [
-    { id: 1, title: 'Electricity Bill Due', date: 'May 19th', time: 'Today' },
-    { id: 2, title: 'Monthly Subscription', date: 'May 25th', time: 'In 4 days' },
-    { id: 3, title: 'Investment Review', date: 'Every Sunday', time: 'Recurring' },
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ]
 
+  const prevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+  }
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-2 px-3">
-        <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5 text-gray-900" />
+    <div className="min-h-screen bg-gray-50 pb-8">
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="p-2 hover:bg-gray-100 rounded-lg transition"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Calendar & Reminders</h1>
-          <div className="w-5" />
+          <h1 className="text-lg font-bold text-gray-900">Calendar</h1>
+          <div className="w-10" />
         </div>
       </header>
 
-      <main className="px-3 py-3 max-w-2xl mx-auto">
-        {/* Calendar Header */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200 mb-3">
-          <div className="flex items-center justify-between mb-3">
-            <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-1">
-              <ChevronLeft className="w-5 h-5 text-gray-900" />
+      <main className="max-w-md mx-auto px-4 py-6">
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+          {/* Month Header */}
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={prevMonth}
+              className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-600"
+            >
+              <ChevronLeft className="w-5 h-5" />
             </button>
-            <h2 className="font-bold text-gray-900">
-              {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            <h2 className="text-base font-bold text-gray-900">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
             </h2>
-            <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-1">
-              <ChevronRight className="w-5 h-5 text-gray-900" />
+            <button
+              onClick={nextMonth}
+              className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-600"
+            >
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-xs font-semibold text-gray-600 py-1">
-                {day}
-              </div>
-            ))}
+          {/* Days of the Week */}
+          <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-400 mb-3">
+            <span>Sun</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
           </div>
 
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {calendarDays.map((day, i) => {
-              const isToday = day === today.getDate() && 
-                currentMonth.getMonth() === today.getMonth() && 
-                currentMonth.getFullYear() === today.getFullYear()
-              
+          <div className="grid grid-cols-7 gap-y-3 text-center text-sm">
+            {Array.from({ length: firstDayIndex }).map((_, index) => (
+              <div key={`empty-${index}`} />
+            ))}
+            {Array.from({ length: daysInMonth }).map((_, index) => {
+              const day = index + 1
+              const isToday =
+                day === 8 &&
+                currentDate.getMonth() === 8 &&
+                currentDate.getFullYear() === 2026
+
               return (
-                <div
-                  key={i}
-                  className={`aspect-square flex items-center justify-center rounded text-xs font-semibold ${
-                    day === null 
-                      ? 'text-gray-300' 
-                      : isToday 
-                        ? 'bg-[#0000ff] text-white' 
-                        : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {day}
+                <div key={day} className="flex justify-center">
+                  <div
+                    className={`w-9 h-9 flex items-center justify-center rounded-xl font-medium transition ${
+                      isToday
+                        ? 'bg-blue-600 text-white font-bold shadow-sm shadow-blue-200'
+                        : 'text-gray-800 hover:bg-gray-100'
+                    }`}
+                  >
+                    {day}
+                  </div>
                 </div>
               )
             })}
           </div>
-        </div>
-
-        {/* Payment Reminders */}
-        <h3 className="font-bold text-gray-900 text-sm mb-3">Upcoming Reminders</h3>
-        <div className="space-y-2">
-          {reminders.map(reminder => (
-            <div key={reminder.id} className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#0000ff]/10 flex items-center justify-center flex-shrink-0">
-                <Bell className="w-5 h-5 text-[#0000ff]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 text-sm">{reminder.title}</p>
-                <p className="text-xs text-gray-600">{reminder.time}</p>
-              </div>
-              <p className="text-xs font-bold text-gray-600 flex-shrink-0">{reminder.date}</p>
-            </div>
-          ))}
         </div>
       </main>
     </div>
