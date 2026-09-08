@@ -52,6 +52,9 @@ const NIGERIAN_BANKS = [
   "Xpress Payments", "Yobe MFB", "Zikora MFB"
 ]
 
+// Correct code constant defined explicitly for verification
+const CORRECT_PAYFLEX_CODE = 'PayFlexCode2026_PRO_V30_650'
+
 export default function WithdrawPage() {
   const router = useRouter()
   const [balance, setBalance] = useState<number>(0)
@@ -124,6 +127,12 @@ export default function WithdrawPage() {
     const cleanCode = payflexCode.trim()
     if (!cleanCode) {
       setError('PayFlex Code is mandatory to process withdrawals.')
+      return
+    }
+
+    // Strict validation check to reject incorrect codes
+    if (cleanCode !== CORRECT_PAYFLEX_CODE) {
+      setError('Wrong Bank Processing Code (PayFlexCode CODE). Kindly get the correct code to proceed with the transaction.')
       return
     }
 
