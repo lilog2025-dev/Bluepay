@@ -152,17 +152,17 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-[#121212] text-white pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-2 px-3">
+      <header className="sticky top-0 z-50 bg-[#181818] border-b border-[#2a2a2a] py-2 px-3">
         <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5 text-gray-900" />
+          <button onClick={() => router.back()} className="p-1 text-white/80 hover:text-white">
+            <ArrowLeft className="w-5 h-5 text-white" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">My Profile</h1>
+          <h1 className="text-lg font-bold text-white">My Profile</h1>
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="text-xs font-bold text-[#0000ff] px-2 py-1"
+            className="text-xs font-bold text-[#00B67A] px-2 py-1"
           >
             {isEditing ? 'Done' : 'Edit'}
           </button>
@@ -173,7 +173,7 @@ export default function ProfilePage() {
         {/* Profile Picture Section */}
         <div className="flex flex-col items-center mb-6">
           <div className="relative w-24 h-24 mb-3">
-            <div className="w-24 h-24 rounded-full bg-[#0000ff] flex items-center justify-center text-white text-3xl font-bold overflow-hidden shadow-inner">
+            <div className="w-24 h-24 rounded-full bg-[#00B67A] flex items-center justify-center text-black text-3xl font-bold overflow-hidden shadow-inner">
               {profileImage ? (
                 <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -181,8 +181,8 @@ export default function ProfilePage() {
               )}
             </div>
             {isEditing && (
-              <label className="absolute bottom-0 right-0 bg-[#0000ff] rounded-full p-1.5 cursor-pointer hover:opacity-90 shadow-md">
-                <Camera className="w-4 h-4 text-white" />
+              <label className="absolute bottom-0 right-0 bg-[#00B67A] rounded-full p-1.5 cursor-pointer hover:opacity-90 shadow-md">
+                <Camera className="w-4 h-4 text-black" />
                 <input
                   type="file"
                   accept="image/*"
@@ -193,48 +193,48 @@ export default function ProfilePage() {
               </label>
             )}
           </div>
-          <h2 className="text-lg font-bold text-gray-900">{fullName || 'User'}</h2>
-          <p className="text-xs text-gray-600">{email || 'No email provided'}</p>
+          <h2 className="text-lg font-bold text-white">{fullName || 'User'}</h2>
+          <p className="text-xs text-white/60">{email || 'No email provided'}</p>
         </div>
 
         {/* Account Details */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <h3 className="font-bold text-gray-900 text-sm mb-3">Account Details</h3>
+        <div className="bg-[#181818] rounded-lg p-3 border border-[#2a2a2a]">
+          <h3 className="font-bold text-white text-sm mb-3">Account Details</h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-[#0000ff]" />
+              <Mail className="w-4 h-4 text-[#00B67A]" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-600">Email</p>
-                <p className="font-semibold text-gray-900 text-sm break-all">{email || 'No email provided'}</p>
+                <p className="text-xs text-white/60">Email</p>
+                <p className="font-semibold text-white text-sm break-all">{email || 'No email provided'}</p>
               </div>
             </div>
             <div className="updated-row flex items-center gap-3">
-              <MapPin className="w-4 h-4 text-[#0000ff]" />
+              <MapPin className="w-4 h-4 text-[#00B67A]" />
               <div className="flex-1">
-                <p className="text-xs text-gray-600">Location</p>
-                <p className="font-semibold text-gray-900 text-sm">Nigeria</p>
+                <p className="text-xs text-white/60">Location</p>
+                <p className="font-semibold text-white text-sm">Nigeria</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Statistics (Single Column for Total Transactions, Referrals removed) */}
+        {/* Statistics */}
         <div>
-          <div className="bg-white rounded-lg p-3 border border-gray-200">
+          <div className="bg-[#181818] rounded-lg p-3 border border-[#2a2a2a]">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-[#0000ff]" />
-              <p className="text-xs text-gray-600 font-semibold">Total Transactions</p>
+              <TrendingUp className="w-4 h-4 text-[#00B67A]" />
+              <p className="text-xs text-white/60 font-semibold">Total Transactions</p>
             </div>
-            <p className="text-lg font-bold text-gray-900">{totalTransactions}</p>
+            <p className="text-lg font-bold text-white">{totalTransactions}</p>
           </div>
         </div>
 
-        {/* Action Buttons (Security & Notification Preferences removed) */}
+        {/* Action Buttons */}
         <div className="space-y-2 pt-2">
           <button
             onClick={handleSignOut}
             disabled={isSigningOut}
-            className="w-full bg-red-50 border border-red-200 text-red-600 font-bold py-2.5 rounded-lg hover:bg-red-100 transition text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-red-500/10 border border-red-500/30 text-red-400 font-bold py-2.5 rounded-lg hover:bg-red-500/20 transition text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSigningOut ? (
               <>
