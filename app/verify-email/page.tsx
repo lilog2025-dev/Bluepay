@@ -142,21 +142,21 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col">
         {/* Title - Shifted upward */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-2 sm:mb-3">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-2 sm:mb-3 drop-shadow-lg">
           Verify Your Email
         </h1>
 
         {/* Subtitle with email and instructions */}
-        <p className="text-white text-center text-xs sm:text-sm mb-5 sm:mb-8 leading-relaxed">
+        <p className="text-white text-center text-xs sm:text-sm mb-5 sm:mb-8 leading-relaxed drop-shadow-lg">
           Please check your email inbox or spam folder for the OTP verification code sent to{' '}
           <span className="font-bold break-all">{email}</span>. You must enter the correct OTP code before proceeding to secure your PayFlex account.
         </p>
 
         {/* OTP Container Card */}
-        <div className="bg-[#0000ff] bg-opacity-40 backdrop-blur-md border border-white border-opacity-20 rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-4 sm:mb-8">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-8 mb-4 sm:mb-8">
           {/* OTP Label */}
           <label className="text-white text-sm font-semibold block mb-4">Enter 6-digit code</label>
 
@@ -175,11 +175,11 @@ export default function VerifyEmailPage() {
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={handlePaste}
                 placeholder=""
-                className="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl md:text-3xl font-bold border-2 border-white border-opacity-40 rounded-lg sm:rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:border-white focus:outline-none focus:border-opacity-100 focus:ring-2 focus:ring-blue-500 transition-all opacity-100"
+                className="w-10 h-10 sm:w-12 sm:h-12 text-center text-lg sm:text-2xl md:text-3xl font-bold border-2 border-white/40 rounded-lg sm:rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:border-white focus:outline-none focus:ring-2 focus:ring-white transition-all opacity-100 shadow-inner"
                 style={{
                   color: '#111827',
                   backgroundColor: '#FFFFFF',
-                  caretColor: '#1D4ED8',
+                  caretColor: '#000000',
                   WebkitTextFillColor: '#111827',
                 }}
                 autoComplete="off"
@@ -192,7 +192,7 @@ export default function VerifyEmailPage() {
           <button
             onClick={handleVerifyOtp}
             disabled={isLoading || otp.some((d) => !d)}
-            className="w-full bg-white text-gray-400 font-bold text-sm sm:text-lg py-2 sm:py-3 rounded-lg sm:rounded-2xl hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed transition-all mb-4 sm:mb-6"
+            className="w-full bg-white text-black font-bold text-sm sm:text-lg py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95 mb-4 sm:mb-6"
           >
             {isLoading ? 'Verifying...' : 'VERIFY CODE'}
           </button>
@@ -208,7 +208,7 @@ export default function VerifyEmailPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 bg-red-500 bg-opacity-20 border border-red-400 rounded-lg p-3 flex items-start gap-2">
+          <div className="mb-4 bg-red-500/20 border border-red-500/50 rounded-lg p-3 flex items-start gap-2">
             <AlertCircle className="w-4 sm:w-5 h-4 sm:h-5 text-red-300 flex-shrink-0 mt-0.5" />
             <p className="text-red-200 text-xs sm:text-sm">{error}</p>
           </div>
@@ -216,14 +216,14 @@ export default function VerifyEmailPage() {
 
         {/* Success Message */}
         {success && (
-          <div className="mb-4 bg-green-500 bg-opacity-20 border border-green-400 rounded-lg p-3 flex items-start gap-2">
+          <div className="mb-4 bg-green-500/20 border border-green-500/50 rounded-lg p-3 flex items-start gap-2">
             <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-green-300 flex-shrink-0 mt-0.5" />
             <p className="text-green-200 text-xs sm:text-sm">Email verified successfully!</p>
           </div>
         )}
 
         {/* Footer */}
-        <p className="text-white text-center text-xs sm:text-sm mb-3 sm:mb-4">
+        <p className="text-white text-center text-xs sm:text-sm mb-3 sm:mb-4 drop-shadow-lg">
           Didn&apos;t receive the code? Check your spam folder.
         </p>
 
@@ -231,7 +231,7 @@ export default function VerifyEmailPage() {
         {canResend && (
           <button
             onClick={handleResendOtp}
-            className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-[#0000ff] font-bold text-sm sm:text-base rounded-lg sm:rounded-2xl hover:bg-gray-50 transition-all"
+            className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-base rounded-xl sm:rounded-2xl hover:scale-105 shadow-xl transition-all"
           >
             Resend Code
           </button>
