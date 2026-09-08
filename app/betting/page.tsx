@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Check, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { getBalance, deductBalance, addBalance, addTransaction } from '@/lib/balance-store'
+import { getBalance, deductBalance, addTransaction } from '@/lib/balance-store'
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -15,8 +15,8 @@ export default function BettingPage() {
   const [amount, setAmount] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState('')
   const [userBettingId, setUserBettingId] = useState('')
-  const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState(250000) // Demo balance
+  const [, setUserId] = useState('')
+  const [, setBalance] = useState(250000) // Demo balance
   const [PayFlexCodeCode, setPayFlexCodeCode] = useState('')
   const [showPayFlexCodeCode, setShowPayFlexCodeCode] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -151,22 +151,22 @@ export default function BettingPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#121212] text-white flex items-center justify-center px-4">
         <div className="w-full max-w-sm text-center">
-          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-10 h-10 text-white" />
+          <div className="w-16 h-16 bg-[#10B981]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-[#10B981]" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bet Placed Successfully!</h1>
+          <h1 className="text-xl font-bold text-white mb-2">Bet Placed Successfully!</h1>
           
           {/* Details */}
-          <div className="bg-white rounded-2xl p-4 space-y-3 text-left mb-4">
-            <div className="flex justify-between">
-              <span className="text-gray-600">User Name</span>
-              <span className="font-bold text-gray-900">Guest User</span>
+          <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 space-y-3 text-left mb-4 shadow-2xl">
+            <div className="flex justify-between text-xs">
+              <span className="text-white/65">User Name</span>
+              <span className="font-bold text-white">{fullName || 'Guest User'}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Transaction Date & Time</span>
-              <span className="font-semibold text-gray-900 text-xs">
+            <div className="flex justify-between text-xs">
+              <span className="text-white/65">Transaction Date & Time</span>
+              <span className="font-semibold text-white/80 text-[10px]">
                 {new Date().toLocaleDateString('en-US', { 
                   weekday: 'short',
                   year: 'numeric',
@@ -178,20 +178,20 @@ export default function BettingPage() {
                 })}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Platform</span>
-              <span className="font-semibold text-gray-900">{selectedPlatform}</span>
+            <div className="flex justify-between text-xs">
+              <span className="text-white/65">Platform</span>
+              <span className="font-semibold text-white">{selectedPlatform}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Bet Amount</span>
-              <span className="font-bold text-gray-900">₦{parseInt(amount).toLocaleString()}</span>
+            <div className="flex justify-between text-xs">
+              <span className="text-white/65">Bet Amount</span>
+              <span className="font-bold text-[#10B981]">₦{parseInt(amount).toLocaleString()}</span>
             </div>
           </div>
           
-          <div className="space-y-3 mt-6">
+          <div className="space-y-2 mt-4">
             <button
               onClick={() => router.push('/dashboard')}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
+              className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-4 rounded-2xl shadow-lg transition tracking-wide"
             >
               Back to Dashboard
             </button>
@@ -203,7 +203,7 @@ export default function BettingPage() {
                 setAmount('')
                 setPayFlexCodeError('')
               }}
-              className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
+              className="w-full bg-[#121212] border border-[#2c2c2c] text-white font-bold py-3.5 rounded-2xl hover:bg-[#242424] transition text-xs tracking-wide"
             >
               Place Another Bet
             </button>
@@ -214,52 +214,52 @@ export default function BettingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-6">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-[#121212] text-white pb-8">
+      <header className="sticky top-0 z-40 bg-[#181818] border-b border-[#242424]">
         <div className="flex items-center gap-3 max-w-sm mx-auto px-4 py-3">
-          <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-lg">
+          <button onClick={() => router.back()} className="p-2 hover:bg-[#242424] rounded-lg text-white/80 transition">
             <ChevronLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Place Bet</h1>
+          <h1 className="text-lg font-bold text-white">Place Bet</h1>
         </div>
       </header>
-      <div className="max-w-sm mx-auto px-4 pt-6">
-        <form onSubmit={handleBet} className="space-y-4">
+      <div className="max-w-sm mx-auto px-4 py-6">
+        <form onSubmit={handleBet} className="bg-[#181818] border border-[#242424] rounded-3xl p-5 space-y-4 shadow-2xl">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Select Betting Platform</label>
+            <label className="block text-xs font-semibold text-white/65 uppercase tracking-wider mb-2">Select Betting Platform</label>
             <select
               value={selectedPlatform}
               onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] text-xs font-medium text-white transition"
               required
             >
-              <option value="">Choose platform</option>
+              <option value="" className="bg-[#121212] text-white">Choose platform</option>
               {platforms.map((platform) => (
-                <option key={platform} value={platform}>{platform}</option>
+                <option key={platform} value={platform} className="bg-[#121212] text-white">{platform}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Your User ID</label>
+            <label className="block text-xs font-semibold text-white/65 uppercase tracking-wider mb-2">Your User ID</label>
             <input
               type="text"
               value={userBettingId}
               onChange={(e) => setUserBettingId(e.target.value)}
               placeholder="Enter your betting platform User ID"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] text-xs text-white placeholder-white/30 transition"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Bet Amount (₦)</label>
+            <label className="block text-xs font-semibold text-white/65 uppercase tracking-wider mb-2">Bet Amount (₦)</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter bet amount"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] text-xs text-white placeholder-white/30 transition"
               required
               min="100"
             />
@@ -267,9 +267,18 @@ export default function BettingPage() {
 
           {/* PayFlexCode CODE Input */}
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-3">
-              INPUT PayFlexCode CODE
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-semibold text-white/65 uppercase tracking-wider">
+                INPUT PAYFLEX CODE
+              </label>
+              <button
+                type="button"
+                onClick={() => router.push('/buy-payflex-code')}
+                className="text-xs text-[#10B981] font-bold hover:underline"
+              >
+                Buy PayFlex Code
+              </button>
+            </div>
             <div className="relative">
               <input
                 type={showPayFlexCodeCode ? 'text' : 'password'}
@@ -279,37 +288,30 @@ export default function BettingPage() {
                   setPayFlexCodeError('')
                 }}
                 placeholder="Enter PayFlexCode Code"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10"
+                className="w-full px-4 py-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl focus:outline-none focus:border-[#10B981] pr-12 text-xs text-white placeholder-white/30 transition"
                 maxLength={CORRECT_PayFlexCode_CODE.length}
               />
               <button
                 type="button"
                 onClick={() => setShowPayFlexCodeCode(!showPayFlexCodeCode)}
-                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition"
               >
                 {showPayFlexCodeCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => router.push('/buy-payflex-code')}
-              className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
-            >
-              Buy PayFlexCode
-            </button>
           </div>
 
           {PayFlexCodeError && (
-            <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{PayFlexCodeError}</p>
+            <div className="flex gap-3 p-3 bg-red-500/20 border border-red-500/40 rounded-xl">
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-200">{PayFlexCodeError}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0000ff] text-white font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 mt-3"
+            className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-4 rounded-2xl shadow-lg transition disabled:opacity-50 mt-4 text-xs tracking-wide"
           >
             {loading ? 'Processing...' : 'Place Bet'}
           </button>
