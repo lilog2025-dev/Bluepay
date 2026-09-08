@@ -1,639 +1,236 @@
-// app/withdraw/page.tsx
-
 'use client'
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  ArrowLeft,
-  AlertCircle,
-  Loader,
-  Eye,
-  EyeOff,
-  Copy,
-  Check,
-} from 'lucide-react'
-import { sendDebitAlert, generateTransactionId, getCurrentDateTime } from '@/lib/debit-alert'
-import { deductBalance, getBalance, addTransaction } from '@/lib/balance-store'
-import { createClient } from '@supabase/supabase-js'
-import { BankSelector } from '@/components/bank-selector'
-import { Bank } from '@/lib/nigerian-banks'
-
-const CORRECT_PAYFLEX_CODE = 'PayFlexCode2026_PRO_V30_650'
+import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react'
 
 export default function WithdrawPage() {
   const router = useRouter()
-  const [step, setStep] = useState<'form' | 'confirm' | 'success'>('form')
-  const [amount, setAmount] = useState('')
-  const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
-  const [accountNumber, setAccountNumber] = useState('')
-  const [accountName, setAccountName] = useState('')
-  const [payFlexCode, setPayFlexCode] = useState('')
-  const [showPayFlexCode, setShowPayFlexCode] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [payFlexError, setPayFlexError] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [userEmail, setUserEmail] = useState('')
-  const [userId, setUserId] = useState('')
-  const [balance, setBalance] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        return getBalance()
-      } catch (e) {
-        return 0
-      }
-    }
-    return 0
-  })
-  const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [balance, setBalance] = useState<number>(0)
+  const [amount, setAmount] = useState<string>('')
+  const [bank, setBank] = useState<string>('')
+  const [accountNumber, setAccountNumber] = useState<string>('')
+  const [accountName, setAccountName] = useState<string>('')
+  const [payflexCode, setPayflexCode] = useState<string>('')
+  const [showCode, setShowCode] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  const [success, setSuccess] = useState<boolean>(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-
-    const updateCurrentBalance = () => {
-      try {
-        const freshBalance = getBalance()
-        setBalance(freshBalance)
-      } catch (e) {
-        console.error('[v0] Error fetching balance:', e)
-      }
-    }
-
-    updateCurrentBalance()
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key && e.key.includes('balance')) {
-        updateCurrentBalance()
-      }
-    }
-
-    const handleCustomBalanceChange = () => {
-      updateCurrentBalance()
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    window.addEventListener('balanceChange', handleCustomBalanceChange as EventListener)
-
-    const interval = setInterval(updateCurrentBalance, 1000)
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('balanceChange', handleCustomBalanceChange as EventListener)
-      clearInterval(interval)
+    const storedBalance = localStorage.getItem('user_available_balance')
+    if (storedBalance) {
+      setBalance(parseFloat(storedBalance))
     }
   }, [])
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+  const handleQuickAmount = (val: number) => {
+    setAmount(val.toString())
+  }
 
-    const loadUserData = async () => {
-      try {
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          setUserId(session.user.id)
-          setUserEmail(session.user.email || '')
-          
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', session.user.id)
-            .single()
-          if (profile?.full_name) {
-            setFullName(profile.full_name)
-          }
-        } else {
-          const storedName = sessionStorage.getItem('signupFullName')
-          if (storedName) setFullName(storedName)
-        }
-      } catch (err) {
-        console.error('[v0] Error loading user data:', err)
-        const storedName = sessionStorage.getItem('signupFullName')
-        if (storedName) setFullName(storedName)
-      }
-    }
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
     
-    loadUserData()
-  }, [])
-
-  const validateForm = () => {
-    setPayFlexError('')
-    setError('')
-
-    if (!amount || parseFloat(amount) <= 0) {
-      setError('Please enter a valid amount')
-      return false
+    const withdrawVal = parseFloat(amount)
+    if (!withdrawVal || withdrawVal <= 0) {
+      setError('Please enter a valid withdrawal amount.')
+      return
     }
-    if (parseFloat(amount) > balance) {
-      setError(`Insufficient balance. Maximum withdrawal: NGN${balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
-      return false
+    if (withdrawVal > balance) {
+      setError('Insufficient available balance.')
+      return
     }
-    if (parseFloat(amount) < 500) {
-      setError('Minimum withdrawal amount is NGN500.00')
-      return false
+    if (!bank || accountNumber.length !== 10 || !accountName) {
+      setError('Please fill in valid bank account details.')
+      return
     }
-    if (!selectedBank) {
-      setError('Please select a bank')
-      return false
-    }
-    if (!accountNumber || accountNumber.length < 10) {
-      setError('Please enter a valid account number')
-      return false
-    }
-    if (!accountName) {
-      setError('Please enter account name')
-      return false
-    }
-    if (!payFlexCode.trim()) {
-      setPayFlexError('PayFlex Code is required to process withdrawal')
-      return false
-    }
-    if (payFlexCode.trim() !== CORRECT_PAYFLEX_CODE) {
-      setPayFlexError('Invalid PayFlex Code. Please purchase a valid PayFlex code to continue.')
-      return false
+    if (!payflexCode) {
+      setError('Please enter your PayFlex Code.')
+      return
     }
 
-    return true
-  }
-
-  const handleCopy = (text: string, field: string) => {
-    try {
-      navigator.clipboard.writeText(text).then(() => {
-        setCopiedField(field)
-        setTimeout(() => setCopiedField(null), 2000)
-      })
-    } catch (err) {
-      console.error('[v0] Copy failed:', err)
-    }
-  }
-
-  const handleContinue = () => {
-    if (validateForm()) {
-      setStep('confirm')
-    }
-  }
-
-  const handleConfirm = async () => {
-    setError('')
     setIsLoading(true)
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      
-      const withdrawAmount = parseFloat(amount)
-      const effectiveUserName = fullName || accountName || 'Valued User'
-      
-      const transactionId = generateTransactionId()
-      await sendDebitAlert({
-        email: userEmail,
-        full_name: effectiveUserName,
-        transaction_type: 'Withdrawal',
-        amount: withdrawAmount,
-        recipient_name: accountName,
-        recipient_account_number: accountNumber,
-        recipient_bank_name: selectedBank?.name || '',
-        transaction_id: transactionId,
-        transaction_date: getCurrentDateTime(),
-      })
-      
-      const newBalance = deductBalance(withdrawAmount)
+    setTimeout(() => {
+      const newBalance = balance - withdrawVal
       setBalance(newBalance)
-      
-      addTransaction({
-        type: 'withdrawal',
-        amount: withdrawAmount,
-        status: 'success',
-        description: `Withdrawal to ${selectedBank?.name} - ${accountNumber}`,
-      })
-      
-      setStep('success')
-    } catch (err) {
-      console.error('[v0] Withdrawal error:', err)
-      setError('Failed to process withdrawal. Please try again.')
-    } finally {
+      localStorage.setItem('user_available_balance', newBalance.toString())
       setIsLoading(false)
-    }
-  }
+      setSuccess(true)
 
-  const handleBack = () => {
-    try {
-      if (step === 'form') {
-        router.back()
-      } else if (step === 'confirm') {
-        setStep('form')
-        setError('')
-      } else if (step === 'success') {
-        setStep('form')
-        setAmount('')
-        setSelectedBank(null)
-        setAccountNumber('')
-        setAccountName('')
-        setPayFlexCode('')
-        setError('')
-      }
-    } catch (err) {
-      console.error('[v0] Navigation error:', err)
-    }
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 2000)
+    }, 1500)
   }
 
   return (
-    <div className="min-h-screen bg-white pb-6">
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-100">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={handleBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+    <div className="min-h-screen bg-[#121212] text-white pb-12">
+      {/* Header */}
+      <header className="bg-[#181a20] border-b border-white/5 sticky top-0 z-40">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-4">
+          <button 
+            onClick={() => router.back()}
+            className="p-2 text-white/80 hover:bg-white/10 rounded-full transition"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-900" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Withdraw Funds</h1>
-          <div className="w-10" />
+          <h1 className="text-lg font-bold text-white">Withdraw Funds</h1>
         </div>
       </header>
 
-      <main className="max-w-sm mx-auto px-4 py-6">
-        <div className="flex gap-2 mb-3">
-          <div className={`flex-1 h-1 rounded-full ${step === 'form' || step === 'confirm' || step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'}`} />
-          <div className={`flex-1 h-1 rounded-full ${step === 'confirm' || step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'}`} />
-          <div className={`flex-1 h-1 rounded-full ${step === 'success' ? 'bg-[#0000ff]' : 'bg-gray-200'}`} />
+      <main className="max-w-md mx-auto px-4 py-4 space-y-5">
+        {/* Step Indicator Bar */}
+        <div className="flex gap-2 mb-2">
+          <div className="h-1 bg-blue-500 flex-1 rounded-full"></div>
+          <div className="h-1 bg-white/10 flex-1 rounded-full"></div>
+          <div className="h-1 bg-white/10 flex-1 rounded-full"></div>
         </div>
 
-        {step === 'form' && (
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Withdrawal Amount
-              </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 font-semibold">
-                  ₦
-                </span>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter amount"
-                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent text-gray-900"
-                />
-              </div>
-              <p className="text-xs text-gray-600 mt-2">
-                Available balance: NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs text-gray-600 mb-3">Quick amounts</p>
-              <div className="grid grid-cols-4 gap-2">
-                {['5000', '10000', '25000', '50000'].map((quickAmount) => (
-                  <button
-                    key={quickAmount}
-                    onClick={() => setAmount(quickAmount)}
-                    className={`py-2 px-3 rounded-lg font-semibold text-sm transition ${
-                      amount === quickAmount
-                        ? 'bg-[#0000ff] text-white'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    }`}
-                  >
-                    ₦{parseInt(quickAmount).toLocaleString()}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Select Bank
-              </label>
-              <BankSelector
-                selectedBank={selectedBank}
-                onSelectBank={(bank) => setSelectedBank(bank)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Account Number
-              </label>
+        <form onSubmit={handleWithdraw} className="space-y-4">
+          {/* Withdrawal Amount */}
+          <div>
+            <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              Withdrawal Amount
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 font-bold">₦</span>
               <input
-                type="text"
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
-                placeholder="10 digit account number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent text-gray-900"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 pl-9 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
               />
             </div>
+            <p className="text-xs text-white/50 mt-1.5">
+              Available balance: NGN{balance.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Account Holder Name
-              </label>
-              <input
-                type="text"
-                value={accountName}
-                onChange={(e) => setAccountName(e.target.value)}
-                placeholder="Full name as shown on bank account"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] focus:border-transparent text-gray-900"
-              />
+          {/* Quick Amounts */}
+          <div>
+            <p className="text-xs text-white/50 mb-2">Quick amounts</p>
+            <div className="grid grid-cols-4 gap-2">
+              {[5000, 10000, 25000, 50000].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => handleQuickAmount(val)}
+                  className="bg-[#1a1c23] border border-white/10 hover:border-blue-500 py-2 rounded-xl text-xs font-bold text-white transition"
+                >
+                  ₦{val.toLocaleString()}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
+          {/* Select Bank */}
+          <div>
+            <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              Select Bank
+            </label>
+            <select
+              value={bank}
+              onChange={(e) => setBank(e.target.value)}
+              className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white focus:outline-none focus:border-blue-500 transition"
+            >
+              <option value="" disabled className="bg-[#1a1c23]">Choose Bank</option>
+              <option value="opay" className="bg-[#1a1c23]">OPay</option>
+              <option value="kuda" className="bg-[#1a1c23]">Kuda Bank</option>
+              <option value="gtb" className="bg-[#1a1c23]">Guaranty Trust Bank</option>
+              <option value="zenith" className="bg-[#1a1c23]">Zenith Bank</option>
+              <option value="access" className="bg-[#1a1c23]">Access Bank</option>
+            </select>
+          </div>
+
+          {/* Account Number */}
+          <div>
+            <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              Account Number
+            </label>
+            <input
+              type="text"
+              maxLength={10}
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              placeholder="10 digit account number"
+              className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+            />
+          </div>
+
+          {/* Account Holder Name */}
+          <div>
+            <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+              Account Holder Name
+            </label>
+            <input
+              type="text"
+              value={accountName}
+              onChange={(e) => setAccountName(e.target.value)}
+              placeholder="Full name as shown on bank account"
+              className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+            />
+          </div>
+
+          {/* INPUT PayFlex CODE */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider">
                 INPUT PayFlex CODE
               </label>
-              <div className="relative">
-                <input
-                  type={showPayFlexCode ? 'text' : 'password'}
-                  value={payFlexCode}
-                  onChange={(e) => {
-                    setPayFlexCode(e.target.value)
-                    setPayFlexError('')
-                  }}
-                  placeholder="Enter PayFlex Code"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0000ff] pr-10 text-gray-900"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPayFlexCode(!showPayFlexCode)}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-                >
-                  {showPayFlexCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
               <button
                 type="button"
                 onClick={() => router.push('/buy-payflex-code')}
-                className="text-[#0000ff] hover:text-blue-700 text-sm font-semibold mt-2"
+                className="text-xs text-blue-400 font-bold hover:underline"
               >
                 Buy PayFlex Code
               </button>
             </div>
-
-            {payFlexError && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{payFlexError}</p>
-              </div>
-            )}
-
-            {error && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <p className="text-xs text-gray-600 mb-2 font-semibold">
-                Withdrawal Charges
-              </p>
-              <div className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700">Amount:</span>
-                  <span className="font-semibold text-gray-900">
-                    ₦{amount ? parseInt(amount).toLocaleString() : '0'}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700">Processing Fee:</span>
-                  <span className="font-semibold text-gray-900">₦100</span>
-                </div>
-                <div className="h-px bg-blue-200 my-2" />
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700 font-semibold">Total Debit:</span>
-                  <span className="font-bold text-[#0000ff]">
-                    ₦{amount ? (parseInt(amount) + 100).toLocaleString() : '100'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={handleContinue}
-              className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition mt-2"
-            >
-              Review & Confirm
-            </button>
-          </div>
-        )}
-
-        {step === 'confirm' && (
-          <div className="space-y-3">
-            <div className="bg-gray-50 rounded-2xl p-3 space-y-4">
-              <h2 className="text-lg font-bold text-gray-900">
-                Confirm Withdrawal
-              </h2>
-              
-              <div className="space-y-4 py-4 border-t border-b border-gray-200">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Amount</span>
-                  <span className="font-bold text-gray-900">
-                    ₦{parseInt(amount).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Processing Fee</span>
-                  <span className="font-semibold text-gray-900">₦100</span>
-                </div>
-                <div className="flex justify-between text-lg">
-                  <span className="font-semibold text-gray-900">Total Debit</span>
-                  <span className="font-bold text-[#0000ff]">
-                    ₦{(parseInt(amount) + 100).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-1">Destination Bank</p>
-                    <p className="font-semibold text-gray-900">{selectedBank?.name}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(selectedBank?.name || '', 'bank')}
-                    className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
-                  >
-                    {copiedField === 'bank' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
-                  </button>
-                </div>
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-1">Account Number</p>
-                    <p className="font-semibold text-gray-900">{accountNumber}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(accountNumber, 'account')}
-                    className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
-                  >
-                    {copiedField === 'account' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
-                  </button>
-                </div>
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600 mb-1">Account Name</p>
-                    <p className="font-semibold text-gray-900">{accountName}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(accountName, 'name')}
-                    className="p-2 hover:bg-gray-200 rounded-lg transition mt-4"
-                  >
-                    {copiedField === 'name' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-600" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800">
-                Please ensure all details are correct. Incorrect account information may result in loss of funds.
-              </p>
-            </div>
-
-            {error && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
+            <div className="relative">
+              <input
+                type={showCode ? 'text' : 'password'}
+                value={payflexCode}
+                onChange={(e) => setPayflexCode(e.target.value)}
+                placeholder="Enter PayFlex Code"
+                className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 pl-4 pr-12 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
+              />
               <button
-                onClick={handleConfirm}
-                disabled={isLoading}
-                className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                type="button"
+                onClick={() => setShowCode(!showCode)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition"
               >
-                {isLoading ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Confirm Withdrawal'
-                )}
-              </button>
-              <button
-                onClick={() => setStep('form')}
-                disabled={isLoading}
-                className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition disabled:opacity-50"
-              >
-                Edit Details
+                {showCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
           </div>
-        )}
 
-        {step === 'success' && (
-          <div className="space-y-3 text-center py-4">
-            <div className="flex justify-center mb-4">
-              <div className="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center">
-                <svg className="w-12 h-12 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L2 7v2h20V7L12 2M2 9v11h20V9M4 11v7h3v-7H4m5 0v7h3v-7H9m5 0v7h3v-7h-3m5 0v7h3v-7h-3M6 21h12v1H6v-1z" />
-                </svg>
-              </div>
+          {/* Error / Success Alerts */}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-3 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+              <p className="text-xs text-red-200">{error}</p>
             </div>
+          )}
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Withdrawal Successful
-              </h2>
-              <p className="text-gray-600">
-                Your withdrawal request has been processed.
-              </p>
+          {success && (
+            <div className="bg-green-500/20 border border-green-500/40 rounded-xl p-3 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
+              <p className="text-xs text-green-200">Withdrawal successful! Redirecting...</p>
             </div>
+          )}
 
-            <div className="bg-gray-50 rounded-2xl p-3 space-y-3 text-left mt-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">User Name</span>
-                <span className="font-bold text-gray-900">
-                  {fullName || accountName || 'Valued User'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Transaction Date & Time</span>
-                <span className="font-semibold text-gray-900 text-xs text-right">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                  <br />
-                  {new Date().toLocaleTimeString('en-US', { 
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                  })}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Amount</span>
-                <span className="font-bold text-gray-900">
-                  ₦{parseInt(amount).toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Account Number</span>
-                <span className="font-semibold text-gray-900">
-                  {accountNumber}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Account Name</span>
-                <span className="font-semibold text-gray-900">
-                  {accountName}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Destination Bank</span>
-                <span className="font-semibold text-gray-900">
-                  {selectedBank?.name}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Status</span>
-                <span className="font-semibold text-green-600">Success</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Transaction ID</span>
-                <span className="font-mono text-sm text-gray-900">
-                  TX{Date.now().toString().slice(-8)}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              <button
-                onClick={() => {
-                  window.dispatchEvent(new Event('balanceChange'))
-                  window.dispatchEvent(new Event('storage'))
-                  router.push('/dashboard')
-                }}
-                className="w-full bg-[#0000ff] text-white font-semibold py-3 rounded-xl hover:opacity-90 transition"
-              >
-                Back to Dashboard
-              </button>
-              <button
-                onClick={() => {
-                  setStep('form')
-                  setAmount('')
-                  setSelectedBank(null)
-                  setAccountNumber('')
-                  setAccountName('')
-                  setPayFlexCode('')
-                  setError('')
-                }}
-                className="w-full bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl hover:bg-gray-200 transition"
-              >
-                Make Another Withdrawal
-              </button>
-            </div>
-          </div>
-        )}
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg transition duration-200 disabled:opacity-50 mt-6"
+          >
+            {isLoading ? 'Processing Transfer...' : 'Proceed to Withdraw'}
+          </button>
+        </form>
       </main>
     </div>
   )
