@@ -4,47 +4,56 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2, Search, ChevronDown } from 'lucide-react'
 
-// Comprehensive list of over 200 Nigerian Banks & Financial Institutions
+// Comprehensive and exhaustive list of Nigerian financial institutions, including all PSBs (Hope PSB, Momo PSB, etc.)
 const NIGERIAN_BANKS = [
+  // Major Commercial Banks
   "Access Bank", "Access Bank (Diamond)", "Citibank Nigeria", "Ecobank Nigeria", 
   "Fidelity Bank", "First Bank of Nigeria", "First City Monument Bank (FCMB)", 
   "Globus Bank", "Guaranty Trust Bank (GTB)", "Heritage Bank", "Jaiz Bank", 
-  "Keystone Bank", "Kuda Bank", "Paga", "Palmpay", "Moniepoint MFB", "Opay Digital Services", 
-  "Polaris Bank", "Providus Bank", "Stanbic IBTC Bank", "Standard Chartered Bank", 
-  "Sterling Bank", "Suntrust Bank", "TAJ Bank", "Titan Trust Bank", "Union Bank of Nigeria", 
-  "United Bank for Africa (UBA)", "Unity Bank", "Wema Bank", "Zenith Bank",
-  "Abbey Mortgage Bank", "Above Only MFB", "Afriglobal MFB", "Ahmadu Bello University Microfinance Bank",
-  "Airtel Smartcash PSB", "Aleyo MFB", "Alpha MFB", "AMAC MFB", "Amegy MFB", "Amju Unique MFB",
-  "Apoch MFB", "Arao MFB", "Arc MFB", "Asset Matrix MFB", "Astrapolaris MFB", "Attractive MFB",
-  "Baines Credit MFB", "Balogun Gambari MFB", "BC Kash MFB", "BIPC MFB", "BOCTRUST MFB",
-  "Borgu MFB", "Bosak MFB", "Bowen Microfinance Bank", "Brent MFB", "CASHIO MFB", "Catedral MFB",
-  "Cellulant", "CEMCS MFB", "Chikum Microfinance Bank", "Citimaster MFB", "Citizen MFB",
-  "Citycode Mortgage Bank", "Chibueze MFB", "Corestep MFB", " Covenant MFB", "Crescent MFB",
-  "Crust MFB", "E-Barclays MFB", "Eagle Flight MFB", "Eaglet MFB", "Eclat MFB", "Ed financeiros",
-  "Ekimogun MFB", "Ekondo MFB", "Emerald MFB", "Empire MFB", "Enthroned MFB", "Erad MFB",
-  "Esan MFB", "Etranzact", "Evangel MFB", "Everest MFB", "FADAM MFB", "FBNQuest", "FCMB Easy",
+  "Keystone Bank", "Kuda Bank", "Polaris Bank", "Providus Bank", "Stanbic IBTC Bank", 
+  "Standard Chartered Bank", "Sterling Bank", "Suntrust Bank", "TAJ Bank", 
+  "Titan Trust Bank", "Union Bank of Nigeria", "United Bank for Africa (UBA)", 
+  "Unity Bank", "Wema Bank", "Zenith Bank", "Lotus Bank", "Moniepoint MFB", 
+  "Opay Digital Services", "Palmpay", "Kuda", "Paga", "Pocket App", "Sparkle", 
+
+  // Payment Service Banks (PSBs)
+  "Hope PSB", "Momo PSB", "Moneymaster PSB", "Airtel Smartcash PSB", "9Payment Service Bank",
+
+  // Mortgage Banks
+  "Abbey Mortgage Bank", "Citycode Mortgage Bank", "FHA Mortgage Bank", "First Savings Mortgage Bank", 
+  "Haggai Mortgage Bank", "Infinity Trust Mortgage Bank", "Jubilee Life Mortgage Bank", 
+  "Livingtrust Mortgage Bank", "Lagos Building Investment Company (LBIC)", "Niger Delta Mortgage Bank", 
+  "Refuge Mortgage Bank", "Brent Mortgage Bank", "Gateway Mortgage Bank",
+
+  // Microfinance Banks (MFBs) & Others (Expanded Comprehensive Pool)
+  "Above Only MFB", "Afriglobal MFB", "Ahmadu Bello University Microfinance Bank", "Aleyo MFB", 
+  "Alpha MFB", "AMAC MFB", "Amegy MFB", "Amju Unique MFB", "Apoch MFB", "Arao MFB", "Arc MFB", 
+  "Asset Matrix MFB", "Astrapolaris MFB", "Attractive MFB", "Baines Credit MFB", "Balogun Gambari MFB", 
+  "BC Kash MFB", "BIPC MFB", "BOCTRUST MFB", "Borgu MFB", "Bosak MFB", "Bowen Microfinance Bank", 
+  "Brent MFB", "CASHIO MFB", "Catedral MFB", "Cellulant", "CEMCS MFB", "Chikum Microfinance Bank", 
+  "Citimaster MFB", "Citizen MFB", "Chibueze MFB", "Corestep MFB", "Covenant MFB", "Crescent MFB", 
+  "Crust MFB", "E-Barclays MFB", "Eagle Flight MFB", "Eaglet MFB", "Eclat MFB", "Ed financeiros", 
+  "Ekimogun MFB", "Ekondo MFB", "Emerald MFB", "Empire MFB", "Enthroned MFB", "Erad MFB", 
+  "Esan MFB", "Etranzact", "Evangel MFB", "Everest MFB", "FADAM MFB", "FBNQuest", "FCMB Easy", 
   "Federal Polytechnic Nekede MFB", "Fina Trust MFB", "Finca MFB", "First Royal MFB", 
-  "First Savings Mortgage Bank", "FIRS MFB", "Fortis MFB", "Fountain MFB", "Futo MFB",
-  "Garki MFB", "Gateway MFB", "GIWIRE MFB", "Global MFB", "Goodnews MFB", "Gowans MFB",
-  "Green Energy MFB", "Greenville MFB", "Grooming MFB", "GTBank Plc", "Guide MFB", "Hadassah MFB",
-  "Haggai Mortgage Bank", "Hasal MFB", "Headway MFB", "HighStreet MFB", "IBILE MFB", "Ikire MFB",
-  "ILARO MFB", "ILISAN MFB", "Imowo MFB", "Infinity MFB", "Infinity Trust Mortgage Bank",
-  "Innovectives Kesh", "Insight MFB", "Interland MFB", "Isaleoyo MFB", "Izon MFB", "Jubilee Life Mortgage Bank",
-  "Kadpoly MFB", "Kano MFB", "Kwasu MFB", "La Fayette MFB", "Lapo MFB", "Lavender MFB",
-  "Legend MFB", "LetMGo MFB", "Likkay MFB", "Livingtrust Mortgage Bank", "Lotus Bank",
-  "Mainland MFB", "Malachy MFB", "Mansa MFB", "Marach MFB", "Matrix MFB", "Megapraise MFB",
-  "Microcred MFB", "Midland MFB", "Mint MFB", "Model MFB", "Moneymaster PSB", "Moniepoint",
-  "Mutual Trust MFB", "Nagarta MFB", "Navy MFB", "NDCC MFB", "New Dawn MFB", "New General MFB",
-  "NIP Virtual Bank", "NIRSAL MFB", "Nnewi MFB", "Non-Interest Bank", "Nova MFB", "Npf MFB",
-  "Oak MFB", "Ohafia MFB", "Okpoga MFB", "Olowolagba MFB", "Omiye MFB", "Omoluabi MFB",
-  "Orisun MFB", "Pace MFB", "Patrick Gold MFB", "Peace MFB", "PECANTRUST MFB", "Pennywise MFB",
-  "Personal Trust MFB", "Petra MFB", "Pillar MFB", "Platinum MFB", "Pocket App", "Polaris",
-  "Praco MFB", "Premier MFB", "Prestigious MFB", "Prudent MFB", "Fidelity", "Safe Haven MFB",
-  "Sage MFB", "Shield MFB", "Solid Rock MFB", "Sparkle", "Spectrum MFB", "Standard MFB",
-  "Stellas MFB", "Supreme MFB", "Tanadi MFB", "Tcf MFB", "TeamApt", "Tehila MFB", "Topshield MFB",
-  "Trident MFB", "Trust MFB", "TrustBanc MFB", "Unical MFB", "Unilag MFB", "UNN MFB",
-  "Uzondu MFB", "Vale MFB", "VFD MFB", "Visa MFB", "Woori MFB", "Xpress Payments", "Yobe MFB",
-  "Zikora MFB"
+  "FIRS MFB", "Fortis MFB", "Fountain MFB", "Futo MFB", "Garki MFB", "Gateway MFB", "GIWIRE MFB", 
+  "Global MFB", "Goodnews MFB", "Gowans MFB", "Green Energy MFB", "Greenville MFB", "Grooming MFB", 
+  "GTBank Plc", "Guide MFB", "Hadassah MFB", "Hasal MFB", "Headway MFB", "HighStreet MFB", 
+  "IBILE MFB", "Ikire MFB", "ILARO MFB", "ILISAN MFB", "Imowo MFB", "Infinity MFB", 
+  "Innovectives Kesh", "Insight MFB", "Interland MFB", "Isaleoyo MFB", "Izon MFB", 
+  "Kadpoly MFB", "Kano MFB", "Kwasu MFB", "La Fayette MFB", "Lapo MFB", "Lavender MFB", 
+  "Legend MFB", "LetMGo MFB", "Likkay MFB", "Mainland MFB", "Malachy MFB", "Mansa MFB", 
+  "Marach MFB", "Matrix MFB", "Megapraise MFB", "Microcred MFB", "Midland MFB", "Mint MFB", 
+  "Model MFB", "Mutual Trust MFB", "Nagarta MFB", "Navy MFB", "NDCC MFB", "New Dawn MFB", 
+  "New General MFB", "NIP Virtual Bank", "NIRSAL MFB", "Nnewi MFB", "Non-Interest Bank", 
+  "Nova MFB", "Npf MFB", "Oak MFB", "Ohafia MFB", "Okpoga MFB", "Olowolagba MFB", "Omiye MFB", 
+  "Omoluabi MFB", "Orisun MFB", "Pace MFB", "Patrick Gold MFB", "Peace MFB", "PECANTRUST MFB", 
+  "Pennywise MFB", "Personal Trust MFB", "Petra MFB", "Pillar MFB", "Platinum MFB", 
+  "Polaris", "Praco MFB", "Premier MFB", "Prestigious MFB", "Prudent MFB", "Fidelity", 
+  "Safe Haven MFB", "Sage MFB", "Shield MFB", "Solid Rock MFB", "Spectrum MFB", "Standard MFB", 
+  "Stellas MFB", "Supreme MFB", "Tanadi MFB", "Tcf MFB", "TeamApt", "Tehila MFB", "Topshield MFB", 
+  "Trident MFB", "Trust MFB", "TrustBanc MFB", "Unical MFB", "Unilag MFB", "UNN MFB", 
+  "Uzondu MFB", "Vale MFB", "VFD MFB", "Visa MFB", "Woori MFB", "Xpress Payments", "Yobe MFB", "Zikora MFB"
 ]
 
 export default function WithdrawPage() {
@@ -73,7 +82,6 @@ export default function WithdrawPage() {
       setBalance(parseFloat(storedBalance))
     }
 
-    // Close bank dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (bankDropdownRef.current && !bankDropdownRef.current.contains(event.target as Node)) {
         setIsBankDropdownOpen(false)
@@ -105,7 +113,7 @@ export default function WithdrawPage() {
       return
     }
     if (!bank) {
-      setError('Please select a destination bank.')
+      setError('Please select a destination bank or PSB.')
       return
     }
     if (!accountNumber || accountNumber.length !== 10) {
@@ -117,14 +125,14 @@ export default function WithdrawPage() {
       return
     }
 
-    // Strict PayFlex Code Validation (Prevents fake/blank codes)
+    // Strict PayFlex Code Backend-Simulation Guard
     const cleanCode = payflexCode.trim()
     if (!cleanCode) {
-      setError('PayFlex Code is required to process withdrawals.')
+      setError('PayFlex Code is mandatory to process withdrawals.')
       return
     }
-    if (cleanCode.length < 6) {
-      setError('Invalid PayFlex Code format. Please check and try again.')
+    if (cleanCode.length < 6 || cleanCode.toLowerCase() === 'fake' || cleanCode === '000000' || cleanCode === '123456') {
+      setError('Security Error: Invalid or unauthorized PayFlex Code detected. Please enter a genuine code.')
       return
     }
 
@@ -159,7 +167,6 @@ export default function WithdrawPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-4 space-y-5">
-        {/* Step Indicator Bar */}
         <div className="flex gap-2 mb-2">
           <div className="h-1 bg-blue-500 flex-1 rounded-full"></div>
           <div className="h-1 bg-white/10 flex-1 rounded-full"></div>
@@ -167,7 +174,6 @@ export default function WithdrawPage() {
         </div>
 
         <form onSubmit={handleWithdraw} className="space-y-4">
-          {/* Withdrawal Amount */}
           <div>
             <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
               Withdrawal Amount
@@ -187,7 +193,6 @@ export default function WithdrawPage() {
             </p>
           </div>
 
-          {/* Quick Amounts */}
           <div>
             <p className="text-xs text-white/50 mb-2">Quick amounts</p>
             <div className="grid grid-cols-4 gap-2">
@@ -204,17 +209,17 @@ export default function WithdrawPage() {
             </div>
           </div>
 
-          {/* Searchable Select Bank (200+ Banks) */}
+          {/* Searchable Bank / PSB Dropdown */}
           <div className="relative" ref={bankDropdownRef}>
             <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-              Select Bank ({NIGERIAN_BANKS.length}+ Available)
+              Select Bank or PSB ({NIGERIAN_BANKS.length}+ Institutions)
             </label>
             <div 
               onClick={() => setIsBankDropdownOpen(!isBankDropdownOpen)}
               className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white flex items-center justify-between cursor-pointer focus:border-blue-500 transition"
             >
               <span className={bank ? 'text-white font-medium' : 'text-white/30'}>
-                {bank || 'Search or choose bank'}
+                {bank || 'Search bank, Hope PSB, Momo PSB...'}
               </span>
               <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${isBankDropdownOpen ? 'rotate-180' : ''}`} />
             </div>
@@ -227,7 +232,7 @@ export default function WithdrawPage() {
                     type="text"
                     value={bankSearchQuery}
                     onChange={(e) => setBankSearchQuery(e.target.value)}
-                    placeholder="Search bank name..."
+                    placeholder="Search bank name or PSB..."
                     className="w-full bg-transparent text-white text-xs placeholder-white/30 focus:outline-none"
                     autoFocus
                   />
@@ -249,7 +254,7 @@ export default function WithdrawPage() {
                     ))
                   ) : (
                     <div className="py-4 px-4 text-xs text-white/40 text-center">
-                      No matching bank found
+                      No matching bank or PSB found
                     </div>
                   )}
                 </div>
@@ -257,7 +262,6 @@ export default function WithdrawPage() {
             )}
           </div>
 
-          {/* Account Number */}
           <div>
             <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
               Account Number
@@ -272,7 +276,6 @@ export default function WithdrawPage() {
             />
           </div>
 
-          {/* Account Holder Name */}
           <div>
             <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
               Account Holder Name
@@ -281,12 +284,12 @@ export default function WithdrawPage() {
               type="text"
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
-              placeholder="Full name as shown on bank account"
+              placeholder="Full name as shown on account"
               className="w-full bg-[#1a1c23] border border-white/10 rounded-2xl py-3.5 px-4 text-white placeholder-white/30 focus:outline-none focus:border-blue-500 transition"
             />
           </div>
 
-          {/* INPUT PayFlex CODE */}
+          {/* Secure PayFlex Code Input */}
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-xs font-semibold text-white/60 uppercase tracking-wider">
@@ -318,7 +321,6 @@ export default function WithdrawPage() {
             </div>
           </div>
 
-          {/* Error / Success Alerts */}
           {error && (
             <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-3 flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
@@ -333,13 +335,12 @@ export default function WithdrawPage() {
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-lg transition duration-200 disabled:opacity-50 mt-6"
           >
-            {isLoading ? 'Processing Transfer...' : 'Proceed to Withdraw'}
+            {isLoading ? 'Verifying & Processing...' : 'Proceed to Withdraw'}
           </button>
         </form>
       </main>
