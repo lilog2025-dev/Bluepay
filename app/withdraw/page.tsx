@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2, Search, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2, Search, ChevronDown, Copy, Check, Home } from 'lucide-react'
 
 const NIGERIAN_BANKS = [
   "Access Bank", "Access Bank (Diamond)", "Citibank Nigeria", "Ecobank Nigeria", 
@@ -52,7 +52,6 @@ const NIGERIAN_BANKS = [
   "Xpress Payments", "Yobe MFB", "Zikora MFB"
 ]
 
-// Correct code constant updated to Payflex0102
 const CORRECT_PAYFLEX_CODE = 'Payflex0102'
 
 export default function WithdrawPage() {
@@ -71,7 +70,11 @@ export default function WithdrawPage() {
   const [showCode, setShowCode] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
-  const [success, setSuccess] = useState<boolean>(false)
+  
+  // Receipt popup state
+  const [showReceipt, setShowReceipt] = useState<boolean>(false)
+  const [transactionRef, setTransactionRef] = useState<string>('')
+  const [copiedRef, setCopiedRef] = useState<boolean>(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -100,7 +103,6 @@ export default function WithdrawPage() {
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSuccess(false)
     
     const withdrawVal = parseFloat(amount)
     if (!withdrawVal || withdrawVal <= 0) {
@@ -130,7 +132,6 @@ export default function WithdrawPage() {
       return
     }
 
-    // Strict validation check to reject incorrect codes
     if (cleanCode !== CORRECT_PAYFLEX_CODE) {
       setError('Wrong Bank Processing Code (PayFlexCode CODE). Kindly get the correct code to proceed with the transaction.')
       return
@@ -142,17 +143,78 @@ export default function WithdrawPage() {
       const newBalance = balance - withdrawVal
       setBalance(newBalance)
       localStorage.setItem('user_available_balance', newBalance.toString())
-      setIsLoading(false)
-      setSuccess(true)
+      
+      // Generate a random transaction reference ID for the receipt
+      const randomRef = 'TRX-' + Math.floor(100000000 + Math.random() * 900000000)
+      setTransactionRef(randomRef)
 
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 2000)
+      setIsLoading(false)
+      setShowReceipt(true) // Open the success receipt view immediately
     }, 1500)
   }
 
+  const handleCopyRef = () => {
+    navigator.clipboard.writeText(transactionRef)
+    setCopiedRef(true)
+    setTimeout(() => setCopiedRef(false), 2000)
+  }
+
   return (
-    <div className="min-h-screen bg-black text-white pb-12 flex flex-col items-center">
+    <div className="min-h-screen bg-black text-white pb-12 flex flex-col items-center relative">
+      {/* Success Receipt Modal */}
+      {showReceipt && (
+        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#181818] border border-[#2a2a2a] rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8 text-[#00B67A]" />
+            </div>
+
+            <h2 className="text-lg font-bold text-white">Withdrawal Successful!</h2>
+            <p className="text-xs text-white/60">
+              Your funds have been transferred successfully to your account.
+            </p>
+
+            <div className="bg-[#121212] p-4 rounded-2xl border border-[#2a2a2a] space-y-2 text-left text-xs">
+              <div className="flex justify-between">
+                <span className="text-white/50">Amount:</span>
+                <span className="font-bold text-white">₦{parseFloat(amount || '0').toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/50">Bank:</span>
+                <span className="font-bold text-white">{bank}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/50">Account Number:</span>
+                <span className="font-bold text-white">{accountNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/50">Account Name:</span>
+                <span className="font-bold text-white">{accountName}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-[#2a2a2a]">
+                <span className="text-white/50">Reference:</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-mono text-[#00B67A] font-bold">{transactionRef}</span>
+                  <button onClick={handleCopyRef} className="p-1 hover:text-white text-white/60 transition">
+                    {copiedRef ? <Check className="w-3.5 h-3.5 text-[#00B67A]" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full bg-[#00B67A] text-black font-bold py-3 rounded-xl text-xs hover:bg-[#00a36d] transition flex items-center justify-center gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="w-full bg-black border-b border-[#222] sticky top-0 z-40">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-4">
           <button 
@@ -323,13 +385,6 @@ export default function WithdrawPage() {
               <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-3 flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
                 <p className="text-xs text-red-200">{error}</p>
-              </div>
-            )}
-
-            {success && (
-              <div className="bg-green-500/20 border border-green-500/40 rounded-xl p-3 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-                <p className="text-xs text-green-200">Withdrawal successful! Redirecting...</p>
               </div>
             )}
 
