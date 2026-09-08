@@ -97,7 +97,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0000ff] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md">
         {/* Welcome heading */}
         <div className="text-center mb-6 sm:mb-8">
@@ -122,7 +122,7 @@ export default function SignupPage() {
                   setFullName(e.target.value)
                   if (errors.fullName) setErrors({ ...errors, fullName: '' })
                 }}
-                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600/40 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.fullName && (
                 <p className="text-red-200 text-xs sm:text-sm mt-1">{errors.fullName}</p>
@@ -139,7 +139,7 @@ export default function SignupPage() {
                   setEmail(e.target.value)
                   if (errors.email) setErrors({ ...errors, email: '' })
                 }}
-                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600/40 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
               />
               {errors.email && (
                 <p className="text-red-200 text-xs sm:text-sm mt-1">{errors.email}</p>
@@ -164,7 +164,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-[#0000ff] font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+              className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
             >
               {isLoading ? 'Creating Account...' : 'CREATE ACCOUNT'}
             </button>
