@@ -97,19 +97,19 @@ export default function BuyPayFlexCodePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16 relative">
+    <div className="min-h-screen bg-[#121212] text-white pb-16 relative">
       {/* 1. Opay Warning Modal */}
       {showWarningModal && !isVerifying && !showSuccessModal && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-white rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mx-auto">
+          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
+            <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto">
               <AlertTriangle className="w-7 h-7 text-amber-500" />
             </div>
 
-            <h2 className="text-lg font-bold text-red-600">Important Notice</h2>
+            <h2 className="text-lg font-bold text-red-500">Important Notice</h2>
 
-            <p className="text-xs text-gray-700 font-medium leading-relaxed">
-              Please <strong className="text-gray-900">DO NOT use Opay</strong> to make payments.
+            <p className="text-xs text-white/70 font-medium leading-relaxed">
+              Please <strong className="text-white">DO NOT use Opay</strong> to make payments.
               Opay transactions may not be processed correctly.
             </p>
 
@@ -124,7 +124,7 @@ export default function BuyPayFlexCodePage() {
 
               <button
                 onClick={() => setShowWarningModal(false)}
-                className="flex-1 bg-emerald-500 text-white text-xs font-semibold py-2 px-1.5 rounded-lg hover:bg-emerald-600 transition shadow-sm"
+                className="flex-1 bg-[#00B67A] text-black text-xs font-semibold py-2 px-1.5 rounded-lg hover:bg-[#00a36d] transition shadow-sm"
               >
                 Understand
               </button>
@@ -136,15 +136,15 @@ export default function BuyPayFlexCodePage() {
       {/* 2. Verifying Payment Loading Modal (10 Seconds Countdown) */}
       {isVerifying && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
+          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
             <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-              <Loader2 className="w-16 h-16 text-[#0000ff] animate-spin" />
-              <span className="absolute font-bold text-[#0000ff] text-base">{countdown}s</span>
+              <Loader2 className="w-16 h-16 text-[#00B67A] animate-spin" />
+              <span className="absolute font-bold text-[#00B67A] text-base">{countdown}s</span>
             </div>
 
-            <h2 className="text-lg font-bold text-gray-900">Verifying Payment...</h2>
+            <h2 className="text-lg font-bold text-white">Verifying Payment...</h2>
 
-            <p className="text-xs text-gray-600 font-medium leading-relaxed">
+            <p className="text-xs text-white/60 font-medium leading-relaxed">
               Please wait while our system checks your transfer receipt confirmation ({countdown} seconds remaining).
             </p>
           </div>
@@ -154,24 +154,24 @@ export default function BuyPayFlexCodePage() {
       {/* 3. Payment Received Successfully & Code Reveal Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-white rounded-2xl p-4 max-w-sm w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-sm w-full shadow-2xl text-center space-y-3">
+            <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-7 h-7 text-[#00B67A]" />
             </div>
 
-            <h2 className="text-lg font-bold text-gray-900">Payment Received Successfully!</h2>
+            <h2 className="text-lg font-bold text-white">Payment Received Successfully!</h2>
 
-            <p className="text-xs text-gray-600 font-medium leading-relaxed">
+            <p className="text-xs text-white/60 font-medium leading-relaxed">
               Here is your PayFlex Code. Copy it and paste it into your withdrawal page to proceed:
             </p>
 
-            <div className="bg-gray-100 p-3 rounded-xl border border-gray-200 flex items-center justify-between gap-2">
-              <span className="font-mono font-bold text-xs text-[#0000ff] select-all break-all text-left">
+            <div className="bg-[#121212] p-3 rounded-xl border border-[#2a2a2a] flex items-center justify-between gap-2">
+              <span className="font-mono font-bold text-xs text-[#00B67A] select-all break-all text-left">
                 {CORRECT_PayFlexCode_CODE}
               </span>
               <button
                 onClick={() => handleCopy(CORRECT_PayFlexCode_CODE, 'code')}
-                className="bg-[#0000ff] text-white p-2 rounded-lg hover:bg-blue-700 transition flex-shrink-0"
+                className="bg-[#00B67A] text-black p-2 rounded-lg hover:bg-[#00a36d] transition flex-shrink-0"
                 title="Copy Code"
               >
                 {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -181,16 +181,16 @@ export default function BuyPayFlexCodePage() {
             <div className="space-y-2 pt-1">
               <button
                 onClick={() => router.push('/withdraw')}
-                className="w-full bg-[#0000ff] text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm"
+                className="w-full bg-[#00B67A] text-black font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-[#00a36d] transition flex items-center justify-center gap-2 shadow-sm"
               >
                 Proceed to Withdrawal
               </button>
 
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full bg-gray-100 text-gray-800 font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
+                className="w-full bg-[#252525] text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-[#303030] transition flex items-center justify-center gap-2"
               >
-                <Home className="w-4 h-4 text-gray-600" />
+                <Home className="w-4 h-4 text-white/60" />
                 Go to Homepage
               </button>
             </div>
@@ -199,20 +199,20 @@ export default function BuyPayFlexCodePage() {
       )}
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 py-2.5 px-3">
+      <header className="sticky top-0 z-50 bg-[#181818] border-b border-[#2a2a2a] py-2.5 px-3">
         <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="p-1">
-            <ArrowLeft className="w-5 h-5 text-gray-900" />
+          <button onClick={() => router.back()} className="p-1 text-white/80 hover:text-white">
+            <ArrowLeft className="w-5 h-5 text-white" />
           </button>
-          <h1 className="text-base font-bold text-gray-900">Buy PayFlex Code</h1>
+          <h1 className="text-base font-bold text-white">Buy PayFlex Code</h1>
           <div className="w-5" />
         </div>
       </header>
 
       <main className="px-3 py-3 max-w-lg mx-auto space-y-3">
         {/* Instruction Banner */}
-        <div className="bg-teal-50 border border-teal-200 rounded-xl p-3 text-xs text-teal-900">
-          <p className="font-semibold mb-0.5">How to purchase:</p>
+        <div className="bg-[#00B67A]/10 border border-[#00B67A]/30 rounded-xl p-3 text-xs text-white/90">
+          <p className="font-semibold text-[#00B67A] mb-0.5">How to purchase:</p>
           <p className="leading-tight">
             1. Transfer payment to the official account.<br />
             2. Upload a photo of your receipt.<br />
@@ -221,51 +221,51 @@ export default function BuyPayFlexCodePage() {
         </div>
 
         {/* Pricing Details */}
-        <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-600 font-medium">PayFlex Rate</span>
-            <span className="font-bold text-gray-900 text-sm">{MANUAL_BANK.PayFlexCodeRate}</span>
+            <span className="text-white/60 font-medium">PayFlex Rate</span>
+            <span className="font-bold text-white text-sm">{MANUAL_BANK.PayFlexCodeRate}</span>
           </div>
         </div>
 
         {/* Static Manual Bank Details */}
-        <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm space-y-2.5 text-xs">
-          <div className="flex items-center gap-1.5 pb-1 border-b border-gray-100">
-            <Building2 className="w-4 h-4 text-teal-500" />
-            <h2 className="font-bold text-gray-900 text-sm">Payment Account Details</h2>
+        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2.5 text-xs">
+          <div className="flex items-center gap-1.5 pb-1 border-b border-[#2a2a2a]">
+            <Building2 className="w-4 h-4 text-[#00B67A]" />
+            <h2 className="font-bold text-white text-sm">Payment Account Details</h2>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-gray-600 font-medium">Bank Name</span>
-            <span className="font-bold text-gray-900">{MANUAL_BANK.bankName}</span>
+            <span className="text-white/60 font-medium">Bank Name</span>
+            <span className="font-bold text-white">{MANUAL_BANK.bankName}</span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-gray-600 font-medium">Account Number</span>
+            <span className="text-white/60 font-medium">Account Number</span>
             <div className="flex items-center gap-1.5">
-              <span className="font-mono font-bold text-base text-gray-900">
+              <span className="font-mono font-bold text-base text-white">
                 {MANUAL_BANK.accountNumber}
               </span>
               <button
                 onClick={() => handleCopy(MANUAL_BANK.accountNumber, 'account')}
-                className="p-1 bg-gray-100 rounded hover:bg-gray-200 text-gray-700 transition"
+                className="p-1 bg-[#252525] rounded hover:bg-[#303030] text-white/80 transition"
               >
-                {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-[#00B67A]" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-1 border-t border-gray-100">
-            <span className="text-gray-600 font-medium">Account Name</span>
-            <span className="font-bold text-gray-900">{MANUAL_BANK.accountName}</span>
+          <div className="flex justify-between items-center pt-1 border-t border-[#2a2a2a]">
+            <span className="text-white/60 font-medium">Account Name</span>
+            <span className="font-bold text-white">{MANUAL_BANK.accountName}</span>
           </div>
         </div>
 
         {/* Receipt Upload Box */}
-        <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm space-y-2">
-          <h2 className="font-bold text-gray-900 text-xs">Upload Payment Receipt</h2>
+        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2">
+          <h2 className="font-bold text-white text-xs">Upload Payment Receipt</h2>
 
-          <label className="border border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 transition bg-gray-50 relative overflow-hidden">
+          <label className="border border-dashed border-[#2a2a2a] rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-[#00B67A] transition bg-[#121212] relative overflow-hidden">
             <input 
               type="file" 
               accept="image/*" 
@@ -278,18 +278,18 @@ export default function BuyPayFlexCodePage() {
                 <img 
                   src={previewUrl} 
                   alt="Receipt Preview" 
-                  className="max-h-32 rounded object-contain border border-gray-200" 
+                  className="max-h-32 rounded object-contain border border-[#2a2a2a]" 
                 />
-                <div className="flex items-center gap-1 text-xs font-medium text-teal-600 mt-1">
+                <div className="flex items-center gap-1 text-xs font-medium text-[#00B67A] mt-1">
                   <FileCheck className="w-3.5 h-3.5" />
                   <span className="truncate max-w-[200px]">{receiptImage?.name}</span>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-1 text-center">
-                <UploadCloud className="w-7 h-7 text-teal-500" />
-                <span className="text-xs font-semibold text-gray-700">Click to upload receipt photo</span>
-                <span className="text-[10px] text-gray-400">PNG, JPG, or JPEG</span>
+                <UploadCloud className="w-7 h-7 text-[#00B67A]" />
+                <span className="text-xs font-semibold text-white/80">Click to upload receipt photo</span>
+                <span className="text-[10px] text-white/40">PNG, JPG, or JPEG</span>
               </div>
             )}
           </label>
@@ -298,7 +298,7 @@ export default function BuyPayFlexCodePage() {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          className="w-full bg-teal-500 text-white font-bold py-3 rounded-xl text-sm hover:bg-teal-600 transition shadow-sm"
+          className="w-full bg-[#00B67A] text-black font-bold py-3 rounded-xl text-sm hover:bg-[#00a36d] transition shadow-sm"
         >
           Submit Receipt
         </button>
