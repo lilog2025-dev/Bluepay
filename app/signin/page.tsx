@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { AlertCircle, CheckCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -115,20 +115,20 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
+    <div className="min-h-screen bg-[#121212] flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8 text-white">
       <div className="w-full max-w-md">
         {step === 'send' ? (
           <div>
             <div className="text-center mb-6 sm:mb-8">
-              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
+              <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3">
                 Sign in to PayFlex
               </h1>
-              <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
+              <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
                 Enter your email address to access your account securely.
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
+            <div className="bg-[#1a1c23] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6 shadow-2xl">
               <form onSubmit={handleSendOtp} className="space-y-4 sm:space-y-6">
                 <div>
                   <input
@@ -137,23 +137,23 @@ export default function SignInPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
                     required
-                    className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white/5 border border-white/30 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/60 transition-all"
+                    className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-[#121212] border border-white/10 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base placeholder-white/30 focus:outline-none focus:border-blue-500 transition-all"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300"
                 >
                   {loading ? 'Sending Code...' : 'Send Verification Code'}
                 </button>
               </form>
             </div>
 
-            <p className="text-center text-white text-xs sm:text-sm drop-shadow-lg">
+            <p className="text-center text-white/60 text-xs sm:text-sm">
               Don&apos;t have an account?{' '}
-              <Link href="/signup" className="font-bold underline hover:text-gray-100 transition-colors">
+              <Link href="/signup" className="font-bold text-blue-400 hover:text-blue-300 underline transition-colors">
                 Create Account
               </Link>
             </p>
@@ -161,18 +161,18 @@ export default function SignInPage() {
         ) : (
           <div>
             <div className="text-center mb-6 sm:mb-8">
-              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2 sm:mb-3 drop-shadow-lg">
+              <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3">
                 Enter Verification Code
               </h1>
-              <p className="text-xs sm:text-sm text-white drop-shadow-lg leading-relaxed">
+              <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
                 Sent to <span className="font-semibold text-white">{email}</span>
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6">
+            <div className="bg-[#1a1c23] border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6 shadow-2xl">
               <form onSubmit={handleVerifyOtp} className="space-y-6">
                 <div>
-                  <label className="block text-xs font-semibold text-white/80 mb-3 text-center">
+                  <label className="block text-xs font-semibold text-white/60 mb-3 text-center uppercase tracking-wider">
                     Enter 6-digit code
                   </label>
                   <div className="flex justify-between gap-2">
@@ -188,7 +188,7 @@ export default function SignInPage() {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(index, e)}
-                        className="w-11 h-12 text-center bg-white text-gray-900 font-bold rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-white shadow-inner"
+                        className="w-11 h-12 text-center bg-[#121212] border border-white/10 text-white font-bold rounded-xl text-lg focus:outline-none focus:border-blue-500 shadow-inner"
                       />
                     ))}
                   </div>
@@ -197,7 +197,7 @@ export default function SignInPage() {
                 <button
                   type="submit"
                   disabled={loading || otp.join('').length < 6}
-                  className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-white text-black font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-xl hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 active:scale-95"
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-lg rounded-xl sm:rounded-2xl shadow-xl disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300"
                 >
                   {loading ? 'Verifying...' : 'Verify Code'}
                 </button>
@@ -208,7 +208,7 @@ export default function SignInPage() {
                     setStep('send')
                     setOtp(Array(6).fill(''))
                   }} 
-                  className="w-full py-2 bg-transparent border-none text-white/70 hover:text-white text-xs sm:text-sm underline transition"
+                  className="w-full py-2 bg-transparent border-none text-white/50 hover:text-white text-xs sm:text-sm underline transition"
                 >
                   Change Email
                 </button>
@@ -218,7 +218,7 @@ export default function SignInPage() {
         )}
 
         {message && (
-          <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 border ${message.includes('Check') || message.includes('success') ? 'bg-green-500/20 border-green-500/50 text-green-200' : 'bg-red-500/20 border-red-500/50 text-red-200'}`}>
+          <div className={`mt-4 p-3 rounded-xl flex items-center gap-2 border ${message.includes('Check') || message.includes('success') ? 'bg-green-500/20 border-green-500/40 text-green-200' : 'bg-red-500/20 border-red-500/40 text-red-200'}`}>
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <p className="text-xs sm:text-sm">{message}</p>
           </div>
