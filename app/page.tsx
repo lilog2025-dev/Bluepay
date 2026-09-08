@@ -17,12 +17,12 @@ export default function WelcomePage() {
       </div>
 
       <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl my-6 flex flex-col items-center">
-        <div className="w-full h-48 relative mb-6 flex items-center justify-center">
+        <div className="w-full h-48 relative mb-6 flex items-center justify-center overflow-hidden rounded-2xl">
           <Image
-            src="https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?q=80&w=600&auto=format&fit=crop"
-            alt="PayFlex Lion"
+            src="/43DAC891-F387-4C58-AEEF-7005CD10E46D.png"
+            alt="PayFlex Logo"
             fill
-            className="object-contain rounded-2xl"
+            className="object-contain"
             priority
           />
         </div>
