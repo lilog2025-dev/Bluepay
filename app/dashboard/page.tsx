@@ -233,18 +233,18 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Balance Card */}
+        {/* Balance Card - Fixed layout with responsive text size and flex-wrap to prevent text clipping */}
         <div className="bg-[#0000ff] rounded-3xl p-5 text-white shadow-xl relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <p className="text-xs text-blue-200 font-medium uppercase tracking-wider">Available Balance</p>
-              <div className="flex items-center gap-2 mt-1">
-                <h2 className="text-2xl font-extrabold tracking-tight">
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight break-all">
                   {showBalance ? `NGN ${balance.toLocaleString('en-NG', { minimumFractionDigits: 2 })}` : '₦ *****'}
                 </h2>
                 <button 
                   onClick={() => setShowBalance(!showBalance)}
-                  className="text-blue-200 hover:text-white transition"
+                  className="text-blue-200 hover:text-white transition shrink-0"
                 >
                   {showBalance ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -252,7 +252,7 @@ export default function DashboardPage() {
             </div>
             <button 
               onClick={() => router.push('/withdraw')}
-              className="bg-white text-[#0000ff] font-bold text-xs px-4 py-2 rounded-full shadow hover:bg-blue-50 transition"
+              className="bg-white text-[#0000ff] font-bold text-xs px-4 py-2.5 rounded-full shadow hover:bg-blue-50 transition self-start sm:self-center shrink-0"
             >
               Withdraw
             </button>
