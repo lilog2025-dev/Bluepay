@@ -23,7 +23,14 @@ import { createClient } from '@supabase/supabase-js'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [balance, setBalance] = useState<number>(0)
+  
+  // Initialize balance immediately from localStorage to prevent resetting to 0 on reload
+  const [balance, setBalance] = useState<number>(() => {
+    if (typeof window === 'undefined') return 0
+    const stored = localStorage.getItem('user_available_balance')
+    return stored ? parseFloat(stored) : 0
+  })
+
   const [showBalance, setShowBalance] = useState<boolean>(true)
   const [fullName, setFullName] = useState<string>('User')
 
