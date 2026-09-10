@@ -49,7 +49,7 @@ export default function BuyPayFlexCodePage() {
       setIsVerifying(false)
       setShowFailedNotice(true)
     }
-    return () => clearTimeout(timer)
+    return () => clearInterval(timer)
   }, [isVerifying, countdown])
 
   const handleCopy = (text: string, type: 'account') => {
@@ -151,7 +151,7 @@ export default function BuyPayFlexCodePage() {
       {/* 3. Payment Not Confirmed Modal after 10 seconds */}
       {showFailedNotice && (
         <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-4">
+          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
             <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto">
               <AlertTriangle className="w-7 h-7 text-red-400" />
             </div>
@@ -180,6 +180,14 @@ export default function BuyPayFlexCodePage() {
                 className="w-full bg-[#252525] hover:bg-[#303030] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition"
               >
                 Try Again
+              </button>
+
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-white/80 hover:text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition border border-[#2a2a2a]"
+              >
+                <Home className="w-4 h-4 text-white/60" />
+                Go to Homepage
               </button>
             </div>
           </div>
