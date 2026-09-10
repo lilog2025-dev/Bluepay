@@ -109,7 +109,7 @@ export default function SupportPage() {
                   <option value="Transaction Issue" className="bg-[#121212] text-white">Transaction Issue</option>
                   <option value="Withdrawal Delay" className="bg-[#121212] text-white">Withdrawal Delay</option>
                   <option value="Account Verification" className="bg-[#121212] text-white">Account Verification</option>
-                  <option value="FlexPay Code Issue" className="bg-[#121212] text-white">FlexPay Code Issue</option>
+                  <option value="PayFlex Code Issue" className="bg-[#121212] text-white">FlexPay Code Issue</option>
                   <option value="Other" className="bg-[#121212] text-white">Other</option>
                 </select>
               </div>
