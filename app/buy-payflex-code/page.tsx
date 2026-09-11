@@ -30,10 +30,10 @@ export default function BuyPayFlexCodePage() {
   const [countdown, setCountdown] = useState(10)
   const [showFailedNotice, setShowFailedNotice] = useState(false)
 
-  // Static Manual Bank Details
+  // Updated KongaPay Manual Bank Details
   const MANUAL_BANK = {
-    bankName: 'Paga',
-    accountNumber: '1902059851',
+    bankName: 'KongaPay',
+    accountNumber: '1010401808',
     accountName: 'Olamilakan Oso',
     PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
