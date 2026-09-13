@@ -71,7 +71,7 @@ export default function BuyPayFlexCodePage() {
   const handlePlayWarning = () => {
     if ('speechSynthesis' in window) {
       const speech = new SpeechSynthesisUtterance(
-        'Please DO NOT use Opay to make payments. Opay transactions may not be processed correctly. Use other banks for successful transfers.'
+        'Please DO NOT use Opay or PalmPay to make payments. These transactions may not be processed correctly. Use other banks for successful transfers.'
       )
       speech.rate = 0.9
       window.speechSynthesis.speak(speech)
@@ -95,7 +95,7 @@ export default function BuyPayFlexCodePage() {
 
   return (
     <div className="min-h-screen bg-[#121212] text-white pb-16 relative">
-      {/* 1. Opay Warning Modal */}
+      {/* 1. Opay & PalmPay Warning Modal */}
       {showWarningModal && !isVerifying && !showFailedNotice && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
           <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
@@ -106,8 +106,8 @@ export default function BuyPayFlexCodePage() {
             <h2 className="text-lg font-bold text-red-500">Important Notice</h2>
 
             <p className="text-xs text-white/70 font-medium leading-relaxed">
-              Please <strong className="text-white">DO NOT use Opay</strong> to make payments.
-              Opay transactions may not be processed correctly.
+              Please <strong className="text-white">DO NOT use Opay or PalmPay</strong> to make payments.
+              These transactions may not be processed correctly.
             </p>
 
             <div className="flex items-center gap-2 pt-1">
