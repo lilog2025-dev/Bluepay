@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Mail, Send, CheckCircle2 } from 'lucide-react'
 
 const SUPPORT_EMAIL = 'Payflexcompany@gmail.com'
+const TELEGRAM_HANDLE = 'Payflexsupport'
 
 export default function SupportPage() {
   const router = useRouter()
@@ -45,8 +46,10 @@ export default function SupportPage() {
 
       <main className="max-w-md mx-auto px-4 py-6 space-y-4">
         {/* Contact Support Card */}
-        <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 shadow-2xl">
+        <div className="bg-[#181818] border border-[#242424] rounded-3xl p-5 shadow-2xl space-y-3">
           <h2 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-3">Contact Support</h2>
+          
+          {/* Email Option */}
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
             className="flex items-center gap-3 p-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl hover:border-[#10B981] transition group"
@@ -57,6 +60,22 @@ export default function SupportPage() {
             <div className="overflow-hidden">
               <p className="text-[10px] text-white/50 font-medium">Contact Us via Email</p>
               <p className="text-xs font-bold text-white truncate">{SUPPORT_EMAIL}</p>
+            </div>
+          </a>
+
+          {/* Telegram Option */}
+          <a
+            href={`https://t.me/${TELEGRAM_HANDLE}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3.5 bg-[#121212] border border-[#2c2c2c] rounded-2xl hover:border-[#0088cc] transition group"
+          >
+            <div className="w-10 h-10 bg-[#0088cc]/20 text-[#0088cc] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-[#0088cc] group-hover:text-white transition">
+              <Send className="w-5 h-5" />
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-[10px] text-white/50 font-medium">Chat on Telegram</p>
+              <p className="text-xs font-bold text-white truncate">@{TELEGRAM_HANDLE}</p>
             </div>
           </a>
         </div>
