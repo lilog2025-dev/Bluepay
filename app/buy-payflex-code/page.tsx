@@ -30,11 +30,11 @@ export default function BuyPayFlexCodePage() {
   const [countdown, setCountdown] = useState(10)
   const [showFailedNotice, setShowFailedNotice] = useState(false)
 
-  // Updated Bank Details (KongaPay)
+  // Updated Renmoney Bank Details
   const MANUAL_BANK = {
-    bankName: 'KongaPay',
-    accountNumber: '1011052972',
-    accountName: 'Oluwatobiloba Esther',
+    bankName: 'Renmoney',
+    accountNumber: '3597406106',
+    accountName: 'Oluwafemi Oso',
     PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
 
