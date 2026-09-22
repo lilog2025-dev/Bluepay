@@ -1,303 +1,133 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  ArrowLeft,
-  Copy,
-  CheckCircle2,
-  Building2,
-  UploadCloud,
-  FileCheck,
-  AlertTriangle,
-  Volume2,
-  Home,
-  Loader2,
-  Check,
-  Clock,
-  Headphones,
-} from 'lucide-react'
+import { ArrowLeft, Copy, Check, AlertCircle } from 'lucide-react'
 
-export default function BuyPayFlexCodePage() {
+export default function BuyPayflexCodePage() {
   const router = useRouter()
-  const [showWarningModal, setShowWarningModal] = useState(true)
   const [copiedAccount, setCopiedAccount] = useState(false)
-  const [receiptImage, setReceiptImage] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  
-  // Verification states
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [countdown, setCountdown] = useState(10)
-  const [showFailedNotice, setShowFailedNotice] = useState(false)
+  const [copiedBank, setCopiedBank] = useState(false)
+  const [copiedName, setCopiedName] = useState(false)
+  const [proofSubmitted, setProofSubmitted] = useState(false)
 
-  // Renmoney Bank Details
-  const MANUAL_BANK = {
-    bankName: 'Renmoney',
-    accountNumber: '3597406106',
-    accountName: 'Oluwafemi Oso',
-    PayFlexCodeRate: '₦10,500 for the PayFlex Code',
-  }
+  const accountNumber = "1011052972"
+  const bankName = "KongaPay"
+  const accountName = "Oluwatobiloba Esther"
 
-  // Handle 10-second timer
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (isVerifying && countdown > 0) {
-      timer = setTimeout(() => {
-        setCountdown((prev) => prev - 1)
-      }, 1000)
-    } else if (isVerifying && countdown === 0) {
-      setIsVerifying(false)
-      setShowFailedNotice(true)
-    }
-    return () => clearInterval(timer)
-  }, [isVerifying, countdown])
-
-  const handleCopy = (text: string, type: 'account') => {
+  const handleCopy = (text: string, type: 'account' | 'bank' | 'name') => {
     navigator.clipboard.writeText(text)
     if (type === 'account') {
       setCopiedAccount(true)
       setTimeout(() => setCopiedAccount(false), 2000)
-    }
-  }
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setReceiptImage(file)
-      setPreviewUrl(URL.createObjectURL(file))
-    }
-  }
-
-  const handlePlayWarning = () => {
-    if ('speechSynthesis' in window) {
-      const speech = new SpeechSynthesisUtterance(
-        'Please DO NOT use OPay or PalmPay to make payments. These transactions may not be processed correctly. Use other banks for successful transfers.'
-      )
-      speech.rate = 0.9
-      window.speechSynthesis.speak(speech)
+    } else if (type === 'bank') {
+      setCopiedBank(true)
+      setTimeout(() => setCopiedBank(false), 2000)
     } else {
-      alert('Audio warning is not supported on this device.')
+      setCopiedName(true)
+      setTimeout(() => setCopiedName(false), 2000)
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!receiptImage) {
-      alert('Please upload your payment receipt before submitting.')
-      return
-    }
-
-    // Start 10-second verification simulation
-    setCountdown(10)
-    setIsVerifying(true)
-    setShowFailedNotice(false)
+  const handleSubmitProof = () => {
+    setProofSubmitted(true)
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white pb-16 relative">
-      {/* 1. OPay & PalmPay Warning Modal */}
-      {showWarningModal && !isVerifying && !showFailedNotice && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto">
-              <AlertTriangle className="w-7 h-7 text-amber-500" />
-            </div>
-
-            <h2 className="text-lg font-bold text-red-500">Important Notice</h2>
-
-            <p className="text-xs text-white/70 font-medium leading-relaxed">
-              Please <strong className="text-white">DO NOT use OPay or PalmPay</strong> to make payments.
-              These transactions may not be processed correctly.
-            </p>
-
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                onClick={handlePlayWarning}
-                className="flex-1 bg-blue-600 text-white text-xs font-semibold py-2 px-1.5 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1 shadow-sm"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-                Play
-              </button>
-
-              <button
-                onClick={() => setShowWarningModal(false)}
-                className="flex-1 bg-[#00B67A] text-black text-xs font-semibold py-2 px-1.5 rounded-lg hover:bg-[#00a36d] transition shadow-sm"
-              >
-                Understand
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 2. Verifying Payment Loading Modal (10 Seconds Countdown) */}
-      {isVerifying && (
-        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-6 max-w-xs w-full shadow-2xl text-center space-y-4">
-            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-              <Loader2 className="w-16 h-16 text-[#00B67A] animate-spin" />
-              <span className="absolute font-bold text-[#00B67A] text-base">{countdown}s</span>
-            </div>
-
-            <h2 className="text-lg font-bold text-white">Verifying Payment...</h2>
-
-            <p className="text-xs text-white/60 font-medium leading-relaxed">
-              Please wait while our system checks your transfer receipt confirmation ({countdown} seconds remaining).
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* 3. Payment Not Confirmed Modal after 10 seconds */}
-      {showFailedNotice && (
-        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
-            <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mx-auto">
-              <AlertTriangle className="w-7 h-7 text-red-400" />
-            </div>
-
-            <h2 className="text-lg font-bold text-red-500">Payment Not Confirmed</h2>
-
-            <p className="text-xs text-white/70 font-medium leading-relaxed">
-              We couldn't automatically verify your payment session at this time. Please contact support with your payment receipt.
-            </p>
-
-            <div className="space-y-2 pt-1">
-              <button
-                onClick={() => router.push('/support')}
-                className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition shadow-sm"
-              >
-                <Headphones className="w-4 h-4" />
-                Contact Support
-              </button>
-              
-              <button
-                onClick={() => {
-                  setShowFailedNotice(false)
-                  setCountdown(10)
-                  setIsVerifying(true)
-                }}
-                className="w-full bg-[#252525] hover:bg-[#303030] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition"
-              >
-                Try Again
-              </button>
-
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-white/80 hover:text-white text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition border border-[#2a2a2a]"
-              >
-                <Home className="w-4 h-4 text-white/60" />
-                Go to Homepage
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#181818] border-b border-[#2a2a2a] py-2.5 px-3">
-        <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="p-1 text-white/80 hover:text-white">
-            <ArrowLeft className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-black text-white pb-12 flex flex-col items-center">
+      <header className="w-full bg-black border-b border-[#222] sticky top-0 z-40">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-4">
+          <button 
+            onClick={() => router.back()}
+            className="p-2 text-white/80 hover:bg-[#1c1c1c] rounded-full transition"
+          >
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-base font-bold text-white">Buy PayFlex Code</h1>
-          <div className="w-5" />
+          <h1 className="text-lg font-bold text-white tracking-wide">Buy PayFlex Code</h1>
         </div>
       </header>
 
-      <main className="px-3 py-3 max-w-lg mx-auto space-y-3">
-        {/* Instruction Banner */}
-        <div className="bg-[#00B67A]/10 border border-[#00B67A]/30 rounded-xl p-3 text-xs text-white/90">
-          <p className="font-semibold text-[#00B67A] mb-0.5">How to purchase:</p>
-          <p className="leading-tight">
-            1. Transfer payment to the official account.<br />
-            2. Upload a photo of your receipt.<br />
-            3. Click <strong>Submit Receipt</strong> to verify.
-          </p>
-        </div>
-
-        {/* Pricing Details */}
-        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm">
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-white/60 font-medium">PayFlex Rate</span>
-            <span className="font-bold text-white text-sm">{MANUAL_BANK.PayFlexCodeRate}</span>
+      <main className="w-full max-w-md mx-auto px-4 py-6 space-y-6">
+        
+        {/* Warning Card */}
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-xs text-amber-200/90 space-y-1">
+            <p className="font-bold text-amber-100">Payment Instructions</p>
+            <p>Transfer the exact amount to the account details below. Please <strong>do not use OPay</strong> to make payment.</p>
           </div>
         </div>
 
-        {/* Static Manual Bank Details */}
-        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2.5 text-xs">
-          <div className="flex items-center gap-1.5 pb-1 border-b border-[#2a2a2a]">
-            <Building2 className="w-4 h-4 text-[#00B67A]" />
-            <h2 className="font-bold text-white text-sm">Payment Account Details</h2>
-          </div>
+        {/* OPay Dark Mode Card Styling */}
+        <div className="bg-[#121212] border border-[#262626] rounded-3xl p-6 shadow-2xl space-y-5">
+          <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider">
+            Bank Transfer Details
+          </h3>
 
-          <div className="flex justify-between items-center">
-            <span className="text-white/60 font-medium">Bank Name</span>
-            <span className="font-bold text-white">{MANUAL_BANK.bankName}</span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="text-white/60 font-medium">Account Number</span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono font-bold text-base text-white">
-                {MANUAL_BANK.accountNumber}
-              </span>
-              <button
-                onClick={() => handleCopy(MANUAL_BANK.accountNumber, 'account')}
-                className="p-1 bg-[#252525] rounded hover:bg-[#303030] text-white/80 transition"
+          <div className="space-y-3">
+            {/* Bank Name */}
+            <div className="bg-[#1c1c1c] border border-[#333] rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-white/50 uppercase mb-1">Bank Name</p>
+                <p className="font-bold text-sm text-white">{bankName}</p>
+              </div>
+              <button 
+                onClick={() => handleCopy(bankName, 'bank')}
+                className="p-2 bg-[#2a2a2a] hover:bg-[#333] rounded-xl transition flex items-center gap-1.5 text-xs font-semibold border border-[#444]"
               >
-                {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-[#00B67A]" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedBank ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-white/70" />}
+                <span>{copiedBank ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+
+            {/* Account Number */}
+            <div className="bg-[#1c1c1c] border border-[#333] rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-white/50 uppercase mb-1">Account Number</p>
+                <p className="font-bold text-base text-white tracking-wider">{accountNumber}</p>
+              </div>
+              <button 
+                onClick={() => handleCopy(accountNumber, 'account')}
+                className="p-2 bg-[#2a2a2a] hover:bg-[#333] rounded-xl transition flex items-center gap-1.5 text-xs font-semibold border border-[#444]"
+              >
+                {copiedAccount ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-white/70" />}
+                <span>{copiedAccount ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+
+            {/* Account Name */}
+            <div className="bg-[#1c1c1c] border border-[#333] rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-white/50 uppercase mb-1">Account Name</p>
+                <p className="font-bold text-sm text-white">{accountName}</p>
+              </div>
+              <button 
+                onClick={() => handleCopy(accountName, 'name')}
+                className="p-2 bg-[#2a2a2a] hover:bg-[#333] rounded-xl transition flex items-center gap-1.5 text-xs font-semibold border border-[#444]"
+              >
+                {copiedName ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-white/70" />}
+                <span>{copiedName ? 'Copied' : 'Copy'}</span>
               </button>
             </div>
           </div>
-
-          <div className="flex justify-between items-center pt-1 border-t border-[#2a2a2a]">
-            <span className="text-white/60 font-medium">Account Name</span>
-            <span className="font-bold text-white">{MANUAL_BANK.accountName}</span>
-          </div>
         </div>
 
-        {/* Receipt Upload Box */}
-        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2">
-          <h2 className="font-bold text-white text-xs">Upload Payment Receipt</h2>
-
-          <label className="border border-dashed border-[#2a2a2a] rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-[#00B67A] transition bg-[#121212] relative overflow-hidden">
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleImageChange} 
-              className="hidden" 
-            />
-
-            {previewUrl ? (
-              <div className="flex flex-col items-center gap-1">
-                <img 
-                  src={previewUrl} 
-                  alt="Receipt Preview" 
-                  className="max-h-32 rounded object-contain border border-[#2a2a2a]" 
-                />
-                <div className="flex items-center gap-1 text-xs font-medium text-[#00B67A] mt-1">
-                  <FileCheck className="w-3.5 h-3.5" />
-                  <span className="truncate max-w-[200px]">{receiptImage?.name}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-1 text-center">
-                <UploadCloud className="w-7 h-7 text-[#00B67A]" />
-                <span className="text-xs font-semibold text-white/80">Click to upload receipt photo</span>
-                <span className="text-[10px] text-white/40">PNG, JPG, or JPEG</span>
-              </div>
-            )}
-          </label>
+        <div className="space-y-3 pt-2">
+          {proofSubmitted ? (
+            <div className="bg-green-500/20 border border-green-500/40 rounded-3xl p-5 text-center space-y-2">
+              <Check className="w-8 h-8 text-green-400 mx-auto" />
+              <p className="text-sm font-bold text-green-200">Payment Proof Submitted</p>
+              <p className="text-xs text-green-300/80">Your PayFlex Code will be sent or verified shortly after confirmation.</p>
+            </div>
+          ) : (
+            <button
+              onClick={handleSubmitProof}
+              className="w-full bg-white hover:bg-white/90 text-black font-bold py-4 rounded-2xl shadow-lg transition duration-200 uppercase tracking-wide"
+            >
+              I Have Made Payment
+            </button>
+          )}
         </div>
-
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-[#00B67A] text-black font-bold py-3 rounded-xl text-sm hover:bg-[#00a36d] transition shadow-sm"
-        >
-          Submit Receipt
-        </button>
       </main>
     </div>
   )
