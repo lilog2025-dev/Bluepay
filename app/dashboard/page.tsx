@@ -20,6 +20,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
+import ChannelNotificationModal from '@/components/ChannelNotificationModal'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -160,6 +161,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-black pb-24 text-white">
+      {/* Channel Notification Modal */}
+      <ChannelNotificationModal />
+
       {/* Top Header */}
       <header className="bg-black border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
