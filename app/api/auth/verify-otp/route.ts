@@ -10,12 +10,13 @@ export async function POST(request: Request) {
   try {
     const { email } = await request.json()
 
-    if (!email) {
-      return NextResponse.json({ success: false, error: 'Email is required' }, { status: 400 })
+    // Strict server-side validation for email format
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return NextResponse.json({ success: false, error: 'A valid email address is required' }, { status: 400 })
     }
 
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: email.trim().toLowerCase(),
       options: {
         shouldCreateUser: true,
       },
