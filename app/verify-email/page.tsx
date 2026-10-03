@@ -45,11 +45,13 @@ export default function VerifyEmailPage() {
   }
 
   const handleOtpChange = (index: number, value: string) => {
+    // Strictly allow only single numbers (0-9)
     if (!/^\d*$/.test(value)) return
 
     const newOtp = [...otp]
     newOtp[index] = value.slice(-1)
     setOtp(newOtp)
+    setError('') // Clear error on typing
 
     // Auto focus next input
     if (value && index < 5) {
@@ -68,9 +70,15 @@ export default function VerifyEmailPage() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault()
-    const pastedData = e.clipboardData.getData('text').slice(0, 6)
-    if (!/^\d{6}$/.test(pastedData)) return
+    const pastedData = e.clipboardData.getData('text').trim()
+    
+    // Ensure pasted text is strictly a 6-digit number
+    if (!/^\d{6}$/.test(pastedData)) {
+      setError('Please paste a valid 6-digit code')
+      return
+    }
 
+    setError('')
     setOtp(pastedData.split(''))
     inputRefs.current[5]?.focus()
   }
@@ -78,8 +86,8 @@ export default function VerifyEmailPage() {
   const handleVerifyOtp = async () => {
     const otpCode = otp.join('')
 
-    if (otpCode.length !== 6) {
-      setError('Please enter all 6 digits')
+    if (otpCode.length !== 6 || !/^\d{6}$/.test(otpCode)) {
+      setError('Please enter a valid 6-digit code')
       return
     }
 
@@ -144,7 +152,7 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center px-3 py-6 sm:px-4 sm:py-8">
       <div className="w-full max-w-md flex flex-col">
-        {/* Title - Shifted upward */}
+        {/* Title */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-2 sm:mb-3 drop-shadow-lg">
           Verify Your Email
         </h1>
