@@ -13,8 +13,6 @@ import {
   Volume2,
   Home,
   Loader2,
-  Check,
-  Clock,
   Headphones,
 } from 'lucide-react'
 
@@ -30,11 +28,11 @@ export default function BuyPayFlexCodePage() {
   const [countdown, setCountdown] = useState(10)
   const [showFailedNotice, setShowFailedNotice] = useState(false)
 
-  // Updated Renmoney MFB Details
+  // Updated Account Details
   const MANUAL_BANK = {
-    bankName: 'KongaPay',
-    accountNumber: '1011157771',
-    accountName: 'Ayodele Vincent',
+    bankName: 'Renmoney MFB',
+    accountNumber: '3597406106',
+    accountName: 'Oluwafemi Oso',
     PayFlexCodeRate: '₦10,500 for the PayFlex Code',
   }
 
@@ -71,7 +69,7 @@ export default function BuyPayFlexCodePage() {
   const handlePlayWarning = () => {
     if ('speechSynthesis' in window) {
       const speech = new SpeechSynthesisUtterance(
-        'Please DO NOT use OPay to make payments. These transactions may not be processed correctly. Use other banks for successful transfers.'
+        'Please DO NOT use OPay or PalmPay to make payments. These transactions may not be processed correctly. Use other banks for successful transfers.'
       )
       speech.rate = 0.9
       window.speechSynthesis.speak(speech)
@@ -95,7 +93,7 @@ export default function BuyPayFlexCodePage() {
 
   return (
     <div className="min-h-screen bg-[#121212] text-white pb-16 relative">
-      {/* 1. OPay Warning Modal */}
+      {/* 1. OPay & PalmPay Warning Modal */}
       {showWarningModal && !isVerifying && !showFailedNotice && (
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
           <div className="bg-[#181818] border border-[#2a2a2a] rounded-2xl p-4 max-w-xs w-full shadow-2xl text-center space-y-3">
@@ -106,7 +104,7 @@ export default function BuyPayFlexCodePage() {
             <h2 className="text-lg font-bold text-red-500">Important Notice</h2>
 
             <p className="text-xs text-white/70 font-medium leading-relaxed">
-              Please <strong className="text-white">DO NOT use OPay</strong> to make payments.
+              Please <strong className="text-white">DO NOT use OPay or PalmPay</strong> to make payments.
               These transactions may not be processed correctly.
             </p>
 
@@ -228,77 +226,4 @@ export default function BuyPayFlexCodePage() {
         <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2.5 text-xs">
           <div className="flex items-center gap-1.5 pb-1 border-b border-[#2a2a2a]">
             <Building2 className="w-4 h-4 text-[#00B67A]" />
-            <h2 className="font-bold text-white text-sm">Payment Account Details</h2>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="text-white/60 font-medium">Bank Name</span>
-            <span className="font-bold text-white">{MANUAL_BANK.bankName}</span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="text-white/60 font-medium">Account Number</span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono font-bold text-base text-white">
-                {MANUAL_BANK.accountNumber}
-              </span>
-              <button
-                onClick={() => handleCopy(MANUAL_BANK.accountNumber, 'account')}
-                className="p-1 bg-[#252525] rounded hover:bg-[#303030] text-white/80 transition"
-              >
-                {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-[#00B67A]" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center pt-1 border-t border-[#2a2a2a]">
-            <span className="text-white/60 font-medium">Account Name</span>
-            <span className="font-bold text-white">{MANUAL_BANK.accountName}</span>
-          </div>
-        </div>
-
-        {/* Receipt Upload Box */}
-        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2">
-          <h2 className="font-bold text-white text-xs">Upload Payment Receipt</h2>
-
-          <label className="border border-dashed border-[#2a2a2a] rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-[#00B67A] transition bg-[#121212] relative overflow-hidden">
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleImageChange} 
-              className="hidden" 
-            />
-
-            {previewUrl ? (
-              <div className="flex flex-col items-center gap-1">
-                <img 
-                  src={previewUrl} 
-                  alt="Receipt Preview" 
-                  className="max-h-32 rounded object-contain border border-[#2a2a2a]" 
-                />
-                <div className="flex items-center gap-1 text-xs font-medium text-[#00B67A] mt-1">
-                  <FileCheck className="w-3.5 h-3.5" />
-                  <span className="truncate max-w-[200px]">{receiptImage?.name}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-1 text-center">
-                <UploadCloud className="w-7 h-7 text-[#00B67A]" />
-                <span className="text-xs font-semibold text-white/80">Click to upload receipt photo</span>
-                <span className="text-[10px] text-white/40">PNG, JPG, or JPEG</span>
-              </div>
-            )}
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-[#00B67A] text-black font-bold py-3 rounded-xl text-sm hover:bg-[#00a36d] transition shadow-sm"
-        >
-          Submit Receipt
-        </button>
-      </main>
-    </div>
-  )
-}
+            <h2 className="font-bold text-white text-sm
