@@ -28,7 +28,7 @@ export default function BuyPayFlexCodePage() {
   const [countdown, setCountdown] = useState(10)
   const [showFailedNotice, setShowFailedNotice] = useState(false)
 
-  // Account Details
+  // Account Details (Renmoney MFB)
   const MANUAL_BANK = {
     bankName: 'Renmoney MFB',
     accountNumber: '3597406106',
