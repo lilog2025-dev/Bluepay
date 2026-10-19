@@ -28,7 +28,7 @@ export default function BuyPayFlexCodePage() {
   const [countdown, setCountdown] = useState(10)
   const [showFailedNotice, setShowFailedNotice] = useState(false)
 
-  // Updated Account Details
+  // Account Details
   const MANUAL_BANK = {
     bankName: 'Renmoney MFB',
     accountNumber: '3597406106',
@@ -226,4 +226,24 @@ export default function BuyPayFlexCodePage() {
         <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2.5 text-xs">
           <div className="flex items-center gap-1.5 pb-1 border-b border-[#2a2a2a]">
             <Building2 className="w-4 h-4 text-[#00B67A]" />
-            <h2 className="font-bold text-white text-sm
+            <h2 className="font-bold text-white text-sm">Payment Account Details</h2>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-white/60 font-medium">Bank Name</span>
+            <span className="font-bold text-white">{MANUAL_BANK.bankName}</span>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-white/60 font-medium">Account Number</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono font-bold text-base text-white">
+                {MANUAL_BANK.accountNumber}
+              </span>
+              <button
+                onClick={() => handleCopy(MANUAL_BANK.accountNumber, 'account')}
+                className="p-1 bg-[#252525] rounded hover:bg-[#303030] text-white/80 transition"
+              >
+                {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-[#00B67A]" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            
