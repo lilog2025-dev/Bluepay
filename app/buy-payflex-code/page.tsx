@@ -246,4 +246,57 @@ export default function BuyPayFlexCodePage() {
               >
                 {copiedAccount ? <CheckCircle2 className="w-3.5 h-3.5 text-[#00B67A]" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
-            
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center pt-1 border-t border-[#2a2a2a]">
+            <span className="text-white/60 font-medium">Account Name</span>
+            <span className="font-bold text-white">{MANUAL_BANK.accountName}</span>
+          </div>
+        </div>
+
+        {/* Receipt Upload Box */}
+        <div className="bg-[#181818] rounded-xl p-3 border border-[#2a2a2a] shadow-sm space-y-2">
+          <h2 className="font-bold text-white text-xs">Upload Payment Receipt</h2>
+
+          <label className="border border-dashed border-[#2a2a2a] rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-[#00B67A] transition bg-[#121212] relative overflow-hidden">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange} 
+              className="hidden" 
+            />
+
+            {previewUrl ? (
+              <div className="flex flex-col items-center gap-1">
+                <img 
+                  src={previewUrl} 
+                  alt="Receipt Preview" 
+                  className="max-h-32 rounded object-contain border border-[#2a2a2a]" 
+                />
+                <div className="flex items-center gap-1 text-xs font-medium text-[#00B67A] mt-1">
+                  <FileCheck className="w-3.5 h-3.5" />
+                  <span className="truncate max-w-[200px]">{receiptImage?.name}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-1 text-center">
+                <UploadCloud className="w-7 h-7 text-[#00B67A]" />
+                <span className="text-xs font-semibold text-white/80">Click to upload receipt photo</span>
+                <span className="text-[10px] text-white/40">PNG, JPG, or JPEG</span>
+              </div>
+            )}
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-[#00B67A] text-black font-bold py-3 rounded-xl text-sm hover:bg-[#00a36d] transition shadow-sm"
+        >
+          Submit Receipt
+        </button>
+      </main>
+    </div>
+  )
+}
